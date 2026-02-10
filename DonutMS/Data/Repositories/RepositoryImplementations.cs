@@ -19,6 +19,8 @@ public class RecipeRepository : Repository<Recipe>, IRecipeRepository
             .Include(r => r.YieldUnit)
             .Include(r => r.RecipeIngredients)
             .ThenInclude(ri => ri.Ingredient)
+            .ThenInclude(i => i.Prices)
+            .ThenInclude(p => p.Unit)
             .Include(r => r.RecipeIngredients)
             .ThenInclude(ri => ri.Unit)
             .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
@@ -55,6 +57,8 @@ public class IngredientRepository : Repository<Ingredient>, IIngredientRepositor
         return await _context.Ingredients
             .Include(i => i.Prices)
             .ThenInclude(p => p.Supplier)
+            .Include(i => i.Prices)
+            .ThenInclude(p => p.Unit)
             .FirstOrDefaultAsync(i => i.Id == id && !i.IsDeleted);
     }
 
@@ -97,7 +101,11 @@ public class InventoryRepository : Repository<InventoryStock>, IInventoryReposit
     public async Task<InventoryStock?> GetByIngredientIdAsync(int ingredientId)
     {
         return await _context.InventoryStocks
+            .Include(s => s.Ingredient)
+            .Include(s => s.Unit)
             .Include(s => s.StockBatches)
+            .Include(s => s.Transactions)
+            .ThenInclude(t => t.Unit)
             .FirstOrDefaultAsync(s => s.IngredientId == ingredientId && !s.IsDeleted);
     }
 
@@ -113,6 +121,7 @@ public class InventoryRepository : Repository<InventoryStock>, IInventoryReposit
     public async Task<IEnumerable<StockTransaction>> GetTransactionsAsync(int ingredientId, DateTime fromDate, DateTime toDate)
     {
         return await _context.StockTransactions
+            .Include(t => t.Unit)
             .Where(t => t.InventoryStock.IngredientId == ingredientId && t.TransactionDate >= fromDate && t.TransactionDate <= toDate)
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
@@ -131,8 +140,12 @@ public class ProductionRepository : Repository<Batch>, IProductionRepository
     public async Task<Batch?> GetBatchWithIngredientsAsync(int id)
     {
         return await _context.Batches
+            .Include(b => b.Recipe)
+            .Include(b => b.YieldUnit)
             .Include(b => b.Ingredients)
             .ThenInclude(bi => bi.Ingredient)
+            .Include(b => b.Ingredients)
+            .ThenInclude(bi => bi.PlannedUnit)
             .Include(b => b.QualityControls)
             .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
     }
@@ -140,6 +153,8 @@ public class ProductionRepository : Repository<Batch>, IProductionRepository
     public async Task<IEnumerable<Batch>> GetBatchesByDateRangeAsync(DateTime fromDate, DateTime toDate)
     {
         return await _context.Batches
+            .Include(b => b.Recipe)
+            .Include(b => b.YieldUnit)
             .Where(b => b.ProductionDate >= fromDate && b.ProductionDate <= toDate && !b.IsDeleted)
             .OrderByDescending(b => b.ProductionDate)
             .ToListAsync();
@@ -148,6 +163,8 @@ public class ProductionRepository : Repository<Batch>, IProductionRepository
     public async Task<IEnumerable<Batch>> GetActiveBatchesAsync()
     {
         return await _context.Batches
+            .Include(b => b.Recipe)
+            .Include(b => b.YieldUnit)
             .Where(b => (b.Status == "Planned" || b.Status == "In Progress") && !b.IsDeleted)
             .OrderByDescending(b => b.ProductionDate)
             .ToListAsync();
@@ -166,8 +183,19 @@ public class PurchaseOrderRepository : Repository<PurchaseOrder>, IPurchaseOrder
     public async Task<PurchaseOrder?> GetWithItemsAsync(int id)
     {
         return await _context.PurchaseOrders
+            .Include(po => po.Supplier)
             .Include(po => po.Items)
             .ThenInclude(poi => poi.Ingredient)
+            .Include(po => po.Items)
+            .ThenInclude(poi => poi.Unit)
+            .Include(po => po.Receivings)
+            .ThenInclude(r => r.Details)
+            .ThenInclude(d => d.PurchaseOrderItem)
+            .ThenInclude(i => i.Ingredient)
+            .Include(po => po.Receivings)
+            .ThenInclude(r => r.Details)
+            .ThenInclude(d => d.PurchaseOrderItem)
+            .ThenInclude(i => i.Unit)
             .FirstOrDefaultAsync(po => po.Id == id && !po.IsDeleted);
     }
 

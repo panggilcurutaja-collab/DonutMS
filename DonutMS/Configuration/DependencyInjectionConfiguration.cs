@@ -53,6 +53,8 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
         services.AddScoped<IReportingService, ReportingService>();
         services.AddScoped<IUnitConversionService, UnitConversionService>();
+        services.AddScoped<ISKUService, SKUService>();
+        services.AddScoped<ISupplierService, SupplierService>();
 
         // Navigation & UI Services
         services.AddScoped<INavigationService, NavigationService>();
@@ -62,6 +64,12 @@ public static class DependencyInjectionConfiguration
         services.AddTransient<DonutMS.Views.Main.DashboardView>();
         services.AddTransient<DonutMS.Views.Ingredients.IngredientListView>();
         services.AddTransient<DonutMS.Views.Recipes.RecipeListView>();
+        services.AddTransient<DonutMS.Views.Recipes.SubstitutionManagerView>();
+        services.AddTransient<DonutMS.Views.Costing.CostCalculationView>();
+        services.AddTransient<DonutMS.Views.Inventory.InventoryView>();
+        services.AddTransient<DonutMS.Views.SKUs.SKUMasterView>();
+        services.AddTransient<DonutMS.Views.PurchaseOrders.PurchaseOrdersView>();
+        services.AddTransient<DonutMS.Views.Production.BatchManagementView>();
 
         // ViewModels - Register with proper dependency resolution
         // Note: NavigationViewModel must be registered first as it's a dependency of MainWindowViewModel
@@ -117,6 +125,34 @@ public static class DependencyInjectionConfiguration
                 sp.GetRequiredService<IIngredientService>(),
                 sp.GetRequiredService<IUnitConversionService>(),
                 sp.GetRequiredService<ILogger<IngredientsViewModel>>()));
+
+        services.AddScoped<SubstitutionManagerViewModel>(sp =>
+            new SubstitutionManagerViewModel(
+                sp.GetRequiredService<IRecipeService>(),
+                sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<IUnitConversionService>(),
+                sp.GetRequiredService<ILogger<SubstitutionManagerViewModel>>()));
+
+        services.AddScoped<CostCalculationViewModel>(sp =>
+            new CostCalculationViewModel(
+                sp.GetRequiredService<IRecipeService>(),
+                sp.GetRequiredService<ICostCalculationService>(),
+                sp.GetRequiredService<ILogger<CostCalculationViewModel>>()));
+
+        services.AddScoped<SKUMasterViewModel>(sp =>
+            new SKUMasterViewModel(
+                sp.GetRequiredService<ISKUService>(),
+                sp.GetRequiredService<IRecipeService>(),
+                sp.GetRequiredService<ICostCalculationService>(),
+                sp.GetRequiredService<ILogger<SKUMasterViewModel>>()));
+
+        services.AddScoped<PurchaseOrderViewModel>(sp =>
+            new PurchaseOrderViewModel(
+                sp.GetRequiredService<IPurchaseOrderService>(),
+                sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<IUnitConversionService>(),
+                sp.GetRequiredService<ISupplierService>(),
+                sp.GetRequiredService<ILogger<PurchaseOrderViewModel>>()));
 
         return services;
     }

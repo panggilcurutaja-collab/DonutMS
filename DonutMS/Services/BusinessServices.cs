@@ -13,8 +13,24 @@ public interface IInventoryService
 {
     Task<InventoryStockDto?> GetStockByIngredientIdAsync(int ingredientId);
     Task<IEnumerable<StockBatchDto>> GetExpiringStockAsync(int daysUntilExpiry);
-    Task<StockTransactionDto> AddStockInAsync(int ingredientId, decimal quantity, int unitId, string? referenceNumber = null);
-    Task<StockTransactionDto> RemoveStockOutAsync(int ingredientId, decimal quantity, int unitId, int? batchId = null);
+    Task<StockTransactionDto> AddStockInAsync(
+        int ingredientId,
+        decimal quantity,
+        int unitId,
+        DateTime? receiptDate = null,
+        DateTime? expiryDate = null,
+        string? batchNumber = null,
+        string? referenceNumber = null,
+        int? purchaseOrderId = null);
+    Task<IEnumerable<StockTransactionDto>> RemoveStockOutAsync(
+        int ingredientId,
+        decimal quantity,
+        int unitId,
+        bool useFefo = true,
+        int? batchId = null,
+        string? referenceNumber = null,
+        int? productionBatchId = null);
+    Task<IEnumerable<StockTransactionDto>> GetTransactionsAsync(int ingredientId, DateTime fromDate, DateTime toDate);
     Task<IEnumerable<InventoryStockDto>> GetLowStockItemsAsync();
     Task<bool> ReserveStockAsync(int ingredientId, decimal quantity);
     Task<bool> ReleaseReservedStockAsync(int ingredientId, decimal quantity);
@@ -23,12 +39,21 @@ public interface IInventoryService
 public class InventoryService : IInventoryService
 {
     private readonly IInventoryRepository _inventoryRepository;
+    private readonly IIngredientRepository _ingredientRepository;
+    private readonly IUnitConversionService _unitConversionService;
     private readonly ILogger<InventoryService> _logger;
     private readonly IMapper _mapper;
 
-    public InventoryService(IInventoryRepository inventoryRepository, ILogger<InventoryService> logger, IMapper mapper)
+    public InventoryService(
+        IInventoryRepository inventoryRepository,
+        IIngredientRepository ingredientRepository,
+        IUnitConversionService unitConversionService,
+        ILogger<InventoryService> logger,
+        IMapper mapper)
     {
         _inventoryRepository = inventoryRepository;
+        _ingredientRepository = ingredientRepository;
+        _unitConversionService = unitConversionService;
         _logger = logger;
         _mapper = mapper;
     }
@@ -45,66 +70,193 @@ public class InventoryService : IInventoryService
         return _mapper.Map<IEnumerable<StockBatchDto>>(batches);
     }
 
-    public async Task<StockTransactionDto> AddStockInAsync(int ingredientId, decimal quantity, int unitId, string? referenceNumber = null)
+    public async Task<StockTransactionDto> AddStockInAsync(
+        int ingredientId,
+        decimal quantity,
+        int unitId,
+        DateTime? receiptDate = null,
+        DateTime? expiryDate = null,
+        string? batchNumber = null,
+        string? referenceNumber = null,
+        int? purchaseOrderId = null)
     {
+        if (quantity <= 0)
+            throw new InvalidOperationException("Quantity must be greater than 0");
+
         var stock = await _inventoryRepository.GetByIngredientIdAsync(ingredientId);
         if (stock == null)
-            throw new KeyNotFoundException($"Stock for ingredient {ingredientId} not found");
+        {
+            var ingredient = await _ingredientRepository.GetByIdAsync(ingredientId);
+            if (ingredient == null)
+                throw new KeyNotFoundException($"Ingredient {ingredientId} not found");
+
+            stock = new InventoryStock
+            {
+                IngredientId = ingredientId,
+                UnitId = ingredient.ConsumptionUnitId,
+                Quantity = 0,
+                ReservedQuantity = 0,
+                LastUpdated = DateTime.UtcNow
+            };
+
+            await _inventoryRepository.AddAsync(stock);
+            await _inventoryRepository.SaveChangesAsync();
+        }
+
+        var normalizedQuantity = await NormalizeQuantityAsync(stock, quantity, unitId);
+        var receivedAt = receiptDate ?? DateTime.UtcNow;
+        var calculatedExpiry = expiryDate;
+
+        if (!calculatedExpiry.HasValue)
+        {
+            var ingredient = await _ingredientRepository.GetByIdAsync(ingredientId);
+            if (ingredient != null && ingredient.ShelfLifeDays > 0)
+            {
+                calculatedExpiry = receivedAt.Date.AddDays(ingredient.ShelfLifeDays);
+            }
+        }
 
         var transaction = new StockTransaction
         {
             InventoryStockId = stock.Id,
             TransactionType = "In",
-            Quantity = quantity,
-            UnitId = unitId,
+            Quantity = normalizedQuantity,
+            UnitId = stock.UnitId,
             TransactionDate = DateTime.UtcNow,
-            ReferenceNumber = referenceNumber
+            ReferenceNumber = referenceNumber,
+            PurchaseOrderId = purchaseOrderId
         };
 
-        stock.Quantity += quantity;
+        var batch = new StockBatch
+        {
+            InventoryStockId = stock.Id,
+            SupplierBatchNumber = batchNumber,
+            ReceiptDate = receivedAt,
+            ExpiryDate = calculatedExpiry,
+            QuantityReceived = normalizedQuantity,
+            QuantityUsed = 0,
+            QuantityWasted = 0,
+            Status = "Active"
+        };
+
+        transaction.StockBatch = batch;
+
+        stock.StockBatches ??= new List<StockBatch>();
+        stock.StockBatches.Add(batch);
+
+        stock.Transactions ??= new List<StockTransaction>();
+        stock.Transactions.Add(transaction);
+
+        stock.Quantity += normalizedQuantity;
+        stock.LastUpdated = DateTime.UtcNow;
+
         await _inventoryRepository.UpdateAsync(stock);
-        
-        // Add transaction record
-        var stockTransaction = new List<StockTransaction> { transaction };
         await _inventoryRepository.SaveChangesAsync();
 
-        _logger.LogInformation($"Stock in: {quantity} units added to ingredient {ingredientId}");
+        _logger.LogInformation($"Stock in: {normalizedQuantity} units added to ingredient {ingredientId}");
         return _mapper.Map<StockTransactionDto>(transaction);
     }
 
-    public async Task<StockTransactionDto> RemoveStockOutAsync(int ingredientId, decimal quantity, int unitId, int? batchId = null)
+    public async Task<IEnumerable<StockTransactionDto>> RemoveStockOutAsync(
+        int ingredientId,
+        decimal quantity,
+        int unitId,
+        bool useFefo = true,
+        int? batchId = null,
+        string? referenceNumber = null,
+        int? productionBatchId = null)
     {
         var stock = await _inventoryRepository.GetByIngredientIdAsync(ingredientId);
         if (stock == null)
             throw new KeyNotFoundException($"Stock for ingredient {ingredientId} not found");
 
-        if (stock.AvailableQuantity < quantity)
-            throw new InvalidOperationException($"Insufficient stock. Available: {stock.AvailableQuantity}, Requested: {quantity}");
+        if (quantity <= 0)
+            throw new InvalidOperationException("Quantity must be greater than 0");
 
-        var transaction = new StockTransaction
+        var normalizedQuantity = await NormalizeQuantityAsync(stock, quantity, unitId);
+
+        if (stock.AvailableQuantity < normalizedQuantity)
+            throw new InvalidOperationException($"Insufficient stock. Available: {stock.AvailableQuantity}, Requested: {normalizedQuantity}");
+
+        var transactions = new List<StockTransaction>();
+        var remaining = normalizedQuantity;
+
+        if (batchId.HasValue && stock.StockBatches != null)
         {
-            InventoryStockId = stock.Id,
-            TransactionType = "Out",
-            Quantity = quantity,
-            UnitId = unitId,
-            TransactionDate = DateTime.UtcNow,
-            BatchId = batchId
-        };
+            var selectedBatch = stock.StockBatches.FirstOrDefault(b => b.Id == batchId.Value);
+            if (selectedBatch == null)
+                throw new InvalidOperationException("Selected batch not found");
 
-        stock.Quantity -= quantity;
+            if (selectedBatch.AvailableQuantity < remaining)
+                throw new InvalidOperationException("Selected batch does not have enough quantity");
+
+            ConsumeBatch(stock, selectedBatch, remaining, referenceNumber, productionBatchId, transactions);
+            remaining = 0;
+        }
+        else if (stock.StockBatches != null && stock.StockBatches.Any())
+        {
+            var orderedBatches = useFefo
+                ? stock.StockBatches
+                    .Where(b => b.AvailableQuantity > 0)
+                    .OrderBy(b => b.ExpiryDate ?? DateTime.MaxValue)
+                    .ThenBy(b => b.ReceiptDate)
+                : stock.StockBatches
+                    .Where(b => b.AvailableQuantity > 0)
+                    .OrderBy(b => b.ReceiptDate);
+
+            foreach (var batch in orderedBatches)
+            {
+                if (remaining <= 0)
+                    break;
+
+                var take = Math.Min(batch.AvailableQuantity, remaining);
+                ConsumeBatch(stock, batch, take, referenceNumber, productionBatchId, transactions);
+                remaining -= take;
+            }
+        }
+        else
+        {
+            var transaction = new StockTransaction
+            {
+                InventoryStockId = stock.Id,
+                TransactionType = "Out",
+                Quantity = remaining,
+                UnitId = stock.UnitId,
+                TransactionDate = DateTime.UtcNow,
+                ReferenceNumber = referenceNumber,
+                BatchId = productionBatchId
+            };
+
+            stock.Transactions ??= new List<StockTransaction>();
+            stock.Transactions.Add(transaction);
+            transactions.Add(transaction);
+            remaining = 0;
+        }
+
+        stock.Quantity -= normalizedQuantity;
+        stock.LastUpdated = DateTime.UtcNow;
+
         await _inventoryRepository.UpdateAsync(stock);
         await _inventoryRepository.SaveChangesAsync();
 
-        _logger.LogInformation($"Stock out: {quantity} units removed from ingredient {ingredientId}");
-        return _mapper.Map<StockTransactionDto>(transaction);
+        _logger.LogInformation($"Stock out: {normalizedQuantity} units removed from ingredient {ingredientId}");
+        return _mapper.Map<IEnumerable<StockTransactionDto>>(transactions);
+    }
+
+    public async Task<IEnumerable<StockTransactionDto>> GetTransactionsAsync(int ingredientId, DateTime fromDate, DateTime toDate)
+    {
+        var transactions = await _inventoryRepository.GetTransactionsAsync(ingredientId, fromDate, toDate);
+        return _mapper.Map<IEnumerable<StockTransactionDto>>(transactions);
     }
 
     public async Task<IEnumerable<InventoryStockDto>> GetLowStockItemsAsync()
     {
-        var allStocks = await _inventoryRepository.GetAllAsync();
-        var lowStocks = allStocks
-            .Where(s => s.AvailableQuantity <= s.Ingredient!.MinimumStockLevel)
-            .ToList();
+        var lowStocks = await _inventoryRepository
+            .AsQueryable()
+            .Include(s => s.Ingredient)
+            .Include(s => s.Unit)
+            .Where(s => !s.IsDeleted && s.Ingredient != null && s.AvailableQuantity <= s.Ingredient.MinimumStockLevel)
+            .ToListAsync();
 
         return _mapper.Map<IEnumerable<InventoryStockDto>>(lowStocks);
     }
@@ -134,6 +286,45 @@ public class InventoryService : IInventoryService
 
         return true;
     }
+
+    private async Task<decimal> NormalizeQuantityAsync(InventoryStock stock, decimal quantity, int unitId)
+    {
+        if (stock.UnitId == unitId)
+            return quantity;
+
+        return await _unitConversionService.ConvertAsync(quantity, unitId, stock.UnitId);
+    }
+
+    private static void ConsumeBatch(
+        InventoryStock stock,
+        StockBatch batch,
+        decimal quantity,
+        string? referenceNumber,
+        int? productionBatchId,
+        List<StockTransaction> transactions)
+    {
+        batch.QuantityUsed += quantity;
+        if (batch.AvailableQuantity <= 0)
+        {
+            batch.Status = "Depleted";
+        }
+
+        var transaction = new StockTransaction
+        {
+            InventoryStockId = stock.Id,
+            StockBatchId = batch.Id,
+            TransactionType = "Out",
+            Quantity = quantity,
+            UnitId = stock.UnitId,
+            TransactionDate = DateTime.UtcNow,
+            ReferenceNumber = referenceNumber,
+            BatchId = productionBatchId
+        };
+
+        stock.Transactions ??= new List<StockTransaction>();
+        stock.Transactions.Add(transaction);
+        transactions.Add(transaction);
+    }
 }
 
 // ========== PRODUCTION SERVICE ==========
@@ -142,6 +333,7 @@ public interface IProductionService
     Task<BatchDto> CreateBatchAsync(CreateBatchDto dto);
     Task<BatchDto?> GetBatchByIdAsync(int id);
     Task<IEnumerable<BatchDto>> GetActiveBatchesAsync();
+    Task<IEnumerable<BatchDto>> GetBatchesByDateRangeAsync(DateTime fromDate, DateTime toDate);
     Task<bool> StartBatchProductionAsync(int batchId);
     Task<bool> CompleteBatchAsync(int batchId, decimal actualYield);
     Task<QualityControlDto> AddQualityControlAsync(int batchId, QualityControlDto qcDto);
@@ -151,25 +343,60 @@ public class ProductionService : IProductionService
 {
     private readonly IProductionRepository _productionRepository;
     private readonly IInventoryService _inventoryService;
+    private readonly IRecipeRepository _recipeRepository;
     private readonly ILogger<ProductionService> _logger;
     private readonly IMapper _mapper;
 
     public ProductionService(
         IProductionRepository productionRepository,
         IInventoryService inventoryService,
+        IRecipeRepository recipeRepository,
         ILogger<ProductionService> logger,
         IMapper mapper)
     {
         _productionRepository = productionRepository;
         _inventoryService = inventoryService;
+        _recipeRepository = recipeRepository;
         _logger = logger;
         _mapper = mapper;
     }
 
     public async Task<BatchDto> CreateBatchAsync(CreateBatchDto dto)
     {
+        var recipe = await _recipeRepository.GetRecipeWithIngredientsAsync(dto.RecipeId);
+        if (recipe == null)
+            throw new KeyNotFoundException($"Recipe {dto.RecipeId} not found");
+
+        var targetYield = dto.TargetYield > 0 ? dto.TargetYield : recipe.YieldPerBatch;
+        if (targetYield <= 0)
+            throw new InvalidOperationException("Target yield must be greater than 0");
+
         var batch = _mapper.Map<Batch>(dto);
         batch.Status = "Planned";
+        batch.TargetYield = targetYield;
+        batch.YieldUnitId = recipe.YieldUnitId;
+        batch.RecipeVersionId = recipe.CurrentVersionId;
+
+        var baseYield = recipe.YieldPerBatch <= 0 ? 1 : recipe.YieldPerBatch;
+        var scaleFactor = targetYield / baseYield;
+
+        var ingredients = new List<BatchIngredient>();
+        if (recipe.RecipeIngredients != null)
+        {
+            foreach (var ingredient in recipe.RecipeIngredients.OrderBy(i => i.SortOrder))
+            {
+                var plannedQty = ingredient.QuantityPerBatch * scaleFactor;
+                ingredients.Add(new BatchIngredient
+                {
+                    IngredientId = ingredient.IngredientId,
+                    PlannedQuantity = plannedQty,
+                    PlannedUnitId = ingredient.UnitId,
+                    Status = "Planned"
+                });
+            }
+        }
+
+        batch.Ingredients = ingredients;
 
         await _productionRepository.AddAsync(batch);
         await _productionRepository.SaveChangesAsync();
@@ -190,11 +417,58 @@ public class ProductionService : IProductionService
         return _mapper.Map<IEnumerable<BatchDto>>(batches);
     }
 
+    public async Task<IEnumerable<BatchDto>> GetBatchesByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    {
+        var batches = await _productionRepository.GetBatchesByDateRangeAsync(fromDate, toDate);
+        return _mapper.Map<IEnumerable<BatchDto>>(batches);
+    }
+
     public async Task<bool> StartBatchProductionAsync(int batchId)
     {
-        var batch = await _productionRepository.GetByIdAsync(batchId);
+        var batch = await _productionRepository.GetBatchWithIngredientsAsync(batchId);
         if (batch == null || batch.Status != "Planned")
             return false;
+
+        var ingredients = batch.Ingredients ?? new List<BatchIngredient>();
+        if (!ingredients.Any())
+        {
+            var recipe = await _recipeRepository.GetRecipeWithIngredientsAsync(batch.RecipeId);
+            if (recipe != null && recipe.RecipeIngredients != null)
+            {
+                var baseYield = recipe.YieldPerBatch <= 0 ? 1 : recipe.YieldPerBatch;
+                var scaleFactor = batch.TargetYield / baseYield;
+
+                ingredients = recipe.RecipeIngredients
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => new BatchIngredient
+                    {
+                        IngredientId = i.IngredientId,
+                        PlannedQuantity = i.QuantityPerBatch * scaleFactor,
+                        PlannedUnitId = i.UnitId,
+                        Status = "Planned"
+                    })
+                    .ToList();
+
+                batch.Ingredients = ingredients;
+            }
+        }
+        foreach (var ingredient in ingredients)
+        {
+            if (ingredient.PlannedQuantity <= 0)
+                continue;
+
+            await _inventoryService.RemoveStockOutAsync(
+                ingredient.IngredientId,
+                ingredient.PlannedQuantity,
+                ingredient.PlannedUnitId,
+                true,
+                null,
+                batch.BatchCode,
+                batch.Id);
+
+            ingredient.ActualQuantity = ingredient.PlannedQuantity;
+            ingredient.Status = "Allocated";
+        }
 
         batch.Status = "In Progress";
         await _productionRepository.UpdateAsync(batch);
@@ -206,13 +480,24 @@ public class ProductionService : IProductionService
 
     public async Task<bool> CompleteBatchAsync(int batchId, decimal actualYield)
     {
-        var batch = await _productionRepository.GetByIdAsync(batchId);
+        var batch = await _productionRepository.GetBatchWithIngredientsAsync(batchId);
         if (batch == null)
             return false;
 
         batch.Status = "Completed";
         batch.ActualYield = actualYield;
-        batch.WasteQuantity = batch.TargetYield - actualYield;
+        batch.WasteQuantity = Math.Max(batch.TargetYield - actualYield, 0);
+
+        if (batch.Ingredients != null)
+        {
+            foreach (var ingredient in batch.Ingredients)
+            {
+                if (ingredient.Status == "Allocated")
+                {
+                    ingredient.Status = "Consumed";
+                }
+            }
+        }
 
         await _productionRepository.UpdateAsync(batch);
         await _productionRepository.SaveChangesAsync();
@@ -246,53 +531,54 @@ public class ProductionService : IProductionService
 public interface ICostCalculationService
 {
     Task<decimal> CalculateMaterialCostAsync(int recipeId);
+    Task<decimal> CalculateMaterialCostAsync(int recipeId, decimal wastePercent);
     Task<decimal> CalculateHPPAsync(int skuId);
     Task<SKUCostDto> CalculateSKUCostAsync(int skuId, decimal materialCost, decimal laborCost, decimal overheadCost);
+    Task<RecipeCostBreakdownDto> CalculateRecipeCostBreakdownAsync(
+        int recipeId,
+        decimal wastePercent,
+        decimal packagingCost,
+        decimal laborCost,
+        decimal overheadCost);
 }
 
 public class CostCalculationService : ICostCalculationService
 {
     private readonly IRecipeRepository _recipeRepository;
     private readonly ISKURepository _skuRepository;
+    private readonly IUnitConversionService _unitConversionService;
     private readonly ILogger<CostCalculationService> _logger;
     private readonly IMapper _mapper;
 
     public CostCalculationService(
         IRecipeRepository recipeRepository,
         ISKURepository skuRepository,
+        IUnitConversionService unitConversionService,
         ILogger<CostCalculationService> logger,
         IMapper mapper)
     {
         _recipeRepository = recipeRepository;
         _skuRepository = skuRepository;
+        _unitConversionService = unitConversionService;
         _logger = logger;
         _mapper = mapper;
     }
 
     public async Task<decimal> CalculateMaterialCostAsync(int recipeId)
     {
-        var recipe = await _recipeRepository.GetRecipeWithIngredientsAsync(recipeId);
-        if (recipe == null || recipe.RecipeIngredients == null)
-            return 0;
+        return await CalculateMaterialCostAsync(recipeId, 0m);
+    }
 
-        decimal totalCost = 0;
-        foreach (var ingredient in recipe.RecipeIngredients)
-        {
-            if (ingredient.Ingredient?.Prices == null)
-                continue;
+    public async Task<decimal> CalculateMaterialCostAsync(int recipeId, decimal wastePercent)
+    {
+        var breakdown = await CalculateRecipeCostBreakdownAsync(
+            recipeId,
+            wastePercent,
+            packagingCost: 0m,
+            laborCost: 0m,
+            overheadCost: 0m);
 
-            var currentPrice = ingredient.Ingredient.Prices
-                .Where(p => p.EffectiveDate <= DateTime.UtcNow && (!p.EndDate.HasValue || p.EndDate >= DateTime.UtcNow) && p.IsActive)
-                .OrderByDescending(p => p.EffectiveDate)
-                .FirstOrDefault();
-
-            if (currentPrice != null)
-            {
-                totalCost += currentPrice.Price * ingredient.QuantityPerBatch;
-            }
-        }
-
-        return totalCost;
+        return breakdown.MaterialCost;
     }
 
     public async Task<decimal> CalculateHPPAsync(int skuId)
@@ -300,10 +586,25 @@ public class CostCalculationService : ICostCalculationService
         var costs = await _skuRepository.GetCurrentCostsAsync();
         var skuCost = costs.FirstOrDefault(c => c.SKUId == skuId);
 
-        if (skuCost == null)
+        if (skuCost != null)
+            return skuCost.MaterialCost + skuCost.PackagingCost + skuCost.LaborCost + skuCost.OverheadCost;
+
+        var sku = await _skuRepository
+            .AsQueryable()
+            .Include(s => s.Recipe)
+            .FirstOrDefaultAsync(s => s.Id == skuId && !s.IsDeleted);
+
+        if (sku?.RecipeId == null)
             return 0;
 
-        return skuCost.MaterialCost + skuCost.PackagingCost + skuCost.LaborCost + skuCost.OverheadCost;
+        var breakdown = await CalculateRecipeCostBreakdownAsync(
+            sku.RecipeId.Value,
+            wastePercent: 0m,
+            packagingCost: 0m,
+            laborCost: 0m,
+            overheadCost: 0m);
+
+        return breakdown.HppPerUnit;
     }
 
     public async Task<SKUCostDto> CalculateSKUCostAsync(int skuId, decimal materialCost, decimal laborCost, decimal overheadCost)
@@ -322,6 +623,105 @@ public class CostCalculationService : ICostCalculationService
 
         _logger.LogInformation($"SKU cost calculated: HPP = {skuCost.TotalHPP}");
         return _mapper.Map<SKUCostDto>(skuCost);
+    }
+
+    public async Task<RecipeCostBreakdownDto> CalculateRecipeCostBreakdownAsync(
+        int recipeId,
+        decimal wastePercent,
+        decimal packagingCost,
+        decimal laborCost,
+        decimal overheadCost)
+    {
+        var recipe = await _recipeRepository.GetRecipeWithIngredientsAsync(recipeId);
+        if (recipe == null)
+        {
+            return new RecipeCostBreakdownDto
+            {
+                RecipeId = recipeId,
+                WastePercent = wastePercent
+            };
+        }
+
+        var ingredientLines = new List<IngredientCostLineDto>();
+        decimal materialCost = 0m;
+
+        if (recipe.RecipeIngredients != null)
+        {
+            foreach (var ingredient in recipe.RecipeIngredients.OrderBy(i => i.SortOrder))
+            {
+                var line = new IngredientCostLineDto
+                {
+                    IngredientId = ingredient.IngredientId,
+                    IngredientName = ingredient.Ingredient?.Name ?? "(Unknown)",
+                    QuantityPerBatch = ingredient.QuantityPerBatch,
+                    UnitId = ingredient.UnitId,
+                    UnitCode = ingredient.Unit?.Code ?? string.Empty,
+                    HasPrice = false
+                };
+
+                var currentPrice = ingredient.Ingredient?.Prices?
+                    .Where(p => p.IsActive && p.EffectiveDate <= DateTime.UtcNow && (!p.EndDate.HasValue || p.EndDate >= DateTime.UtcNow))
+                    .OrderByDescending(p => p.EffectiveDate)
+                    .FirstOrDefault();
+
+                if (currentPrice == null)
+                {
+                    line.Error = "Missing active price";
+                    ingredientLines.Add(line);
+                    continue;
+                }
+
+                try
+                {
+                    decimal quantityInPriceUnit = ingredient.QuantityPerBatch;
+
+                    if (ingredient.UnitId != currentPrice.UnitId)
+                    {
+                        quantityInPriceUnit = await _unitConversionService.ConvertAsync(
+                            ingredient.QuantityPerBatch,
+                            ingredient.UnitId,
+                            currentPrice.UnitId);
+                    }
+
+                    var baseCost = currentPrice.Price * quantityInPriceUnit;
+                    var costWithWaste = baseCost * (1 + (wastePercent / 100m));
+
+                    line.PricePerUnit = currentPrice.Price;
+                    line.PriceUnitId = currentPrice.UnitId;
+                    line.PriceUnitCode = currentPrice.Unit?.Code ?? string.Empty;
+                    line.Cost = baseCost;
+                    line.CostWithWaste = costWithWaste;
+                    line.HasPrice = true;
+
+                    materialCost += costWithWaste;
+                }
+                catch (Exception ex)
+                {
+                    line.Error = $"Conversion failed: {ex.Message}";
+                }
+
+                ingredientLines.Add(line);
+            }
+        }
+
+        var totalCost = materialCost + packagingCost + laborCost + overheadCost;
+        var yieldPerBatch = recipe.YieldPerBatch <= 0 ? 1 : recipe.YieldPerBatch;
+        var hppPerUnit = totalCost / yieldPerBatch;
+
+        return new RecipeCostBreakdownDto
+        {
+            RecipeId = recipe.Id,
+            RecipeName = recipe.Name,
+            YieldPerBatch = recipe.YieldPerBatch,
+            WastePercent = wastePercent,
+            MaterialCost = materialCost,
+            PackagingCost = packagingCost,
+            LaborCost = laborCost,
+            OverheadCost = overheadCost,
+            TotalCost = totalCost,
+            HppPerUnit = hppPerUnit,
+            IngredientCosts = ingredientLines
+        };
     }
 }
 

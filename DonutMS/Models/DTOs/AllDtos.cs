@@ -120,6 +120,38 @@ public class CreateRecipeSubstitutionDto
     public decimal CostImpact { get; set; }
 }
 
+// ========== COSTING DTOs ==========
+public class IngredientCostLineDto
+{
+    public int IngredientId { get; set; }
+    public string IngredientName { get; set; } = string.Empty;
+    public decimal QuantityPerBatch { get; set; }
+    public int UnitId { get; set; }
+    public string UnitCode { get; set; } = string.Empty;
+    public decimal? PricePerUnit { get; set; }
+    public int? PriceUnitId { get; set; }
+    public string? PriceUnitCode { get; set; }
+    public decimal Cost { get; set; }
+    public decimal CostWithWaste { get; set; }
+    public bool HasPrice { get; set; }
+    public string? Error { get; set; }
+}
+
+public class RecipeCostBreakdownDto
+{
+    public int RecipeId { get; set; }
+    public string RecipeName { get; set; } = string.Empty;
+    public decimal YieldPerBatch { get; set; }
+    public decimal WastePercent { get; set; }
+    public decimal MaterialCost { get; set; }
+    public decimal PackagingCost { get; set; }
+    public decimal LaborCost { get; set; }
+    public decimal OverheadCost { get; set; }
+    public decimal TotalCost { get; set; }
+    public decimal HppPerUnit { get; set; }
+    public IEnumerable<IngredientCostLineDto> IngredientCosts { get; set; } = new List<IngredientCostLineDto>();
+}
+
 // ========== INGREDIENT DTOs ==========
 public class IngredientDto
 {
@@ -211,13 +243,21 @@ public class InventoryStockDto
     public int Id { get; set; }
     public int IngredientId { get; set; }
     public string IngredientName { get; set; } = string.Empty;
+    public string? IngredientSKU { get; set; }
     public decimal Quantity { get; set; }
     public int UnitId { get; set; }
     public string UnitCode { get; set; } = string.Empty;
     public decimal ReservedQuantity { get; set; }
     public decimal AvailableQuantity { get; set; }
     public DateTime LastUpdated { get; set; }
+    public decimal MinimumStockLevel { get; set; }
+    public decimal ReorderPoint { get; set; }
+    public int ShelfLifeDays { get; set; }
+    public DateTime? NextExpiryDate { get; set; }
+    public int? NextExpiryDays { get; set; }
+    public bool IsLowStock { get; set; }
     public IEnumerable<StockBatchDto> Batches { get; set; } = new List<StockBatchDto>();
+    public IEnumerable<StockTransactionDto> Transactions { get; set; } = new List<StockTransactionDto>();
 }
 
 public class StockBatchDto
@@ -256,6 +296,7 @@ public class BatchDto
     public string RecipeName { get; set; } = string.Empty;
     public DateTime ProductionDate { get; set; }
     public decimal TargetYield { get; set; }
+    public string YieldUnitCode { get; set; } = string.Empty;
     public decimal? ActualYield { get; set; }
     public decimal? WasteQuantity { get; set; }
     public string Status { get; set; } = string.Empty;
@@ -305,8 +346,12 @@ public class SKUDto
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? RecipeId { get; set; }
+    public string? RecipeName { get; set; }
     public string? Category { get; set; }
     public decimal RetailPrice { get; set; }
+    public bool IsActive { get; set; }
     public SKUCostDto? CurrentCost { get; set; }
     public decimal? HPP { get; set; }
     public decimal? GrossMargin { get; set; }
@@ -316,9 +361,22 @@ public class CreateSKUDto
 {
     public string Name { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public string? Category { get; set; }
     public int? RecipeId { get; set; }
     public decimal RetailPrice { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class UpdateSKUDto
+{
+    public string? Name { get; set; }
+    public string? Code { get; set; }
+    public string? Description { get; set; }
+    public string? Category { get; set; }
+    public int? RecipeId { get; set; }
+    public decimal? RetailPrice { get; set; }
+    public bool? IsActive { get; set; }
 }
 
 public class SKUCostDto
@@ -345,6 +403,57 @@ public class CreateSKUCostDto
     public decimal OverheadCost { get; set; }
 }
 
+public class AllergenDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? Category { get; set; }
+    public bool IsActive { get; set; }
+}
+
+public class SKUAllergenDto
+{
+    public int Id { get; set; }
+    public int SKUId { get; set; }
+    public int AllergenId { get; set; }
+    public string? AllergenName { get; set; }
+    public bool MayContainTrace { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class NutritionalInfoDto
+{
+    public int Id { get; set; }
+    public int SKUId { get; set; }
+    public decimal Calories { get; set; }
+    public decimal Protein { get; set; }
+    public decimal Fat { get; set; }
+    public decimal Carbohydrates { get; set; }
+    public decimal Fiber { get; set; }
+    public decimal Sugar { get; set; }
+    public decimal Sodium { get; set; }
+    public string? ServingSize { get; set; }
+    public int? ServingsPerPackage { get; set; }
+    public DateTime EffectiveDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class UpsertNutritionalInfoDto
+{
+    public decimal Calories { get; set; }
+    public decimal Protein { get; set; }
+    public decimal Fat { get; set; }
+    public decimal Carbohydrates { get; set; }
+    public decimal Fiber { get; set; }
+    public decimal Sugar { get; set; }
+    public decimal Sodium { get; set; }
+    public string? ServingSize { get; set; }
+    public int? ServingsPerPackage { get; set; }
+    public string? Notes { get; set; }
+}
+
 // ========== PURCHASE ORDER DTOs ==========
 public class PurchaseOrderDto
 {
@@ -357,7 +466,11 @@ public class PurchaseOrderDto
     public DateTime? ActualDeliveryDate { get; set; }
     public decimal TotalAmount { get; set; }
     public string Status { get; set; } = string.Empty;
+    public string? PaymentStatus { get; set; }
+    public string? DeliveryAddress { get; set; }
+    public string? Notes { get; set; }
     public IEnumerable<PurchaseOrderItemDto> Items { get; set; } = new List<PurchaseOrderItemDto>();
+    public IEnumerable<PurchaseOrderReceivingDto> Receivings { get; set; } = new List<PurchaseOrderReceivingDto>();
 }
 
 public class CreatePurchaseOrderDto
@@ -390,6 +503,48 @@ public class CreatePurchaseOrderItemDto
     public decimal OrderedQuantity { get; set; }
     public int UnitId { get; set; }
     public decimal UnitPrice { get; set; }
+}
+
+public class PurchaseOrderReceivingDto
+{
+    public int Id { get; set; }
+    public int PurchaseOrderId { get; set; }
+    public DateTime ReceivingDate { get; set; }
+    public string? ReceivedBy { get; set; }
+    public decimal TotalReceivedQuantity { get; set; }
+    public string? Notes { get; set; }
+    public IEnumerable<PurchaseOrderReceivingDetailDto> Details { get; set; } = new List<PurchaseOrderReceivingDetailDto>();
+}
+
+public class PurchaseOrderReceivingDetailDto
+{
+    public int Id { get; set; }
+    public int ReceivingId { get; set; }
+    public int PurchaseOrderItemId { get; set; }
+    public decimal ReceivedQuantity { get; set; }
+    public string? SupplierBatchNumber { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public string? Notes { get; set; }
+    public string? IngredientName { get; set; }
+    public string? UnitCode { get; set; }
+}
+
+public class CreatePurchaseOrderReceivingDto
+{
+    public int PurchaseOrderId { get; set; }
+    public DateTime ReceivingDate { get; set; }
+    public string? ReceivedBy { get; set; }
+    public string? Notes { get; set; }
+    public IEnumerable<CreatePurchaseOrderReceivingDetailDto> Details { get; set; } = new List<CreatePurchaseOrderReceivingDetailDto>();
+}
+
+public class CreatePurchaseOrderReceivingDetailDto
+{
+    public int PurchaseOrderItemId { get; set; }
+    public decimal ReceivedQuantity { get; set; }
+    public string? SupplierBatchNumber { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public string? Notes { get; set; }
 }
 
 // ========== AUTOMAP PROFILE ==========
@@ -428,7 +583,14 @@ public class DtoMappingProfile : Profile
         // Ingredient Mappings
         CreateMap<Ingredient, IngredientDto>()
             .ForMember(d => d.ConsumptionUnitCode, o => o.MapFrom(s => s.ConsumptionUnit != null ? s.ConsumptionUnit.Code : ""))
-            .ForMember(d => d.PurchaseUnitCode, o => o.MapFrom(s => s.PurchaseUnit != null ? s.PurchaseUnit.Code : ""));
+            .ForMember(d => d.PurchaseUnitCode, o => o.MapFrom(s => s.PurchaseUnit != null ? s.PurchaseUnit.Code : ""))
+            .ForMember(d => d.CurrentPrice, o => o.MapFrom(s =>
+                s.Prices != null
+                    ? s.Prices
+                        .Where(p => p.IsActive && p.EffectiveDate <= DateTime.UtcNow && (!p.EndDate.HasValue || p.EndDate >= DateTime.UtcNow))
+                        .OrderByDescending(p => p.EffectiveDate)
+                        .FirstOrDefault()
+                    : null));
 
         CreateMap<CreateIngredientDto, Ingredient>();
 
@@ -439,8 +601,13 @@ public class DtoMappingProfile : Profile
         // Inventory Mappings
         CreateMap<InventoryStock, InventoryStockDto>()
             .ForMember(d => d.IngredientName, o => o.MapFrom(s => s.Ingredient != null ? s.Ingredient.Name : ""))
+            .ForMember(d => d.IngredientSKU, o => o.MapFrom(s => s.Ingredient != null ? s.Ingredient.SKU : null))
+            .ForMember(d => d.MinimumStockLevel, o => o.MapFrom(s => s.Ingredient != null ? s.Ingredient.MinimumStockLevel : 0))
+            .ForMember(d => d.ReorderPoint, o => o.MapFrom(s => s.Ingredient != null ? s.Ingredient.ReorderPoint : 0))
+            .ForMember(d => d.ShelfLifeDays, o => o.MapFrom(s => s.Ingredient != null ? s.Ingredient.ShelfLifeDays : 0))
             .ForMember(d => d.UnitCode, o => o.MapFrom(s => s.Unit != null ? s.Unit.Code : ""))
-            .ForMember(d => d.Batches, o => o.MapFrom(s => s.StockBatches));
+            .ForMember(d => d.Batches, o => o.MapFrom(s => s.StockBatches))
+            .ForMember(d => d.Transactions, o => o.MapFrom(s => s.Transactions));
 
         CreateMap<StockBatch, StockBatchDto>();
 
@@ -449,7 +616,8 @@ public class DtoMappingProfile : Profile
 
         // Batch/Production Mappings
         CreateMap<Batch, BatchDto>()
-            .ForMember(d => d.RecipeName, o => o.MapFrom(s => s.Recipe != null ? s.Recipe.Name : ""));
+            .ForMember(d => d.RecipeName, o => o.MapFrom(s => s.Recipe != null ? s.Recipe.Name : ""))
+            .ForMember(d => d.YieldUnitCode, o => o.MapFrom(s => s.YieldUnit != null ? s.YieldUnit.Code : ""));
 
         CreateMap<CreateBatchDto, Batch>();
 
@@ -460,11 +628,21 @@ public class DtoMappingProfile : Profile
         CreateMap<QualityControl, QualityControlDto>();
 
         // SKU/Costing Mappings
-        CreateMap<SKU, SKUDto>();
+        CreateMap<SKU, SKUDto>()
+            .ForMember(d => d.RecipeName, o => o.MapFrom(s => s.Recipe != null ? s.Recipe.Name : ""));
         CreateMap<CreateSKUDto, SKU>();
+        CreateMap<UpdateSKUDto, SKU>();
 
         CreateMap<SKUCost, SKUCostDto>();
         CreateMap<CreateSKUCostDto, SKUCost>();
+
+        CreateMap<Allergen, AllergenDto>();
+
+        CreateMap<SKUAllergen, SKUAllergenDto>()
+            .ForMember(d => d.AllergenName, o => o.MapFrom(s => s.Allergen != null ? s.Allergen.Name : ""));
+
+        CreateMap<NutritionalInfo, NutritionalInfoDto>();
+        CreateMap<UpsertNutritionalInfoDto, NutritionalInfo>();
 
         // Purchase Order Mappings
         CreateMap<PurchaseOrder, PurchaseOrderDto>()
@@ -477,6 +655,15 @@ public class DtoMappingProfile : Profile
             .ForMember(d => d.UnitCode, o => o.MapFrom(s => s.Unit != null ? s.Unit.Code : ""));
 
         CreateMap<CreatePurchaseOrderItemDto, PurchaseOrderItem>();
+
+        CreateMap<PurchaseOrderReceiving, PurchaseOrderReceivingDto>();
+        CreateMap<CreatePurchaseOrderReceivingDto, PurchaseOrderReceiving>();
+
+        CreateMap<PurchaseOrderReceivingDetail, PurchaseOrderReceivingDetailDto>()
+            .ForMember(d => d.IngredientName, o => o.MapFrom(s => s.PurchaseOrderItem != null && s.PurchaseOrderItem.Ingredient != null ? s.PurchaseOrderItem.Ingredient.Name : ""))
+            .ForMember(d => d.UnitCode, o => o.MapFrom(s => s.PurchaseOrderItem != null && s.PurchaseOrderItem.Unit != null ? s.PurchaseOrderItem.Unit.Code : ""));
+
+        CreateMap<CreatePurchaseOrderReceivingDetailDto, PurchaseOrderReceivingDetail>();
 
         // Unit Mappings
         CreateMap<Unit, UnitDto>();

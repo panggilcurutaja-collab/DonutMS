@@ -188,8 +188,20 @@ public partial class MainWindowViewModel : BaseViewModel
             case "RecipeEditor":
                 await NavigateToRecipesAsync();
                 break;
+            case "Substitutions":
+                await NavigateToSubstitutionsAsync();
+                break;
+            case "Costing":
+                await NavigateToCostingAsync();
+                break;
+            case "SKUs":
+                await NavigateToSkusAsync();
+                break;
             case "Inventory":
                 await NavigateToInventoryAsync();
+                break;
+            case "PurchaseOrders":
+                await NavigateToPurchaseOrdersAsync();
                 break;
             case "Batch":
                 await NavigateToBatchAsync();
@@ -221,6 +233,86 @@ public partial class MainWindowViewModel : BaseViewModel
         }
 
         LogInfo("Navigated to Ingredients");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToSubstitutionsAsync()
+    {
+        if (!_navigationService.CanNavigateTo("Substitutions"))
+        {
+            SetError("You don't have permission to access Substitutions");
+            return;
+        }
+
+        CurrentPageName = "Substitutions";
+        CurrentViewModel = _navigationService.GetViewModel("Substitutions");
+
+        if (CurrentViewModel is SubstitutionManagerViewModel substitutionVM)
+        {
+            await substitutionVM.LoadCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Substitutions");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToCostingAsync()
+    {
+        if (!_navigationService.CanNavigateTo("Costing"))
+        {
+            SetError("You don't have permission to access Costing");
+            return;
+        }
+
+        CurrentPageName = "Costing";
+        CurrentViewModel = _navigationService.GetViewModel("Costing");
+
+        if (CurrentViewModel is CostCalculationViewModel costingVM)
+        {
+            await costingVM.LoadCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Costing");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToSkusAsync()
+    {
+        if (!_navigationService.CanNavigateTo("SKUs"))
+        {
+            SetError("You don't have permission to access SKU Master");
+            return;
+        }
+
+        CurrentPageName = "SKU Master";
+        CurrentViewModel = _navigationService.GetViewModel("SKUs");
+
+        if (CurrentViewModel is SKUMasterViewModel skuVM)
+        {
+            await skuVM.LoadSkusCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to SKU Master");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToPurchaseOrdersAsync()
+    {
+        if (!_navigationService.CanNavigateTo("PurchaseOrders"))
+        {
+            SetError("You don't have permission to access Purchase Orders");
+            return;
+        }
+
+        CurrentPageName = "Purchase Orders";
+        CurrentViewModel = _navigationService.GetViewModel("PurchaseOrders");
+
+        if (CurrentViewModel is PurchaseOrderViewModel poVM)
+        {
+            await poVM.LoadPurchaseOrdersCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Purchase Orders");
     }
 
     [RelayCommand]

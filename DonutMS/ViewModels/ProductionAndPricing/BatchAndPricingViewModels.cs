@@ -17,7 +17,7 @@ public partial class BatchManagementViewModel : BaseViewModel
     private readonly IInventoryService _inventoryService;
 
     [ObservableProperty]
-    private ObservableCollection<BatchDto> activeBatches = new();
+    private ObservableCollection<BatchDto> batches = new();
 
     [ObservableProperty]
     private ObservableCollection<RecipeDto> availableRecipes = new();
@@ -40,6 +40,33 @@ public partial class BatchManagementViewModel : BaseViewModel
     [ObservableProperty]
     private string batchStatus = "Planned";
 
+    [ObservableProperty]
+    private DateTime fromDate = DateTime.Today.AddDays(-7);
+
+    [ObservableProperty]
+    private DateTime toDate = DateTime.Today;
+
+    [ObservableProperty]
+    private string statusMessage = string.Empty;
+
+    [ObservableProperty]
+    private int totalBatches;
+
+    [ObservableProperty]
+    private int plannedCount;
+
+    [ObservableProperty]
+    private int inProgressCount;
+
+    [ObservableProperty]
+    private int completedCount;
+
+    [ObservableProperty]
+    private bool isJobSheetOpen;
+
+    [ObservableProperty]
+    private string jobSheetTitle = "Job Sheet";
+
     public BatchManagementViewModel(
         IProductionService productionService,
         IRecipeService recipeService,
@@ -59,12 +86,16 @@ public partial class BatchManagementViewModel : BaseViewModel
             IsLoading = true;
             ClearError();
 
-            var batches = await _productionService.GetActiveBatchesAsync();
-            ActiveBatches = new ObservableCollection<BatchDto>(batches);
+            var batches = await _productionService.GetBatchesByDateRangeAsync(
+                FromDate,
+                ToDate.AddDays(1));
+            Batches = new ObservableCollection<BatchDto>(batches);
 
             var recipes = await _recipeService.GetActiveRecipesAsync();
             AvailableRecipes = new ObservableCollection<RecipeDto>(recipes);
 
+            UpdateSummary();
+            StatusMessage = $"Loaded {Batches.Count} batches";
             LogInfo("Batches loaded successfully");
         }
         catch (Exception ex)
@@ -82,22 +113,29 @@ public partial class BatchManagementViewModel : BaseViewModel
     {
         try
         {
-            if (SelectedRecipe == null || TargetYield <= 0)
+            if (SelectedRecipe == null)
             {
                 SetError("Please select recipe and enter target yield");
+                return;
+            }
+
+            var targetYield = TargetYield > 0 ? TargetYield : SelectedRecipe.YieldPerBatch;
+            if (targetYield <= 0)
+            {
+                SetError("Target yield must be greater than 0");
                 return;
             }
 
             IsLoading = true;
             ClearError();
 
-            var batchCode = $"BATCH-{DateTime.UtcNow:yyyyMMddHHmm}";
+            var batchCode = $"PROD-{DateTime.UtcNow:yyyyMMddHHmm}";
             var dto = new CreateBatchDto
             {
                 BatchCode = batchCode,
                 RecipeId = SelectedRecipe.Id,
                 ProductionDate = DateTime.UtcNow,
-                TargetYield = TargetYield
+                TargetYield = targetYield
             };
 
             var batch = await _productionService.CreateBatchAsync(dto);
@@ -106,6 +144,7 @@ public partial class BatchManagementViewModel : BaseViewModel
             TargetYield = 0;
             SelectedRecipe = null;
 
+            StatusMessage = $"Batch '{batch.BatchCode}' created";
             LogInfo($"Batch '{batch.BatchCode}' created successfully");
         }
         catch (Exception ex)
@@ -129,6 +168,7 @@ public partial class BatchManagementViewModel : BaseViewModel
             SelectedBatch = await _productionService.GetBatchByIdAsync(batch.Id);
             if (SelectedBatch != null)
             {
+                ActualYield = SelectedBatch.ActualYield ?? 0;
                 LogInfo($"Batch '{batch.BatchCode}' selected");
             }
         }
@@ -156,6 +196,7 @@ public partial class BatchManagementViewModel : BaseViewModel
             await _productionService.StartBatchProductionAsync(SelectedBatch.Id);
             await LoadBatchesAsync();
 
+            StatusMessage = $"Batch '{SelectedBatch.BatchCode}' started";
             LogInfo($"Production started for batch '{SelectedBatch.BatchCode}'");
         }
         catch (Exception ex)
@@ -186,6 +227,7 @@ public partial class BatchManagementViewModel : BaseViewModel
             await LoadBatchesAsync();
 
             ActualYield = 0;
+            StatusMessage = $"Batch '{SelectedBatch.BatchCode}' completed";
             LogInfo($"Batch '{SelectedBatch.BatchCode}' completed");
         }
         catch (Exception ex)
@@ -196,6 +238,39 @@ public partial class BatchManagementViewModel : BaseViewModel
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    public void OpenJobSheet()
+    {
+        if (SelectedBatch == null)
+        {
+            SetError("Please select a batch to generate job sheet");
+            return;
+        }
+
+        JobSheetTitle = $"Job Sheet - {SelectedBatch.BatchCode}";
+        IsJobSheetOpen = true;
+    }
+
+    [RelayCommand]
+    public void CloseJobSheet()
+    {
+        IsJobSheetOpen = false;
+    }
+
+    [RelayCommand]
+    public async Task RefreshBatchesAsync()
+    {
+        await LoadBatchesAsync();
+    }
+
+    private void UpdateSummary()
+    {
+        TotalBatches = Batches.Count;
+        PlannedCount = Batches.Count(b => b.Status == "Planned");
+        InProgressCount = Batches.Count(b => b.Status == "In Progress");
+        CompletedCount = Batches.Count(b => b.Status == "Completed");
     }
 }
 

@@ -261,22 +261,50 @@
                              AutoGenerateColumns="False"
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"
+                             ColumnHeaderStyle="{DynamicResource RecipeGridHeaderStyle}"
+                             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                             Foreground="{DynamicResource MaterialDesignBody}"
+                             AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}"
                              Background="White"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource DividerBrush}"
                              RowBackground="{DynamicResource MaterialDesignPaper}">
+                        <DataGrid.Resources>
+                            <Style x:Key="RecipeGridHeaderStyle" TargetType="DataGridColumnHeader">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                            </Style>
+                            <Style x:Key="RecipeGridTextStyle" TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.RowStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Ingredient"
                                                Binding="{Binding IngredientName}"
                                                Width="*"
+                                               ElementStyle="{StaticResource RecipeGridTextStyle}"
                                                IsReadOnly="True" />
                             <DataGridTextColumn Header="Qty"
                                                Binding="{Binding QuantityPerBatch, StringFormat=N2}"
                                                Width="80"
+                                               ElementStyle="{StaticResource RecipeGridTextStyle}"
                                                IsReadOnly="True" />
                             <DataGridTextColumn Header="Unit"
                                                Binding="{Binding UnitCode}"
                                                Width="70"
+                                               ElementStyle="{StaticResource RecipeGridTextStyle}"
                                                IsReadOnly="True" />
                             <DataGridTemplateColumn Header="Action" Width="100">
                                 <DataGridTemplateColumn.CellTemplate>

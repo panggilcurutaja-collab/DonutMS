@@ -53,6 +53,30 @@ public class ViewLocator : IViewLocator
         RegisterViewMapping(
             typeof(DonutMS.ViewModels.RecipeEditorViewModel),
             typeof(DonutMS.Views.Recipes.RecipeListView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.SubstitutionManagerViewModel),
+            typeof(DonutMS.Views.Recipes.SubstitutionManagerView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.CostCalculationViewModel),
+            typeof(DonutMS.Views.Costing.CostCalculationView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.InventoryManagerViewModel),
+            typeof(DonutMS.Views.Inventory.InventoryView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.SKUMasterViewModel),
+            typeof(DonutMS.Views.SKUs.SKUMasterView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.PurchaseOrderViewModel),
+            typeof(DonutMS.Views.PurchaseOrders.PurchaseOrdersView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.BatchManagementViewModel),
+            typeof(DonutMS.Views.Production.BatchManagementView));
     }
 
     public UIElement? GetViewForViewModel(Type viewModelType)

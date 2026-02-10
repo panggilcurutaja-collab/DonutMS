@@ -30,6 +30,7 @@ public interface IRecipeService
     
     Task<RecipeSubstitutionDto?> GetSubstitutionAsync(int originalIngredientId, int substituteIngredientId);
     Task<IEnumerable<RecipeSubstitutionDto>> GetSubstitutionsForIngredientAsync(int ingredientId);
+    Task<IEnumerable<RecipeSubstitutionDto>> GetAllSubstitutionsAsync();
     Task<RecipeSubstitutionDto> CreateSubstitutionAsync(CreateRecipeSubstitutionDto dto);
     Task<bool> ApproveSubstitutionAsync(int originalIngredientId, int substituteIngredientId);
 }
@@ -38,6 +39,7 @@ public class RecipeService : IRecipeService
 {
     private readonly IRecipeRepository _recipeRepository;
     private readonly IIngredientRepository _ingredientRepository;
+    private readonly IRepository<RecipeSubstitution> _substitutionRepository;
     private readonly ILogger<RecipeService> _logger;
     private readonly IMapper _mapper;
     private readonly IValidator<Recipe> _recipeValidator;
@@ -45,12 +47,14 @@ public class RecipeService : IRecipeService
     public RecipeService(
         IRecipeRepository recipeRepository,
         IIngredientRepository ingredientRepository,
+        IRepository<RecipeSubstitution> substitutionRepository,
         ILogger<RecipeService> logger,
         IMapper mapper,
         IValidator<Recipe> recipeValidator)
     {
         _recipeRepository = recipeRepository;
         _ingredientRepository = ingredientRepository;
+        _substitutionRepository = substitutionRepository;
         _logger = logger;
         _mapper = mapper;
         _recipeValidator = recipeValidator;
@@ -313,29 +317,95 @@ public class RecipeService : IRecipeService
 
     public async Task<RecipeSubstitutionDto?> GetSubstitutionAsync(int originalIngredientId, int substituteIngredientId)
     {
-        var substitution = await _recipeRepository
+        var substitution = await _substitutionRepository
             .AsQueryable()
-            .OfType<RecipeSubstitution>()
-            .FirstOrDefaultAsync(s => s.OriginalIngredientId == originalIngredientId && s.SubstituteIngredientId == substituteIngredientId);
+            .Include(s => s.OriginalIngredient)
+            .Include(s => s.SubstituteIngredient)
+            .FirstOrDefaultAsync(s =>
+                !s.IsDeleted &&
+                s.OriginalIngredientId == originalIngredientId &&
+                s.SubstituteIngredientId == substituteIngredientId);
 
         return substitution != null ? _mapper.Map<RecipeSubstitutionDto>(substitution) : null;
     }
 
     public async Task<IEnumerable<RecipeSubstitutionDto>> GetSubstitutionsForIngredientAsync(int ingredientId)
     {
-        // Implementation would query RecipeSubstitution table
-        return Enumerable.Empty<RecipeSubstitutionDto>();
+        var substitutions = await _substitutionRepository
+            .AsQueryable()
+            .Include(s => s.OriginalIngredient)
+            .Include(s => s.SubstituteIngredient)
+            .Where(s => !s.IsDeleted && s.OriginalIngredientId == ingredientId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<RecipeSubstitutionDto>>(substitutions);
+    }
+
+    public async Task<IEnumerable<RecipeSubstitutionDto>> GetAllSubstitutionsAsync()
+    {
+        var substitutions = await _substitutionRepository
+            .AsQueryable()
+            .Include(s => s.OriginalIngredient)
+            .Include(s => s.SubstituteIngredient)
+            .Where(s => !s.IsDeleted)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<RecipeSubstitutionDto>>(substitutions);
     }
 
     public async Task<RecipeSubstitutionDto> CreateSubstitutionAsync(CreateRecipeSubstitutionDto dto)
     {
-        // Implementation for creating substitution
-        throw new NotImplementedException();
+        if (dto.OriginalIngredientId == dto.SubstituteIngredientId)
+            throw new InvalidOperationException("Original and substitute ingredients must be different");
+
+        if (dto.SubstitutionRatio <= 0)
+            throw new InvalidOperationException("Substitution ratio must be greater than zero");
+
+        var original = await _ingredientRepository.GetByIdAsync(dto.OriginalIngredientId);
+        var substitute = await _ingredientRepository.GetByIdAsync(dto.SubstituteIngredientId);
+
+        if (original == null || substitute == null)
+            throw new KeyNotFoundException("One or both ingredients not found");
+
+        var existing = await _substitutionRepository
+            .AsQueryable()
+            .FirstOrDefaultAsync(s =>
+                !s.IsDeleted &&
+                s.OriginalIngredientId == dto.OriginalIngredientId &&
+                s.SubstituteIngredientId == dto.SubstituteIngredientId);
+
+        if (existing != null)
+            throw new InvalidOperationException("Substitution rule already exists");
+
+        var substitution = _mapper.Map<RecipeSubstitution>(dto);
+        substitution.IsApproved = false;
+
+        await _substitutionRepository.AddAsync(substitution);
+        await _substitutionRepository.SaveChangesAsync();
+
+        _logger.LogInformation($"Substitution created: {original.Name} -> {substitute.Name}");
+        return _mapper.Map<RecipeSubstitutionDto>(substitution);
     }
 
     public async Task<bool> ApproveSubstitutionAsync(int originalIngredientId, int substituteIngredientId)
     {
-        // Implementation for approving substitution
+        var substitution = await _substitutionRepository
+            .AsQueryable()
+            .FirstOrDefaultAsync(s =>
+                !s.IsDeleted &&
+                s.OriginalIngredientId == originalIngredientId &&
+                s.SubstituteIngredientId == substituteIngredientId);
+
+        if (substitution == null)
+            return false;
+
+        substitution.IsApproved = true;
+        await _substitutionRepository.UpdateAsync(substitution);
+        await _substitutionRepository.SaveChangesAsync();
+
+        _logger.LogInformation($"Substitution approved: {originalIngredientId} -> {substituteIngredientId}");
         return true;
     }
 }

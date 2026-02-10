@@ -37,7 +37,11 @@ public class NavigationService : INavigationService
             { "Dashboard", typeof(DonutMS.ViewModels.DashboardViewModel) },
             { "Ingredients", typeof(DonutMS.ViewModels.IngredientsViewModel) },
             { "RecipeEditor", typeof(DonutMS.ViewModels.RecipeEditorViewModel) },
+            { "Substitutions", typeof(DonutMS.ViewModels.SubstitutionManagerViewModel) },
+            { "Costing", typeof(DonutMS.ViewModels.CostCalculationViewModel) },
+            { "SKUs", typeof(DonutMS.ViewModels.SKUMasterViewModel) },
             { "Inventory", typeof(DonutMS.ViewModels.InventoryManagerViewModel) },
+            { "PurchaseOrders", typeof(DonutMS.ViewModels.PurchaseOrderViewModel) },
             { "Batch", typeof(DonutMS.ViewModels.BatchManagementViewModel) },
             { "Pricing", typeof(DonutMS.ViewModels.PricingCalculatorViewModel) }
         };
@@ -81,7 +85,11 @@ public class NavigationService : INavigationService
             { "Dashboard", UserRole.Admin | UserRole.ProduksionManager | UserRole.Operator | UserRole.Kasir },
             { "Ingredients", UserRole.Admin | UserRole.ProduksionManager },
             { "RecipeEditor", UserRole.Admin | UserRole.ProduksionManager },
+            { "Substitutions", UserRole.Admin | UserRole.ProduksionManager },
+            { "Costing", UserRole.Admin | UserRole.ProduksionManager },
+            { "SKUs", UserRole.Admin | UserRole.ProduksionManager },
             { "Inventory", UserRole.Admin | UserRole.ProduksionManager },
+            { "PurchaseOrders", UserRole.Admin | UserRole.ProduksionManager },
             { "Batch", UserRole.Admin | UserRole.ProduksionManager | UserRole.Operator },
             { "Pricing", UserRole.Admin | UserRole.ProduksionManager | UserRole.Kasir }
         };
@@ -145,11 +153,43 @@ public class NavigationService : INavigationService
             },
             new MenuItemModel
             {
+                Label = "Substitutions",
+                ViewName = "Substitutions",
+                Icon = "SwapHorizontal",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 4
+            },
+            new MenuItemModel
+            {
+                Label = "Costing",
+                ViewName = "Costing",
+                Icon = "Calculator",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 5
+            },
+            new MenuItemModel
+            {
+                Label = "SKU Master",
+                ViewName = "SKUs",
+                Icon = "Tag",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 6
+            },
+            new MenuItemModel
+            {
                 Label = "Inventory",
                 ViewName = "Inventory",
                 Icon = "Package",
                 RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
-                Order = 4
+                Order = 7
+            },
+            new MenuItemModel
+            {
+                Label = "Purchase Orders",
+                ViewName = "PurchaseOrders",
+                Icon = "Truck",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 8
             },
             new MenuItemModel
             {
@@ -157,7 +197,7 @@ public class NavigationService : INavigationService
                 ViewName = "Batch",
                 Icon = "Wrench",
                 RequiredRoles = UserRole.Admin | UserRole.ProduksionManager | UserRole.Operator,
-                Order = 5
+                Order = 9
             },
             new MenuItemModel
             {
@@ -165,7 +205,7 @@ public class NavigationService : INavigationService
                 ViewName = "Pricing",
                 Icon = "CurrencyUsd",
                 RequiredRoles = UserRole.Admin | UserRole.ProduksionManager | UserRole.Kasir,
-                Order = 6
+                Order = 10
             }
         };
 

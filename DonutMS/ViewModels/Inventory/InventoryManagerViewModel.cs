@@ -23,6 +23,9 @@ public partial class InventoryManagerViewModel : BaseViewModel
     private ObservableCollection<StockBatchDto> selectedStockBatches = new();
 
     [ObservableProperty]
+    private ObservableCollection<StockTransactionDto> selectedTransactions = new();
+
+    [ObservableProperty]
     private InventoryStockDto? selectedStock;
 
     [ObservableProperty]
@@ -35,10 +38,43 @@ public partial class InventoryManagerViewModel : BaseViewModel
     private string transactionType = "In";
 
     [ObservableProperty]
+    private string consumptionMethod = "FEFO";
+
+    [ObservableProperty]
+    private StockBatchDto? selectedBatch;
+
+    [ObservableProperty]
+    private string? stockInBatchNumber;
+
+    [ObservableProperty]
+    private DateTime stockInReceiptDate = DateTime.Today;
+
+    [ObservableProperty]
+    private DateTime? stockInExpiryDate = DateTime.Today.AddDays(30);
+
+    [ObservableProperty]
+    private string? transactionReference;
+
+    [ObservableProperty]
     private int lowStockCount;
 
     [ObservableProperty]
     private decimal totalInventoryValue;
+
+    [ObservableProperty]
+    private int expiringBatchCount;
+
+    [ObservableProperty]
+    private int expiringWithinDays = 30;
+
+    [ObservableProperty]
+    private DateTime transactionFromDate = DateTime.Today.AddDays(-30);
+
+    [ObservableProperty]
+    private DateTime transactionToDate = DateTime.Today;
+
+    [ObservableProperty]
+    private string statusMessage = string.Empty;
 
     public InventoryManagerViewModel(
         IInventoryService inventoryService,
@@ -64,13 +100,33 @@ public partial class InventoryManagerViewModel : BaseViewModel
             foreach (var ingredient in ingredients)
             {
                 var stock = await _inventoryService.GetStockByIngredientIdAsync(ingredient.Id);
-                if (stock != null)
-                    stocks.Add(stock);
+                if (stock == null)
+                {
+                    stock = new InventoryStockDto
+                    {
+                        IngredientId = ingredient.Id,
+                        IngredientName = ingredient.Name,
+                        IngredientSKU = ingredient.SKU,
+                        UnitId = ingredient.ConsumptionUnitId,
+                        UnitCode = ingredient.ConsumptionUnitCode,
+                        Quantity = 0,
+                        ReservedQuantity = 0,
+                        AvailableQuantity = 0,
+                        LastUpdated = DateTime.UtcNow,
+                        MinimumStockLevel = ingredient.MinimumStockLevel,
+                        ReorderPoint = ingredient.ReorderPoint,
+                        ShelfLifeDays = ingredient.ShelfLifeDays
+                    };
+                }
+
+                stocks.Add(stock);
             }
 
+            ApplyComputedFields(stocks);
             InventoryStocks = new ObservableCollection<InventoryStockDto>(stocks);
             await LoadLowStockCountAsync();
             CalculateTotalInventoryValue();
+            StatusMessage = $"Loaded {InventoryStocks.Count} stock items";
 
             LogInfo("Inventory loaded successfully");
         }
@@ -92,8 +148,12 @@ public partial class InventoryManagerViewModel : BaseViewModel
             IsLoading = true;
             ClearError();
 
-            SelectedStock = stock;
-            SelectedStockBatches = new ObservableCollection<StockBatchDto>(stock.Batches);
+            if (SelectedStock != stock)
+                SelectedStock = stock;
+            SelectedStockBatches = new ObservableCollection<StockBatchDto>(stock.Batches ?? Array.Empty<StockBatchDto>());
+            SelectedBatch = null;
+
+            await LoadTransactionsAsync();
 
             LogInfo($"Stock for {stock.IngredientName} selected");
         }
@@ -104,6 +164,14 @@ public partial class InventoryManagerViewModel : BaseViewModel
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    partial void OnSelectedStockChanged(InventoryStockDto? value)
+    {
+        if (value != null)
+        {
+            _ = SelectStockAsync(value);
         }
     }
 
@@ -124,12 +192,20 @@ public partial class InventoryManagerViewModel : BaseViewModel
             await _inventoryService.AddStockInAsync(
                 SelectedStock.IngredientId,
                 TransactionQuantity,
-                SelectedStock.UnitId);
+                SelectedStock.UnitId,
+                StockInReceiptDate,
+                StockInExpiryDate,
+                StockInBatchNumber,
+                TransactionReference);
 
             await LoadInventoryAsync();
+            var recorded = TransactionQuantity;
             TransactionQuantity = 0;
+            StockInBatchNumber = null;
+            TransactionReference = null;
 
-            LogInfo($"Stock in: {TransactionQuantity} units recorded");
+            StatusMessage = $"Stock in recorded: {recorded:N2}";
+            LogInfo($"Stock in: {recorded} units recorded");
         }
         catch (Exception ex)
         {
@@ -158,12 +234,19 @@ public partial class InventoryManagerViewModel : BaseViewModel
             await _inventoryService.RemoveStockOutAsync(
                 SelectedStock.IngredientId,
                 TransactionQuantity,
-                SelectedStock.UnitId);
+                SelectedStock.UnitId,
+                ConsumptionMethod.Equals("FEFO", StringComparison.OrdinalIgnoreCase),
+                SelectedBatch?.Id,
+                TransactionReference);
 
             await LoadInventoryAsync();
+            var recorded = TransactionQuantity;
             TransactionQuantity = 0;
+            SelectedBatch = null;
+            TransactionReference = null;
 
-            LogInfo($"Stock out: {TransactionQuantity} units recorded");
+            StatusMessage = $"Stock out recorded: {recorded:N2}";
+            LogInfo($"Stock out: {recorded} units recorded");
         }
         catch (Exception ex)
         {
@@ -183,14 +266,16 @@ public partial class InventoryManagerViewModel : BaseViewModel
             IsLoading = true;
             ClearError();
 
-            var expiringBatches = await _inventoryService.GetExpiringStockAsync(30);
+            var expiringBatches = await _inventoryService.GetExpiringStockAsync(ExpiringWithinDays);
             if (expiringBatches.Any())
             {
-                SetError($"?? {expiringBatches.Count()} batches expiring in 30 days");
+                ExpiringBatchCount = expiringBatches.Count();
+                StatusMessage = $"{ExpiringBatchCount} batches expiring in {ExpiringWithinDays} days";
             }
             else
             {
-                LogInfo("No batches expiring in next 30 days");
+                ExpiringBatchCount = 0;
+                StatusMessage = $"No batches expiring in next {ExpiringWithinDays} days";
             }
         }
         catch (Exception ex)
@@ -209,6 +294,30 @@ public partial class InventoryManagerViewModel : BaseViewModel
         await LoadInventoryAsync();
     }
 
+    [RelayCommand]
+    public async Task LoadTransactionsAsync()
+    {
+        try
+        {
+            if (SelectedStock == null)
+            {
+                SelectedTransactions = new ObservableCollection<StockTransactionDto>();
+                return;
+            }
+
+            var transactions = await _inventoryService.GetTransactionsAsync(
+                SelectedStock.IngredientId,
+                TransactionFromDate,
+                TransactionToDate.AddDays(1));
+
+            SelectedTransactions = new ObservableCollection<StockTransactionDto>(transactions);
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error loading transactions: {ex.Message}");
+        }
+    }
+
     private async Task LoadLowStockCountAsync()
     {
         var lowStocks = await _inventoryService.GetLowStockItemsAsync();
@@ -217,7 +326,33 @@ public partial class InventoryManagerViewModel : BaseViewModel
 
     private void CalculateTotalInventoryValue()
     {
-        TotalInventoryValue = InventoryStocks
-            .Sum(s => s.Quantity * (s.IngredientName == "Telur" ? 2000 : s.Quantity > 100 ? 1000 : 500));
+        decimal total = 0m;
+        foreach (var stock in InventoryStocks)
+        {
+            var ingredient = Ingredients.FirstOrDefault(i => i.Id == stock.IngredientId);
+            var price = ingredient?.CurrentPrice?.Price ?? 0m;
+            if (price > 0)
+            {
+                total += stock.Quantity * price;
+            }
+        }
+
+        TotalInventoryValue = total;
+    }
+
+    private static void ApplyComputedFields(IEnumerable<InventoryStockDto> stocks)
+    {
+        foreach (var stock in stocks)
+        {
+            var batches = stock.Batches ?? Enumerable.Empty<StockBatchDto>();
+            var nextBatch = batches
+                .Where(b => b.ExpiryDate.HasValue && b.AvailableQuantity > 0)
+                .OrderBy(b => b.ExpiryDate)
+                .FirstOrDefault();
+
+            stock.NextExpiryDate = nextBatch?.ExpiryDate;
+            stock.NextExpiryDays = nextBatch?.DaysToExpiry;
+            stock.IsLowStock = stock.MinimumStockLevel > 0 && stock.AvailableQuantity <= stock.MinimumStockLevel;
+        }
     }
 }
