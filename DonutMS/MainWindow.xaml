@@ -20,18 +20,6 @@
                 FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
                 Loaded="MetroWindow_Loaded">
 
-    <mah:MetroWindow.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <!-- Material Design Theme -->
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/Materialdesign3.Defaults.xaml" />
-                
-                <!-- MahApps Metro Core -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </mah:MetroWindow.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -135,7 +123,7 @@
                             ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding DataContext.NavigationViewModel.NavigateToMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                <Button Command="{Binding DataContext.NavigateToMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                         CommandParameter="{Binding .}"
                                         Style="{StaticResource MahApps.Styles.Button}"
                                         Background="Transparent"

@@ -88,6 +88,7 @@ public static class DependencyInjectionConfiguration
             new RecipeEditorViewModel(
                 sp.GetRequiredService<IRecipeService>(),
                 sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<IUnitConversionService>(),
                 sp.GetRequiredService<FluentValidation.IValidator<DonutMS.Data.Entities.Recipe>>(),
                 sp.GetRequiredService<ILogger<RecipeEditorViewModel>>()));
         

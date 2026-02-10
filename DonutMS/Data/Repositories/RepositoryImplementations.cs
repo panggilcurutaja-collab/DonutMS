@@ -16,14 +16,18 @@ public class RecipeRepository : Repository<Recipe>, IRecipeRepository
     public async Task<Recipe?> GetRecipeWithIngredientsAsync(int id)
     {
         return await _context.Recipes
+            .Include(r => r.YieldUnit)
             .Include(r => r.RecipeIngredients)
             .ThenInclude(ri => ri.Ingredient)
+            .Include(r => r.RecipeIngredients)
+            .ThenInclude(ri => ri.Unit)
             .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
     }
 
     public async Task<IEnumerable<Recipe>> GetActiveRecipesAsync()
     {
         return await _context.Recipes
+            .Include(r => r.YieldUnit)
             .Where(r => r.IsActive && !r.IsDeleted)
             .OrderBy(r => r.Name)
             .ToListAsync();
@@ -32,6 +36,7 @@ public class RecipeRepository : Repository<Recipe>, IRecipeRepository
     public async Task<Recipe?> GetByCodeAsync(string code)
     {
         return await _context.Recipes
+            .Include(r => r.YieldUnit)
             .FirstOrDefaultAsync(r => r.Code == code && !r.IsDeleted);
     }
 }

@@ -31,10 +31,13 @@ public class CreateRecipeDto
 
 public class UpdateRecipeDto
 {
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public decimal? EstimatedProductionTime { get; set; }
-    public bool? IsActive { get; set; }
+    public decimal YieldPerBatch { get; set; }
+    public int YieldUnitId { get; set; }
+    public decimal EstimatedProductionTime { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
 public class RecipeVersionDto

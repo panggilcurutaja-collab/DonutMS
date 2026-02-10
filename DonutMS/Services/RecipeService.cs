@@ -64,7 +64,12 @@ public class RecipeService : IRecipeService
 
     public async Task<IEnumerable<RecipeDto>> GetAllRecipesAsync()
     {
-        var recipes = await _recipeRepository.GetAllAsync();
+        var recipes = await _recipeRepository
+            .AsQueryable()
+            .Include(r => r.YieldUnit)
+            .Where(r => !r.IsDeleted)
+            .OrderBy(r => r.Name)
+            .ToListAsync();
         return _mapper.Map<IEnumerable<RecipeDto>>(recipes);
     }
 
@@ -172,8 +177,14 @@ public class RecipeService : IRecipeService
         if (recipe == null)
             throw new KeyNotFoundException($"Recipe with ID {recipeId} not found");
 
-        var latestVersion = recipe.Versions?.OrderByDescending(v => v.VersionNumber).FirstOrDefault();
-        var newVersionNumber = (latestVersion?.VersionNumber ?? 0) + 1;
+        var latestVersionNumber = await _recipeRepository
+            .AsQueryable()
+            .Where(r => r.Id == recipeId)
+            .SelectMany(r => r.Versions!)
+            .Where(v => !v.IsDeleted)
+            .Select(v => (int?)v.VersionNumber)
+            .MaxAsync() ?? 0;
+        var newVersionNumber = latestVersionNumber + 1;
 
         var version = new RecipeVersion
         {
@@ -192,13 +203,20 @@ public class RecipeService : IRecipeService
         await _recipeRepository.UpdateAsync(recipe);
         await _recipeRepository.SaveChangesAsync();
 
+        recipe.CurrentVersionId = version.Id;
+        await _recipeRepository.UpdateAsync(recipe);
+        await _recipeRepository.SaveChangesAsync();
+
         _logger.LogInformation($"Recipe version {newVersionNumber} created for recipe ID {recipeId}");
         return _mapper.Map<RecipeVersionDto>(version);
     }
 
     public async Task<bool> RollbackToVersionAsync(int recipeId, int versionNumber)
     {
-        var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+        var recipe = await _recipeRepository
+            .AsQueryable()
+            .Include(r => r.Versions)
+            .FirstOrDefaultAsync(r => r.Id == recipeId && !r.IsDeleted);
         if (recipe == null)
             return false;
 

@@ -57,7 +57,7 @@ public class BoolToWidthConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -106,7 +106,7 @@ public class StatusColorConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -147,7 +147,7 @@ public class NullToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -161,7 +161,7 @@ public class StringEmptyToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -177,6 +177,6 @@ public class QuantityHighlightConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }

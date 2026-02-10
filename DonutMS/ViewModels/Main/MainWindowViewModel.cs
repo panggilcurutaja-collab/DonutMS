@@ -170,6 +170,60 @@ public partial class MainWindowViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    public async Task NavigateToMenuAsync(MenuItemModel item)
+    {
+        if (item == null)
+            return;
+
+        ClearError();
+
+        switch (item.ViewName)
+        {
+            case "Dashboard":
+                await NavigateToDashboardAsync();
+                break;
+            case "Ingredients":
+                await NavigateToIngredientsAsync();
+                break;
+            case "RecipeEditor":
+                await NavigateToRecipesAsync();
+                break;
+            case "Inventory":
+                await NavigateToInventoryAsync();
+                break;
+            case "Batch":
+                await NavigateToBatchAsync();
+                break;
+            case "Pricing":
+                await NavigateToPricingAsync();
+                break;
+            default:
+                SetError($"Unknown menu: {item.Label}");
+                break;
+        }
+    }
+
+    [RelayCommand]
+    public async Task NavigateToIngredientsAsync()
+    {
+        if (!_navigationService.CanNavigateTo("Ingredients"))
+        {
+            SetError("You don't have permission to access Ingredients");
+            return;
+        }
+
+        CurrentPageName = "Ingredients";
+        CurrentViewModel = _navigationService.GetViewModel("Ingredients");
+
+        if (CurrentViewModel is IngredientsViewModel ingredientsVM)
+        {
+            await ingredientsVM.LoadIngredientsCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Ingredients");
+    }
+
+    [RelayCommand]
     public void ToggleMenu()
     {
         IsMenuOpen = !IsMenuOpen;
