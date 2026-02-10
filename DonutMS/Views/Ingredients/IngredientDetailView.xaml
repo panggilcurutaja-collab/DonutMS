@@ -1,0 +1,243 @@
+<UserControl x:Class="DonutMS.Views.Ingredients.IngredientDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:local="clr-namespace:DonutMS.Views.Ingredients"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="600">
+
+    <Grid Background="{DynamicResource MaterialDesignPaper}" Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Dialog Title -->
+        <TextBlock Grid.Row="0"
+                   Text="{Binding DialogTitle}"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource MaterialDesignBody}"
+                   Margin="0,0,0,20" />
+
+        <!-- Form Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,0,16">
+                <!-- Name -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Ingredient Name *"
+                              FontWeight="SemiBold"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              Margin="0,0,0,4" />
+                    <TextBox Text="{Binding EditingIngredient.Name, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12,8"
+                            Background="White"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource DividerBrush}" />
+                </StackPanel>
+
+                <!-- SKU -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="SKU *"
+                              FontWeight="SemiBold"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              Margin="0,0,0,4" />
+                    <TextBox Text="{Binding EditingIngredient.SKU, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12,8"
+                            Background="White"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource DividerBrush}" />
+                </StackPanel>
+
+                <!-- Description -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Description"
+                              FontWeight="SemiBold"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              Margin="0,0,0,4" />
+                    <TextBox Text="{Binding EditingIngredient.Description, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12,8"
+                            Background="White"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            AcceptsReturn="True"
+                            Height="80"
+                            TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- Units Grid -->
+                <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                       Padding="12"
+                       Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Consumption Unit -->
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                  Text="Consumption Unit *"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  Margin="0,0,8,4" />
+                        <ComboBox Grid.Row="1" Grid.Column="0"
+                                 ItemsSource="{Binding AvailableUnits}"
+                                 SelectedValuePath="Id"
+                                 SelectedValue="{Binding EditingIngredient.ConsumptionUnitId}"
+                                 DisplayMemberPath="Code"
+                                 Background="White"
+                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                 Margin="0,0,8,0" />
+
+                        <!-- Purchase Unit -->
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                  Text="Purchase Unit *"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  Margin="8,0,0,4" />
+                        <ComboBox Grid.Row="1" Grid.Column="1"
+                                 ItemsSource="{Binding AvailableUnits}"
+                                 SelectedValuePath="Id"
+                                 SelectedValue="{Binding EditingIngredient.PurchaseUnitId}"
+                                 DisplayMemberPath="Code"
+                                 Background="White"
+                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                 Margin="8,0,0,0" />
+                    </Grid>
+                </Border>
+
+                <!-- Stock Levels Grid -->
+                <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                       Padding="12"
+                       Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Minimum Stock Level -->
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                  Text="Min Stock Level"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  Margin="0,0,8,4" />
+                        <TextBox Grid.Row="1" Grid.Column="0"
+                                Text="{Binding EditingIngredient.MinimumStockLevel, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
+                                Padding="8,6"
+                                Background="White"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                Margin="0,0,8,0" />
+
+                        <!-- Reorder Point -->
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                  Text="Reorder Point"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  Margin="8,0,8,4" />
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                                Text="{Binding EditingIngredient.ReorderPoint, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
+                                Padding="8,6"
+                                Background="White"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                Margin="8,0,8,0" />
+
+                        <!-- Reorder Quantity -->
+                        <TextBlock Grid.Row="0" Grid.Column="2"
+                                  Text="Reorder Quantity"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  Margin="8,0,0,4" />
+                        <TextBox Grid.Row="1" Grid.Column="2"
+                                Text="{Binding EditingIngredient.ReorderQuantity, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
+                                Padding="8,6"
+                                Background="White"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                Margin="8,0,0,0" />
+                    </Grid>
+                </Border>
+
+                <!-- Shelf Life Days -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Shelf Life (Days)"
+                              FontWeight="SemiBold"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              Margin="0,0,0,4" />
+                    <TextBox Text="{Binding EditingIngredient.ShelfLifeDays, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12,8"
+                            Background="White"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource DividerBrush}" />
+                </StackPanel>
+
+                <!-- Notes -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Notes"
+                              FontWeight="SemiBold"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              Margin="0,0,0,4" />
+                    <TextBox Text="{Binding EditingIngredient.Notes, UpdateSourceTrigger=PropertyChanged}"
+                            Padding="12,8"
+                            Background="White"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            AcceptsReturn="True"
+                            Height="80"
+                            TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- Active Checkbox -->
+                <CheckBox Content="Active"
+                         IsChecked="{Binding EditingIngredient.IsActive}"
+                         Foreground="{DynamicResource MaterialDesignBody}"
+                         FontSize="14" />
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2"
+                   Orientation="Horizontal"
+                   HorizontalAlignment="Right"
+                   Margin="0,20,0,0">
+            <Button Command="{Binding SaveIngredientCommand}"
+                   Content="Save"
+                   Padding="24,8"
+                   Background="{DynamicResource PrimaryHueMidBrush}"
+                   Foreground="White"
+                   BorderThickness="0"
+                   Margin="0,0,8,0"
+                   Cursor="Hand" />
+            <Button Command="{Binding CancelDialogCommand}"
+                   Content="Cancel"
+                   Padding="24,8"
+                   Background="{DynamicResource MaterialDesignBodyLight}"
+                   Foreground="White"
+                   BorderThickness="0"
+                   Cursor="Hand" />
+        </StackPanel>
+    </Grid>
+</UserControl>
