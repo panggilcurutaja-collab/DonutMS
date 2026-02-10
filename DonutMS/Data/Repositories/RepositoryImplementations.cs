@@ -143,7 +143,7 @@ public class ProductionRepository : Repository<Batch>, IProductionRepository
     public async Task<IEnumerable<Batch>> GetActiveBatchesAsync()
     {
         return await _context.Batches
-            .Where(b => b.Status == "Planned" || b.Status == "In Progress" && !b.IsDeleted)
+            .Where(b => (b.Status == "Planned" || b.Status == "In Progress") && !b.IsDeleted)
             .OrderByDescending(b => b.ProductionDate)
             .ToListAsync();
     }

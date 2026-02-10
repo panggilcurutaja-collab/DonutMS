@@ -95,11 +95,10 @@ public partial class App : Application
                         services.AddApplicationServices(connectionString);
                         Log.Debug("    ✅ Application services registered");
 
-                        // ViewModels
-                        Log.Debug("  - Registering ViewModels...");
-                        services.AddScoped<NavigationViewModel>();
+                        // Windows / Shell
+                        Log.Debug("  - Registering windows...");
                         services.AddScoped<MainWindow>();
-                        Log.Debug("    ✅ ViewModels registered");
+                        Log.Debug("    ✅ Windows registered");
 
                         Log.Information("  ✅ All services registered successfully");
                     }
@@ -124,7 +123,7 @@ public partial class App : Application
             {
                 var dbInitializer = ServiceProvider.GetRequiredService<DonutMS.Data.DbContext.DatabaseInitializer>();
                 Log.Debug("  - Running database initialization...");
-                // Note: If DatabaseInitializer has async initialization, handle it here
+                dbInitializer.InitializeAsync().GetAwaiter().GetResult();
                 Log.Information("✅ Database initialized");
             }
             catch (Exception dbEx)

@@ -17,7 +17,8 @@
                 TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                 TextElement.FontWeight="Regular"
                 TextElement.FontSize="13"
-                FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto">
+                FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
+                Loaded="MetroWindow_Loaded">
 
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
