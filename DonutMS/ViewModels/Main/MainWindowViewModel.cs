@@ -17,7 +17,7 @@ public partial class MainWindowViewModel : BaseViewModel
     private BaseViewModel? currentViewModel;
 
     [ObservableProperty]
-    private NavigationViewModel navigationViewModel = new(null!, null!);
+    private NavigationViewModel navigationViewModel = null!;
 
     [ObservableProperty]
     private string currentPageName = "Dashboard";
