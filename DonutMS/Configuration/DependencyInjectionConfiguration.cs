@@ -56,6 +56,12 @@ public static class DependencyInjectionConfiguration
 
         // Navigation & UI Services
         services.AddScoped<INavigationService, NavigationService>();
+        services.AddSingleton<IViewLocator, ViewLocator>();
+
+        // Views - Register all views so they can be resolved
+        services.AddTransient<DonutMS.Views.Main.DashboardView>();
+        services.AddTransient<DonutMS.Views.Ingredients.IngredientListView>();
+        services.AddTransient<DonutMS.Views.Recipes.RecipeListView>();
 
         // ViewModels - Register with proper dependency resolution
         // Note: NavigationViewModel must be registered first as it's a dependency of MainWindowViewModel

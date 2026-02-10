@@ -1,0 +1,114 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace DonutMS.Services;
+
+/// <summary>
+/// Service untuk resolve Views dari ViewModels secara otomatis
+/// Menggunakan konvensi naming: MyViewModel -> MyView
+/// </summary>
+public interface IViewLocator
+{
+    /// <summary>
+    /// Locate dan create View instance untuk given ViewModel type
+    /// </summary>
+    UIElement? GetViewForViewModel(Type viewModelType);
+    
+    /// <summary>
+    /// Register custom view type untuk ViewModel type
+    /// </summary>
+    void RegisterViewMapping(Type viewModelType, Type viewType);
+}
+
+public class ViewLocator : IViewLocator
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly Dictionary<Type, Type> _viewMappings;
+
+    public ViewLocator(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _viewMappings = new Dictionary<Type, Type>();
+        
+        // Register default mappings berdasarkan naming convention
+        RegisterDefaultMappings();
+    }
+
+    /// <summary>
+    /// Register default view mappings using naming convention
+    /// </summary>
+    private void RegisterDefaultMappings()
+    {
+        // Manual mappings untuk views yang ada
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.DashboardViewModel),
+            typeof(DonutMS.Views.Main.DashboardView));
+        
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.IngredientsViewModel),
+            typeof(DonutMS.Views.Ingredients.IngredientListView));
+        
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.RecipeEditorViewModel),
+            typeof(DonutMS.Views.Recipes.RecipeListView));
+    }
+
+    public UIElement? GetViewForViewModel(Type viewModelType)
+    {
+        if (viewModelType == null)
+            throw new ArgumentNullException(nameof(viewModelType));
+
+        // Check if registered mapping exists
+        if (_viewMappings.TryGetValue(viewModelType, out var viewType))
+        {
+            try
+            {
+                var view = _serviceProvider.GetService(viewType) as UIElement;
+                return view;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating view for {viewModelType.Name}: {ex.Message}");
+                return null;
+            }
+        }
+
+        // Try auto-resolution using naming convention
+        var viewName = viewModelType.Name.Replace("ViewModel", "View");
+        var viewTypeName = viewModelType.Namespace?.Replace("ViewModels", "Views") + "." + viewName;
+
+        if (!string.IsNullOrEmpty(viewTypeName))
+        {
+            try
+            {
+                var type = Type.GetType(viewTypeName, false);
+                if (type != null)
+                {
+                    var view = _serviceProvider.GetService(type) as UIElement;
+                    return view;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error auto-resolving view {viewTypeName}: {ex.Message}");
+            }
+        }
+
+        return null;
+    }
+
+    public void RegisterViewMapping(Type viewModelType, Type viewType)
+    {
+        if (viewModelType == null)
+            throw new ArgumentNullException(nameof(viewModelType));
+        if (viewType == null)
+            throw new ArgumentNullException(nameof(viewType));
+
+        if (!typeof(System.Windows.FrameworkElement).IsAssignableFrom(viewType))
+            throw new ArgumentException($"{viewType.Name} must derive from FrameworkElement", nameof(viewType));
+
+        _viewMappings[viewModelType] = viewType;
+    }
+}

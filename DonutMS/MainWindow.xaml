@@ -160,8 +160,8 @@
 
             <!-- Page Content Frame -->
             <ContentControl Grid.Column="1"
-                           Content="{Binding CurrentViewModel}"
-                           Padding="20"
+                           Name="ContentArea"
+                           Padding="0"
                            Background="{DynamicResource MaterialDesignPaper}" />
         </Grid>
     </Grid>
