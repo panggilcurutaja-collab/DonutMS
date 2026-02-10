@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
 using DonutMS.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using DonutMS.Data.DbContext;
 using DonutMS.Data.Repositories;
 using DonutMS.Services;
@@ -56,19 +57,64 @@ public static class DependencyInjectionConfiguration
         // Navigation & UI Services
         services.AddScoped<INavigationService, NavigationService>();
 
-        // ViewModels
-        services.AddScoped<MainWindowViewModel>();
-        services.AddScoped<NavigationViewModel>();
-        services.AddScoped<DashboardViewModel>();
-        services.AddScoped<RecipeEditorViewModel>();
-        services.AddScoped<InventoryManagerViewModel>();
-        services.AddScoped<BatchManagementViewModel>();
-        services.AddScoped<PricingCalculatorViewModel>();
-        services.AddScoped<IngredientsViewModel>();
+        // ViewModels - Register with proper dependency resolution
+        // Note: NavigationViewModel must be registered first as it's a dependency of MainWindowViewModel
+        services.AddScoped<NavigationViewModel>(sp =>
+            new NavigationViewModel(
+                sp.GetRequiredService<INavigationService>(),
+                sp.GetRequiredService<ILogger<NavigationViewModel>>()));
+        
+        services.AddScoped<MainWindowViewModel>(sp =>
+            new MainWindowViewModel(
+                sp.GetRequiredService<INavigationService>(),
+                sp.GetRequiredService<NavigationViewModel>(),
+                sp.GetRequiredService<ILogger<MainWindowViewModel>>()));
+        
+        services.AddScoped<DashboardViewModel>(sp =>
+            new DashboardViewModel(
+                sp.GetRequiredService<IReportingService>(),
+                sp.GetRequiredService<ICostCalculationService>(),
+                sp.GetRequiredService<IInventoryService>(),
+                sp.GetRequiredService<IPricingService>(),
+                sp.GetRequiredService<ILogger<DashboardViewModel>>()));
+        
+        services.AddScoped<RecipeEditorViewModel>(sp =>
+            new RecipeEditorViewModel(
+                sp.GetRequiredService<IRecipeService>(),
+                sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<FluentValidation.IValidator<DonutMS.Data.Entities.Recipe>>(),
+                sp.GetRequiredService<ILogger<RecipeEditorViewModel>>()));
+        
+        services.AddScoped<InventoryManagerViewModel>(sp =>
+            new InventoryManagerViewModel(
+                sp.GetRequiredService<IInventoryService>(),
+                sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<ILogger<InventoryManagerViewModel>>()));
+        
+        services.AddScoped<BatchManagementViewModel>(sp =>
+            new BatchManagementViewModel(
+                sp.GetRequiredService<IProductionService>(),
+                sp.GetRequiredService<IRecipeService>(),
+                sp.GetRequiredService<IInventoryService>(),
+                sp.GetRequiredService<ILogger<BatchManagementViewModel>>()));
+        
+        services.AddScoped<PricingCalculatorViewModel>(sp =>
+            new PricingCalculatorViewModel(
+                sp.GetRequiredService<IPricingService>(),
+                sp.GetRequiredService<ICostCalculationService>(),
+                sp.GetRequiredService<ISKURepository>(),
+                sp.GetRequiredService<ILogger<PricingCalculatorViewModel>>()));
+        
+        services.AddScoped<IngredientsViewModel>(sp =>
+            new IngredientsViewModel(
+                sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<IUnitConversionService>(),
+                sp.GetRequiredService<ILogger<IngredientsViewModel>>()));
 
         return services;
     }
 }
+
 
 
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Serilog;
 using Serilog.Core;
@@ -17,18 +17,28 @@ public static class LoggingConfiguration
 
             var logPath = Path.Combine(logsFolder, "donutms-.log");
 
-            return new LoggerConfiguration()
+            var logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
+                .Enrich.FromLogContext()
+                .Enrich.WithProperty("Application", "DonutMS")
                 .WriteTo.File(
                     logPath,
                     rollingInterval: RollingInterval.Day,
-                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    fileSizeLimitBytes: 104857600, // 100 MB
+                    retainedFileCountLimit: 10)
                 .CreateLogger();
+
+            return logger;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error configuring logging: {ex.Message}");
+            Console.WriteLine($"❌ CRITICAL: Error configuring logging: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
             throw;
         }
     }
 }
+
+
+

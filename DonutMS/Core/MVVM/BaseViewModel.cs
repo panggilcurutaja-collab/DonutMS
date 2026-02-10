@@ -5,13 +5,13 @@ namespace DonutMS.Core.MVVM;
 
 public abstract class BaseViewModel : ObservableObject
 {
-    protected readonly ILogger<BaseViewModel> Logger;
+    protected readonly ILogger Logger;
     private bool _isLoading;
     private string? _errorMessage;
 
-    protected BaseViewModel(ILogger<BaseViewModel> logger)
+    protected BaseViewModel(ILogger logger)
     {
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null in BaseViewModel constructor");
     }
 
     public bool IsLoading
@@ -28,13 +28,14 @@ public abstract class BaseViewModel : ObservableObject
 
     protected virtual void ClearError() => ErrorMessage = null;
 
+    protected void LogInfo(string message) => Logger.LogInformation(message);
+    protected void LogDebug(string message) => Logger.LogDebug(message);
+    protected void LogWarning(string message) => Logger.LogWarning(message);
+    protected void LogError(string message) => Logger.LogError(message);
+    
     protected virtual void SetError(string message)
     {
         ErrorMessage = message;
         Logger.LogError(message);
     }
-
-    protected virtual void LogInfo(string message) => Logger.LogInformation(message);
-    protected virtual void LogWarning(string message) => Logger.LogWarning(message);
-    protected virtual void LogError(string message) => Logger.LogError(message);
 }
