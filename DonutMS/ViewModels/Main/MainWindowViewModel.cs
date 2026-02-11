@@ -13,7 +13,6 @@ public partial class MainWindowViewModel : BaseViewModel
     private readonly INavigationService _navigationService;
     private readonly NavigationViewModel _navigationViewModel;
     private readonly IWindowService _windowService;
-    private readonly IThemeService _themeService;
 
     [ObservableProperty]
     private BaseViewModel? currentViewModel;
@@ -33,20 +32,15 @@ public partial class MainWindowViewModel : BaseViewModel
     [ObservableProperty]
     private UserContext currentUser = new();
 
-    [ObservableProperty]
-    private bool isDarkTheme = false;
-
     public MainWindowViewModel(
         INavigationService navigationService,
         NavigationViewModel navigationViewModel,
         IWindowService windowService,
-        IThemeService themeService,
         ILogger<MainWindowViewModel> logger) : base(logger)
     {
         _navigationService = navigationService;
         _navigationViewModel = navigationViewModel;
         _windowService = windowService;
-        _themeService = themeService;
         NavigationViewModel = navigationViewModel;
     }
 
@@ -69,8 +63,6 @@ public partial class MainWindowViewModel : BaseViewModel
                 CurrentViewModel = _navigationService.GetViewModel("Dashboard");
             }
 
-            _themeService.ApplyTheme(IsDarkTheme);
-            
             LogInfo("Application loaded successfully");
         }
         catch (Exception ex)
@@ -426,14 +418,6 @@ public partial class MainWindowViewModel : BaseViewModel
     {
         IsMenuOpen = !IsMenuOpen;
         _navigationViewModel.ToggleMenuCommand.Execute(null);
-    }
-
-    [RelayCommand]
-    public void ToggleTheme()
-    {
-        IsDarkTheme = !IsDarkTheme;
-        _navigationViewModel.IsDarkTheme = IsDarkTheme;
-        _themeService.ApplyTheme(IsDarkTheme);
     }
 
     [RelayCommand]

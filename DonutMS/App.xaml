@@ -14,7 +14,6 @@ xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <converters:IconToGlyphConverter x:Key="IconToGlyphConverter" />
             <converters:IconToPackIconMaterialKindConverter x:Key="IconToPackIconMaterialKindConverter" />
-            <converters:BoolToThemeIconConverter x:Key="BoolToThemeIconConverter" />
 
             <!-- Performance: enable virtualization globally for large lists/grids -->
             <Style TargetType="{x:Type DataGrid}">

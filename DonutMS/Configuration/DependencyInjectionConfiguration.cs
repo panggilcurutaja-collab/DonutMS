@@ -59,7 +59,6 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IBackupService, BackupService>();
         services.AddScoped<IWindowService, WindowService>();
         services.AddScoped<ICredentialStore, CredentialStore>();
-        services.AddSingleton<IThemeService, ThemeService>();
         services.AddScoped<IUnitConversionService, UnitConversionService>();
         services.AddScoped<IUnitService, UnitService>();
         services.AddScoped<ISKUService, SKUService>();
@@ -102,7 +101,6 @@ public static class DependencyInjectionConfiguration
                 sp.GetRequiredService<INavigationService>(),
                 sp.GetRequiredService<NavigationViewModel>(),
                 sp.GetRequiredService<IWindowService>(),
-                sp.GetRequiredService<IThemeService>(),
                 sp.GetRequiredService<ILogger<MainWindowViewModel>>()));
         
         services.AddScoped<DashboardViewModel>(sp =>

@@ -23,6 +23,9 @@
     <SolidColorBrush x:Key="DangerHoverBrush" Color="#FFDC2626" />
     <SolidColorBrush x:Key="DangerPressedBrush" Color="#FFB91C1C" />
 
+    <SolidColorBrush x:Key="HeaderBrush" Color="#FF2563EB" />
+    <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#FFFFFFFF" />
+
     <!-- MaterialDesign brush overrides for consistent contrast -->
     <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#FF2563EB" />
     <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#FF93C5FD" />

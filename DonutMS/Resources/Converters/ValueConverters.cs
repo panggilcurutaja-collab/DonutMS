@@ -231,37 +231,21 @@ public class IconToPackIconMaterialKindConverter : IValueConverter
         var key = value?.ToString() ?? string.Empty;
         return key switch
         {
-            "Home" => MahApps.Metro.IconPacks.PackIconMaterialKind.Home,
-            "Palette" => MahApps.Metro.IconPacks.PackIconMaterialKind.Palette,
-            "SwapHorizontal" => MahApps.Metro.IconPacks.PackIconMaterialKind.SwapHorizontal,
-            "Calculator" => MahApps.Metro.IconPacks.PackIconMaterialKind.Calculator,
-            "Tag" => MahApps.Metro.IconPacks.PackIconMaterialKind.Tag,
-            "Package" => MahApps.Metro.IconPacks.PackIconMaterialKind.PackageVariant,
-            "Truck" => MahApps.Metro.IconPacks.PackIconMaterialKind.Truck,
-            "Wrench" => MahApps.Metro.IconPacks.PackIconMaterialKind.Wrench,
-            "CurrencyUsd" => MahApps.Metro.IconPacks.PackIconMaterialKind.CurrencyUsd,
-            "AccountGroup" => MahApps.Metro.IconPacks.PackIconMaterialKind.AccountGroup,
-            "Percent" => MahApps.Metro.IconPacks.PackIconMaterialKind.Percent,
-            "ChartBar" => MahApps.Metro.IconPacks.PackIconMaterialKind.ChartBar,
-            "ShieldAccount" => MahApps.Metro.IconPacks.PackIconMaterialKind.ShieldAccount,
-            _ => MahApps.Metro.IconPacks.PackIconMaterialKind.ViewDashboard
+            "Home" => "Home",
+            "Palette" => "Palette",
+            "SwapHorizontal" => "SwapHorizontal",
+            "Calculator" => "Calculator",
+            "Tag" => "Tag",
+            "Package" => "PackageVariant",
+            "Truck" => "Truck",
+            "Wrench" => "Wrench",
+            "CurrencyUsd" => "CurrencyUsd",
+            "AccountGroup" => "AccountGroup",
+            "Percent" => "Percent",
+            "ChartBar" => "ChartBar",
+            "ShieldAccount" => "ShieldAccount",
+            _ => "ViewDashboard"
         };
-    }
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
-    {
-        return Binding.DoNothing;
-    }
-}
-
-public class BoolToThemeIconConverter : IValueConverter
-{
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
-    {
-        var isDark = value is bool b && b;
-        return isDark
-            ? MahApps.Metro.IconPacks.PackIconMaterialKind.WhiteBalanceSunny
-            : MahApps.Metro.IconPacks.PackIconMaterialKind.WeatherNight;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)

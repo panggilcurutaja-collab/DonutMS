@@ -29,7 +29,7 @@
 
         <!-- Top Header -->
         <Border Grid.Row="0" 
-                Background="{DynamicResource PrimaryHueMidBrush}"
+                Background="{DynamicResource HeaderBrush}"
                 Padding="18,10"
                 BorderBrush="{DynamicResource PrimaryHueLightBrush}"
                 BorderThickness="0,0,0,1">
@@ -49,17 +49,17 @@
                             Background="Transparent"
                             Foreground="White"
                             Margin="0">
-                        <iconPacks:PackIconMaterial Kind="Menu" Width="18" Height="18" Foreground="White" />
+                        <iconPacks:PackIconMaterial Kind="Menu" Width="18" Height="18" Foreground="{DynamicResource HeaderForegroundBrush}" />
                     </Button>
                     <TextBlock Text="{Binding ApplicationTitle}"
-                              Foreground="White"
+                              Foreground="{DynamicResource HeaderForegroundBrush}"
                               FontSize="18"
                               FontWeight="SemiBold"
                               VerticalAlignment="Center"
                               Margin="12,0,0,0" />
                 </StackPanel>
 
-                <!-- User Info & Theme Toggle -->
+                <!-- User Info -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
                     <Button Command="{Binding OpenRegisterCommand}"
                             Style="{StaticResource PrimaryButtonStyle}"
@@ -68,30 +68,17 @@
                         <TextBlock Text="Register User" FontSize="12" Foreground="White" />
                     </Button>
 
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="8,0">
-                        <TextBlock Text="{Binding CurrentUser.FullName, StringFormat='Welcome, {0}'}"
-                                  Foreground="White"
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="8,0">
+                            <TextBlock Text="{Binding CurrentUser.FullName, StringFormat='Welcome, {0}'}"
+                                  Foreground="{DynamicResource HeaderForegroundBrush}"
                                   FontSize="12"
                                   FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding CurrentUser.Role}"
-                                  Foreground="White"
+                            <TextBlock Text="{Binding CurrentUser.Role}"
+                                  Foreground="{DynamicResource HeaderForegroundBrush}"
                                   FontSize="11"
                                   Opacity="0.8" />
-                    </StackPanel>
+                        </StackPanel>
 
-                    <Button Command="{Binding ToggleThemeCommand}"
-                            Style="{StaticResource MahApps.Styles.Button.Square}"
-                            Width="36"
-                            Height="36"
-                            Background="Transparent"
-                            Foreground="White"
-                            ToolTip="Toggle Theme"
-                            Margin="8,0,0,0">
-                        <iconPacks:PackIconMaterial Kind="{Binding IsDarkTheme, Converter={StaticResource BoolToThemeIconConverter}}"
-                                                    Width="18"
-                                                    Height="18"
-                                                    Foreground="White" />
-                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
