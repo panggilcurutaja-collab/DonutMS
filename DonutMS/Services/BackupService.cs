@@ -33,7 +33,7 @@ public class BackupService : IBackupService
         var fileName = $"donutms_backup_{DateTime.Now:yyyyMMdd_HHmmss}.db";
         var backupPath = Path.Combine(backupFolder, fileName);
 
-        await Task.Run(() => File.Copy(dbPath, backupPath, true));
+        await Task.Run(() => File.Copy(dbPath, backupPath, true)).ConfigureAwait(false);
         _logger.LogInformation("Backup created: {Path}", backupPath);
         return backupPath;
     }
@@ -53,7 +53,7 @@ public class BackupService : IBackupService
             return null;
         }
 
-        return await CreateBackupAsync(backupFolder);
+        return await CreateBackupAsync(backupFolder).ConfigureAwait(false);
     }
 
     private string ResolveDatabasePath()
