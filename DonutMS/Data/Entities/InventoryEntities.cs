@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DonutMS.Core.Domain;
 using DonutMS.Core.MVVM;
 
 namespace DonutMS.Data.Entities;
@@ -24,10 +25,10 @@ public class InventoryStock : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Ingredient? Ingredient { get; set; }
-    public Unit? Unit { get; set; }
-    public ICollection<StockBatch>? StockBatches { get; set; }
-    public ICollection<StockTransaction>? Transactions { get; set; }
+    public Ingredient Ingredient { get; set; } = null!;
+    public Unit Unit { get; set; } = null!;
+    public ICollection<StockBatch> StockBatches { get; set; } = new List<StockBatch>();
+    public ICollection<StockTransaction> Transactions { get; set; } = new List<StockTransaction>();
 }
 
 [Table("StockBatches")]
@@ -52,16 +53,16 @@ public class StockBatch : BaseModel
     public decimal AvailableQuantity => QuantityReceived - QuantityUsed - QuantityWasted;
 
     [StringLength(50)]
-    public string Status { get; set; } = "Active";
+    public string Status { get; set; } = DomainConstants.StockBatchStatus.Active;
 
     public int DaysToExpiry => ExpiryDate.HasValue ? (int)(ExpiryDate.Value.Date - DateTime.Today).TotalDays : int.MaxValue;
 
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public InventoryStock? InventoryStock { get; set; }
-    public ICollection<BatchIngredient>? BatchIngredients { get; set; }
-    public ICollection<StockTransaction>? Transactions { get; set; }
+    public InventoryStock InventoryStock { get; set; } = null!;
+    public ICollection<BatchIngredient> BatchIngredients { get; set; } = new List<BatchIngredient>();
+    public ICollection<StockTransaction> Transactions { get; set; } = new List<StockTransaction>();
 }
 
 [Table("StockTransactions")]
@@ -95,9 +96,9 @@ public class StockTransaction : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public InventoryStock? InventoryStock { get; set; }
+    public InventoryStock InventoryStock { get; set; } = null!;
     public StockBatch? StockBatch { get; set; }
-    public Unit? Unit { get; set; }
+    public Unit Unit { get; set; } = null!;
     public Batch? Batch { get; set; }
     public PurchaseOrder? PurchaseOrder { get; set; }
 }
@@ -117,5 +118,5 @@ public class InventoryAging : BaseModel
     [StringLength(50)]
     public string AgeCategory { get; set; } = "Current";
 
-    public InventoryStock? InventoryStock { get; set; }
+    public InventoryStock InventoryStock { get; set; } = null!;
 }

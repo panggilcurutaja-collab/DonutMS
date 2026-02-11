@@ -45,6 +45,10 @@ public class ViewLocator : IViewLocator
         RegisterViewMapping(
             typeof(DonutMS.ViewModels.DashboardViewModel),
             typeof(DonutMS.Views.Main.DashboardView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.HomeViewModel),
+            typeof(DonutMS.Views.Main.HomeView));
         
         RegisterViewMapping(
             typeof(DonutMS.ViewModels.IngredientsViewModel),
@@ -89,6 +93,14 @@ public class ViewLocator : IViewLocator
         RegisterViewMapping(
             typeof(DonutMS.ViewModels.PromoManagerViewModel),
             typeof(DonutMS.Views.Promotions.PromoManagerViewV2));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.ReportsViewModel),
+            typeof(DonutMS.Views.Reports.ReportsView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.SecurityViewModel),
+            typeof(DonutMS.Views.Admin.SecurityView));
     }
 
     public UIElement? GetViewForViewModel(Type viewModelType)

@@ -1,4 +1,4 @@
-﻿<Application x:Class="DonutMS.App"
+<Application x:Class="DonutMS.App"
 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:local="clr-namespace:DonutMS"
@@ -7,40 +7,36 @@ xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <!-- Global Material Design theme -->
-                <materialDesign:BundledTheme BaseTheme="Light"
-                                             PrimaryColor="Blue"
-                                             SecondaryColor="Amber" />
-
-                <!-- MahApps Metro -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
-
-                <!-- Material Design (MahApps integration + defaults) -->
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.MahApps;component/Themes/MaterialDesignTheme.MahApps.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <!-- Custom Converters -->
             <converters:BoolToWidthConverter x:Key="BoolToWidthConverter" />
             <converters:CurrencyConverter x:Key="CurrencyConverter" />
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <converters:IconToGlyphConverter x:Key="IconToGlyphConverter" />
+            <converters:IconToPackIconMaterialKindConverter x:Key="IconToPackIconMaterialKindConverter" />
+            <converters:BoolToThemeIconConverter x:Key="BoolToThemeIconConverter" />
 
-            <!-- Custom theme colors -->
-            <Color x:Key="PrimaryColor">#FF1E88E5</Color>
-            <Color x:Key="AccentColor">#FFFFB300</Color>
-            <Color x:Key="BackgroundColor">#FFF5F7FA</Color>
+            <!-- Performance: enable virtualization globally for large lists/grids -->
+            <Style TargetType="{x:Type DataGrid}">
+                <Setter Property="EnableRowVirtualization" Value="True" />
+                <Setter Property="EnableColumnVirtualization" Value="True" />
+                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
+                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+                <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True" />
+            </Style>
 
-            <!-- MaterialDesign brush overrides for consistent contrast -->
-            <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#FF1E88E5" />
-            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#FF64B5F6" />
-            <SolidColorBrush x:Key="MaterialDesignPaper" Color="#FFF5F7FA" />
-            <SolidColorBrush x:Key="MaterialDesignCardBackground" Color="#FFFFFFFF" />
-            <SolidColorBrush x:Key="MaterialDesignBody" Color="#FF1C1C1C" />
-            <SolidColorBrush x:Key="MaterialDesignBodyLight" Color="#FF546E7A" />
-            <SolidColorBrush x:Key="MaterialDesignDividerBackground" Color="#FFEEF1F4" />
-            <SolidColorBrush x:Key="DividerBrush" Color="#FFE0E0E0" />
+            <Style TargetType="{x:Type ListView}">
+                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
+                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+            </Style>
+
+            <Style TargetType="{x:Type ListBox}">
+                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
+                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

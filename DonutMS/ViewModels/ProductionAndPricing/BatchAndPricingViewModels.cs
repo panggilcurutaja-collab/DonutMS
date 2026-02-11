@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using DonutMS.Core.Domain;
 using DonutMS.Core.MVVM;
 using DonutMS.Models.DTOs;
 using DonutMS.Services;
@@ -53,7 +54,7 @@ public partial class BatchManagementViewModel : BaseViewModel
     private string batchCode = string.Empty;
 
     [ObservableProperty]
-    private string batchStatus = "Planned";
+    private string batchStatus = DomainConstants.BatchStatus.Planned;
 
     [ObservableProperty]
     private DateTime fromDate = DateTime.Today.AddDays(-7);
@@ -369,9 +370,9 @@ public partial class BatchManagementViewModel : BaseViewModel
     private void UpdateSummary()
     {
         TotalBatches = Batches.Count;
-        PlannedCount = Batches.Count(b => b.Status == "Planned");
-        InProgressCount = Batches.Count(b => b.Status == "In Progress");
-        CompletedCount = Batches.Count(b => b.Status == "Completed");
+        PlannedCount = Batches.Count(b => b.Status == DomainConstants.BatchStatus.Planned);
+        InProgressCount = Batches.Count(b => b.Status == DomainConstants.BatchStatus.InProgress);
+        CompletedCount = Batches.Count(b => b.Status == DomainConstants.BatchStatus.Completed);
     }
 
     private async Task LoadBatchTransactionsAsync()

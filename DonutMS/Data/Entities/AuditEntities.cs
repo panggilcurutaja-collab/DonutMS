@@ -52,8 +52,8 @@ public class Allergen : BaseModel
 
     public bool IsActive { get; set; } = true;
 
-    public ICollection<Ingredient>? Ingredients { get; set; }
-    public ICollection<SKUAllergen>? SKUAllergens { get; set; }
+    public ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
+    public ICollection<SKUAllergen> SKUAllergens { get; set; } = new List<SKUAllergen>();
 }
 
 [Table("SKUAllergens")]
@@ -70,8 +70,8 @@ public class SKUAllergen : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public SKU? SKU { get; set; }
-    public Allergen? Allergen { get; set; }
+    public SKU SKU { get; set; } = null!;
+    public Allergen Allergen { get; set; } = null!;
 }
 
 [Table("IngredientAllergens")]
@@ -88,8 +88,8 @@ public class IngredientAllergen : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Ingredient? Ingredient { get; set; }
-    public Allergen? Allergen { get; set; }
+    public Ingredient Ingredient { get; set; } = null!;
+    public Allergen Allergen { get; set; } = null!;
 }
 
 [Table("NutritionalInfos")]
@@ -124,7 +124,7 @@ public class NutritionalInfo : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public SKU? SKU { get; set; }
+    public SKU SKU { get; set; } = null!;
 }
 
 [Table("Users")]

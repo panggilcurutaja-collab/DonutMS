@@ -53,35 +53,35 @@
                                 <TextBlock Text="Discount Form" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
                                 <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                <TextBox Text="{Binding DiscountName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                <TextBox Text="{Binding DiscountName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                 <TextBlock Text="Type" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                                 <ComboBox ItemsSource="{Binding DiscountTypes}"
                                           SelectedItem="{Binding DiscountType}"
-                                          Background="White" />
+                                          Background="{DynamicResource SurfaceBrush}" />
 
                                 <TextBlock Text="Value" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                <TextBox Text="{Binding DiscountValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                <TextBox Text="{Binding DiscountValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                 <TextBlock Text="Start Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                <DatePicker SelectedDate="{Binding DiscountStartDate}" Background="White" />
+                                <DatePicker SelectedDate="{Binding DiscountStartDate}" Background="{DynamicResource SurfaceBrush}" />
 
                                 <TextBlock Text="End Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                <DatePicker SelectedDate="{Binding DiscountEndDate}" Background="White" />
+                                <DatePicker SelectedDate="{Binding DiscountEndDate}" Background="{DynamicResource SurfaceBrush}" />
 
                                 <TextBlock Text="Applicable For" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                                 <ComboBox ItemsSource="{Binding ApplicableForOptions}"
                                           SelectedItem="{Binding DiscountApplicableFor}"
                                           IsEditable="True"
-                                          Background="White" />
+                                          Background="{DynamicResource SurfaceBrush}" />
 
                                 <TextBlock Text="Minimum Quantity (Volume)" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                <TextBox Text="{Binding DiscountMinimumQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                <TextBox Text="{Binding DiscountMinimumQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                 <CheckBox Content="Active" IsChecked="{Binding DiscountIsActive}" Margin="0,12,0,0" />
 
                                 <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                <TextBox Text="{Binding DiscountNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" AcceptsReturn="True" Height="80" />
+                                <TextBox Text="{Binding DiscountNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" AcceptsReturn="True" Height="80" />
 
                                 <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                                     <Button Command="{Binding SaveDiscountCommand}"
@@ -112,7 +112,7 @@
                                   SelectedItem="{Binding SelectedDiscount}"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
-                                  Background="White"
+                                  Background="{DynamicResource SurfaceBrush}"
                                   Foreground="{DynamicResource MaterialDesignBody}"
                                   TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                   RowBackground="{DynamicResource MaterialDesignPaper}"
@@ -153,24 +153,24 @@
                             <TextBlock Text="Bundle Form" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
                             <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding BundleName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding BundleName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="SKU" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding Skus}"
                                       SelectedItem="{Binding SelectedBundleSku}"
                                       DisplayMemberPath="Name"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Quantity" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding BundleQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding BundleQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Bundle Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding BundlePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding BundlePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <CheckBox Content="Active" IsChecked="{Binding BundleIsActive}" Margin="0,12,0,0" />
 
                             <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding BundleNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" AcceptsReturn="True" Height="80" />
+                            <TextBox Text="{Binding BundleNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" AcceptsReturn="True" Height="80" />
 
                             <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                                 <Button Command="{Binding SaveBundleCommand}"
@@ -200,7 +200,7 @@
                                   SelectedItem="{Binding SelectedBundle}"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
-                                  Background="White"
+                                  Background="{DynamicResource SurfaceBrush}"
                                   Foreground="{DynamicResource MaterialDesignBody}"
                                   TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                   RowBackground="{DynamicResource MaterialDesignPaper}"
@@ -242,25 +242,25 @@
                             <ComboBox ItemsSource="{Binding Skus}"
                                       SelectedItem="{Binding SelectedPromoSku}"
                                       DisplayMemberPath="Name"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Quantity" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding PromoQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding PromoQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Base Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding PromoBasePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding PromoBasePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Discount" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding Discounts}"
                                       SelectedItem="{Binding SelectedPromoDiscount}"
                                       DisplayMemberPath="Name"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Bundle" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding Bundles}"
                                       SelectedItem="{Binding SelectedPromoBundle}"
                                       DisplayMemberPath="Name"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <Button Command="{Binding RunSimulationCommand}"
                                     Content="Run Simulation"

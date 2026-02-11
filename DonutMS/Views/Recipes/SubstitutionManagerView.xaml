@@ -68,7 +68,7 @@
                           SelectedItem="{Binding SelectedOriginalIngredient}"
                           DisplayMemberPath="Name"
                           Margin="0,6,12,0"
-                          Background="White"
+                          Background="{DynamicResource SurfaceBrush}"
                           Foreground="{DynamicResource MaterialDesignBody}"
                           Padding="10,6" />
 
@@ -77,7 +77,7 @@
                           SelectedItem="{Binding SelectedSubstituteIngredient}"
                           DisplayMemberPath="Name"
                           Margin="0,6,12,0"
-                          Background="White"
+                          Background="{DynamicResource SurfaceBrush}"
                           Foreground="{DynamicResource MaterialDesignBody}"
                           Padding="10,6" />
 
@@ -85,7 +85,7 @@
                          Text="{Binding SubstitutionRatio, UpdateSourceTrigger=PropertyChanged}"
                          Width="90"
                          Margin="12,6,12,0"
-                         Background="White"
+                         Background="{DynamicResource SurfaceBrush}"
                          Foreground="{DynamicResource MaterialDesignBody}"
                          Padding="10,6" />
 
@@ -105,7 +105,7 @@
             <Button Command="{Binding CreateSubstitutionCommand}"
                     Content="Save Rule"
                     Padding="16,8"
-                    Background="Green"
+                    Background="{DynamicResource SuccessBrush}"
                     Foreground="White"
                     BorderThickness="0" />
         </StackPanel>
@@ -117,7 +117,7 @@
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
                   Margin="16,0,16,16"
-                  Background="White"
+                  Background="{DynamicResource SurfaceBrush}"
                   BorderThickness="1"
                   BorderBrush="{DynamicResource DividerBrush}">
             <DataGrid.Columns>

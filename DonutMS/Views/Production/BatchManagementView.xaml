@@ -5,69 +5,72 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:child="clr-namespace:MahApps.Metro.SimpleChildWindow;assembly=MahApps.Metro.SimpleChildWindow"
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="1100">
 
-    <materialDesign:DialogHost IsOpen="{Binding IsJobSheetOpen}">
-        <materialDesign:DialogHost.DialogContent>
-            <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                    Padding="16"
-                    CornerRadius="6"
-                    BorderBrush="{DynamicResource DividerBrush}"
-                    BorderThickness="1"
-                    Width="800"
-                    MaxHeight="600">
-                <StackPanel>
-                    <TextBlock Text="{Binding JobSheetTitle}"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource MaterialDesignBody}" />
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <child:ChildWindow IsOpen="{Binding IsJobSheetOpen}" OverlayBrush="#88000000">
+            <child:ChildWindow.Content>
+                <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                        Padding="16"
+                        CornerRadius="6"
+                        BorderBrush="{DynamicResource DividerBrush}"
+                        BorderThickness="1"
+                        Width="800"
+                        MaxHeight="600">
+                    <StackPanel>
+                        <TextBlock Text="{Binding JobSheetTitle}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MaterialDesignBody}" />
 
-                    <TextBlock Text="{Binding SelectedBatch.RecipeName, StringFormat='Recipe: {0}'}"
-                               Margin="0,8,0,0"
-                               Foreground="{DynamicResource MaterialDesignBody}" />
-                    <TextBlock Text="{Binding SelectedBatch.TargetYield, StringFormat='Target Yield: {0:N2}'}"
-                               Foreground="{DynamicResource MaterialDesignBody}" />
+                        <TextBlock Text="{Binding SelectedBatch.RecipeName, StringFormat='Recipe: {0}'}"
+                                   Margin="0,8,0,0"
+                                   Foreground="{DynamicResource MaterialDesignBody}" />
+                        <TextBlock Text="{Binding SelectedBatch.TargetYield, StringFormat='Target Yield: {0:N2}'}"
+                                   Foreground="{DynamicResource MaterialDesignBody}" />
 
-                    <TextBlock Text="Ingredients" FontWeight="SemiBold" Margin="0,12,0,6" />
-                    <DataGrid ItemsSource="{Binding SelectedBatch.Ingredients}"
-                              AutoGenerateColumns="False"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              Background="White"
-                              Foreground="{DynamicResource MaterialDesignBody}"
-                              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-                              BorderThickness="1"
-                              BorderBrush="{DynamicResource DividerBrush}"
-                              RowBackground="{DynamicResource MaterialDesignPaper}"
-                              AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
-                            </Style>
-                        </DataGrid.Resources>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="200" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Planned" Binding="{Binding PlannedQuantity, StringFormat=N2}" Width="90" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Unit" Binding="{Binding PlannedUnitCode}" Width="70" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90" IsReadOnly="True" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <TextBlock Text="Ingredients" FontWeight="SemiBold" Margin="0,12,0,6" />
+                        <DataGrid ItemsSource="{Binding SelectedBatch.Ingredients}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  Background="{DynamicResource SurfaceBrush}"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                  BorderThickness="1"
+                                  BorderBrush="{DynamicResource DividerBrush}"
+                                  RowBackground="{DynamicResource MaterialDesignPaper}"
+                                  AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="200" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Planned" Binding="{Binding PlannedQuantity, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Unit" Binding="{Binding PlannedUnitCode}" Width="70" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="90" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                        <Button Command="{Binding CloseJobSheetCommand}"
-                                Content="Close"
-                                Padding="12,6"
-                                Background="{DynamicResource MaterialDesignCardBackground}"
-                                Foreground="{DynamicResource MaterialDesignBody}"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <Button Command="{Binding CloseJobSheetCommand}"
+                                    Content="Close"
+                                    Padding="12,6"
+                                    Background="{DynamicResource MaterialDesignCardBackground}"
+                                    Foreground="{DynamicResource MaterialDesignBody}"
+                                    BorderBrush="{DynamicResource DividerBrush}"
+                                    BorderThickness="1" />
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </Border>
-        </materialDesign:DialogHost.DialogContent>
+                </Border>
+            </child:ChildWindow.Content>
+        </child:ChildWindow>
 
-        <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -117,8 +120,8 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                        <DatePicker SelectedDate="{Binding FromDate}" Background="White" />
-                        <DatePicker SelectedDate="{Binding ToDate}" Background="White" Margin="8,0,0,0" />
+                        <DatePicker SelectedDate="{Binding FromDate}" Background="{DynamicResource SurfaceBrush}" />
+                        <DatePicker SelectedDate="{Binding ToDate}" Background="{DynamicResource SurfaceBrush}" Margin="8,0,0,0" />
                         <Button Command="{Binding LoadBatchesCommand}"
                                 Content="Load"
                                 Padding="12,6"
@@ -166,7 +169,7 @@
                                           ItemsSource="{Binding AvailableRecipes}"
                                           SelectedItem="{Binding SelectedRecipe}"
                                           DisplayMemberPath="Name"
-                                          Background="White"
+                                          Background="{DynamicResource SurfaceBrush}"
                                           Foreground="{DynamicResource MaterialDesignBody}"
                                           Margin="0,0,12,0"
                                           mah:TextBoxHelper.Watermark="Select recipe" />
@@ -174,7 +177,7 @@
                                 <TextBox Grid.Column="1"
                                          Text="{Binding TargetYield, UpdateSourceTrigger=PropertyChanged}"
                                          Padding="8,6"
-                                         Background="White"
+                                         Background="{DynamicResource SurfaceBrush}"
                                          Foreground="{DynamicResource MaterialDesignBody}"
                                          BorderBrush="{DynamicResource DividerBrush}"
                                          BorderThickness="1"
@@ -185,7 +188,7 @@
                                         Command="{Binding CreateBatchCommand}"
                                         Content="Create"
                                         Padding="12,6"
-                                        Background="Green"
+                                        Background="{DynamicResource SuccessBrush}"
                                         Foreground="White"
                                         BorderThickness="0" />
                             </Grid>
@@ -203,7 +206,7 @@
                               AutoGenerateColumns="False"
                               CanUserAddRows="False"
                               CanUserDeleteRows="False"
-                              Background="White"
+                              Background="{DynamicResource SurfaceBrush}"
                               Foreground="{DynamicResource MaterialDesignBody}"
                               TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                               BorderThickness="1"
@@ -298,7 +301,7 @@
                                     <Button Command="{Binding StartProductionCommand}"
                                             Content="Start Production"
                                             Padding="12,6"
-                                            Background="DodgerBlue"
+                                            Background="{DynamicResource AccentBrush}"
                                             Foreground="White"
                                             BorderThickness="0"
                                             Margin="0,0,8,0" />
@@ -324,7 +327,7 @@
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
                                           CanUserDeleteRows="False"
-                                          Background="White"
+                                          Background="{DynamicResource SurfaceBrush}"
                                           Foreground="{DynamicResource MaterialDesignBody}"
                                           TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                           BorderThickness="1"
@@ -361,7 +364,7 @@
                                     <TextBox Text="{Binding ActualYield, UpdateSourceTrigger=PropertyChanged}"
                                              Width="120"
                                              Padding="8,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderBrush="{DynamicResource DividerBrush}"
                                              BorderThickness="1"
@@ -370,7 +373,7 @@
                                     <TextBox Text="{Binding WasteQuantityInput, UpdateSourceTrigger=PropertyChanged}"
                                              Width="120"
                                              Padding="8,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderBrush="{DynamicResource DividerBrush}"
                                              BorderThickness="1"
@@ -379,7 +382,7 @@
                                     <Button Command="{Binding CompleteBatchCommand}"
                                             Content="Complete Batch"
                                             Padding="12,6"
-                                            Background="Green"
+                                            Background="{DynamicResource SuccessBrush}"
                                             Foreground="White"
                                             BorderThickness="0" />
                                 </StackPanel>
@@ -387,7 +390,7 @@
                                 <TextBox Text="{Binding ExecutionNotes, UpdateSourceTrigger=PropertyChanged}"
                                          Margin="0,8,0,0"
                                          Padding="8,6"
-                                         Background="White"
+                                         Background="{DynamicResource SurfaceBrush}"
                                          Foreground="{DynamicResource MaterialDesignBody}"
                                          BorderBrush="{DynamicResource DividerBrush}"
                                          BorderThickness="1"
@@ -415,7 +418,7 @@
                                     <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                         <TextBox Text="{Binding QcInspectedBy, UpdateSourceTrigger=PropertyChanged}"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -424,7 +427,7 @@
                                         <TextBox Text="{Binding QcTaste, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="0,6,0,0"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -433,7 +436,7 @@
                                         <TextBox Text="{Binding QcTexture, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="0,6,0,0"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -442,7 +445,7 @@
                                         <TextBox Text="{Binding QcAppearance, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="0,6,0,0"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -451,7 +454,7 @@
                                         <TextBox Text="{Binding QcAroma, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="0,6,0,0"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -461,7 +464,7 @@
                                     <StackPanel Grid.Column="1">
                                         <TextBox Text="{Binding QcDefectsFound, UpdateSourceTrigger=PropertyChanged}"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -472,7 +475,7 @@
                                         <TextBox Text="{Binding QcRemarks, UpdateSourceTrigger=PropertyChanged}"
                                                  Margin="0,6,0,0"
                                                  Padding="8,6"
-                                                 Background="White"
+                                                 Background="{DynamicResource SurfaceBrush}"
                                                  Foreground="{DynamicResource MaterialDesignBody}"
                                                  BorderBrush="{DynamicResource DividerBrush}"
                                                  BorderThickness="1"
@@ -495,7 +498,7 @@
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
                                           CanUserDeleteRows="False"
-                                          Background="White"
+                                          Background="{DynamicResource SurfaceBrush}"
                                           Foreground="{DynamicResource MaterialDesignBody}"
                                           TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                           BorderThickness="1"
@@ -531,7 +534,7 @@
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
                                           CanUserDeleteRows="False"
-                                          Background="White"
+                                          Background="{DynamicResource SurfaceBrush}"
                                           Foreground="{DynamicResource MaterialDesignBody}"
                                           TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                           BorderThickness="1"
@@ -580,5 +583,5 @@
                 </Grid>
             </Border>
         </Grid>
-    </materialDesign:DialogHost>
+    </Grid>
 </UserControl>

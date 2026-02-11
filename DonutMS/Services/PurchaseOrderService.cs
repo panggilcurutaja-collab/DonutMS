@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using DonutMS.Core.Domain;
 using DonutMS.Data.Entities;
 using DonutMS.Data.Repositories;
 using DonutMS.Models.DTOs;
@@ -59,7 +60,7 @@ public class PurchaseOrderService : IPurchaseOrderService
         }
 
         var po = _mapper.Map<PurchaseOrder>(dto);
-        po.Status = "Draft";
+        po.Status = DomainConstants.PurchaseOrderStatus.Draft;
         po.OrderDate = DateTime.UtcNow;
 
         var items = new List<PurchaseOrderItem>();
@@ -116,10 +117,10 @@ public class PurchaseOrderService : IPurchaseOrderService
     public async Task<bool> ConfirmPurchaseOrderAsync(int id)
     {
         var po = await _poRepository.GetByIdAsync(id);
-        if (po == null || po.Status != "Draft")
+        if (po == null || po.Status != DomainConstants.PurchaseOrderStatus.Draft)
             return false;
 
-        po.Status = "Confirmed";
+        po.Status = DomainConstants.PurchaseOrderStatus.Confirmed;
         await _poRepository.UpdateAsync(po);
         await _poRepository.SaveChangesAsync();
 
@@ -133,12 +134,12 @@ public class PurchaseOrderService : IPurchaseOrderService
         if (po == null)
             return false;
 
-        po.Status = "Received";
+        po.Status = DomainConstants.PurchaseOrderStatus.Received;
         po.ActualDeliveryDate = DateTime.UtcNow;
 
         foreach (var item in po.Items!)
         {
-            item.Status = "Received";
+            item.Status = DomainConstants.PurchaseOrderItemStatus.Received;
             // Would normally update inventory here via IInventoryService
         }
 
@@ -155,7 +156,7 @@ public class PurchaseOrderService : IPurchaseOrderService
         if (po == null || po.Items == null)
             return null;
 
-        if (po.Status == "Cancelled")
+        if (po.Status == DomainConstants.PurchaseOrderStatus.Cancelled)
             throw new InvalidOperationException("Cannot receive a cancelled PO");
 
         var receiving = _mapper.Map<PurchaseOrderReceiving>(dto);
@@ -179,11 +180,11 @@ public class PurchaseOrderService : IPurchaseOrderService
             item.ReceivedQuantity = (item.ReceivedQuantity ?? 0) + detail.ReceivedQuantity;
             if (item.ReceivedQuantity >= item.OrderedQuantity)
             {
-                item.Status = "Received";
+                item.Status = DomainConstants.PurchaseOrderItemStatus.Received;
             }
             else
             {
-                item.Status = "Partial";
+                item.Status = DomainConstants.PurchaseOrderItemStatus.Partial;
             }
 
             detailEntities.Add(entity);
@@ -205,7 +206,9 @@ public class PurchaseOrderService : IPurchaseOrderService
         await _receivingRepository.AddAsync(receiving);
 
         var allReceived = po.Items.All(i => (i.ReceivedQuantity ?? 0) >= i.OrderedQuantity);
-        po.Status = allReceived ? "Received" : "Partially Received";
+        po.Status = allReceived
+            ? DomainConstants.PurchaseOrderStatus.Received
+            : DomainConstants.PurchaseOrderStatus.PartiallyReceived;
         po.ActualDeliveryDate = allReceived ? receiving.ReceivingDate : po.ActualDeliveryDate;
 
         await _poRepository.UpdateAsync(po);
@@ -222,7 +225,7 @@ public class PurchaseOrderService : IPurchaseOrderService
         if (po == null)
             return false;
 
-        po.Status = "Cancelled";
+        po.Status = DomainConstants.PurchaseOrderStatus.Cancelled;
         await _poRepository.UpdateAsync(po);
         await _poRepository.SaveChangesAsync();
 

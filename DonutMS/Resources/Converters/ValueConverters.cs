@@ -129,11 +129,23 @@ public class InverseBooleanConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        return value is bool b ? !b : true;
+        var result = value is bool b ? !b : true;
+
+        if (parameter is string param && param.Equals("Visibility", StringComparison.OrdinalIgnoreCase))
+        {
+            return result ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        return result;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
+        if (value is System.Windows.Visibility vis)
+        {
+            return vis != System.Windows.Visibility.Visible;
+        }
+
         return value is bool b ? !b : true;
     }
 }
@@ -173,6 +185,83 @@ public class QuantityHighlightConverter : IValueConverter
             return new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Red for low/zero stock
 
         return new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green for good stock
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+public class IconToGlyphConverter : IValueConverter
+{
+    private static readonly Dictionary<string, string> Map = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Home", "\uE80F" },
+        { "Palette", "\uE790" },
+        { "SwapHorizontal", "\uE8AB" },
+        { "Calculator", "\uE8EF" },
+        { "Tag", "\uE8EC" },
+        { "Package", "\uE7B8" },
+        { "Truck", "\uE804" },
+        { "Wrench", "\uE7AD" },
+        { "CurrencyUsd", "\uEAFD" },
+        { "AccountGroup", "\uE716" },
+        { "Percent", "\uE94C" },
+        { "ChartBar", "\uE9D2" },
+        { "ShieldAccount", "\uE7EE" }
+    };
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        var key = value?.ToString() ?? string.Empty;
+        return Map.TryGetValue(key, out var glyph) ? glyph : "\uE10C";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+public class IconToPackIconMaterialKindConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        var key = value?.ToString() ?? string.Empty;
+        return key switch
+        {
+            "Home" => MahApps.Metro.IconPacks.PackIconMaterialKind.Home,
+            "Palette" => MahApps.Metro.IconPacks.PackIconMaterialKind.Palette,
+            "SwapHorizontal" => MahApps.Metro.IconPacks.PackIconMaterialKind.SwapHorizontal,
+            "Calculator" => MahApps.Metro.IconPacks.PackIconMaterialKind.Calculator,
+            "Tag" => MahApps.Metro.IconPacks.PackIconMaterialKind.Tag,
+            "Package" => MahApps.Metro.IconPacks.PackIconMaterialKind.PackageVariant,
+            "Truck" => MahApps.Metro.IconPacks.PackIconMaterialKind.Truck,
+            "Wrench" => MahApps.Metro.IconPacks.PackIconMaterialKind.Wrench,
+            "CurrencyUsd" => MahApps.Metro.IconPacks.PackIconMaterialKind.CurrencyUsd,
+            "AccountGroup" => MahApps.Metro.IconPacks.PackIconMaterialKind.AccountGroup,
+            "Percent" => MahApps.Metro.IconPacks.PackIconMaterialKind.Percent,
+            "ChartBar" => MahApps.Metro.IconPacks.PackIconMaterialKind.ChartBar,
+            "ShieldAccount" => MahApps.Metro.IconPacks.PackIconMaterialKind.ShieldAccount,
+            _ => MahApps.Metro.IconPacks.PackIconMaterialKind.ViewDashboard
+        };
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+public class BoolToThemeIconConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        var isDark = value is bool b && b;
+        return isDark
+            ? MahApps.Metro.IconPacks.PackIconMaterialKind.WhiteBalanceSunny
+            : MahApps.Metro.IconPacks.PackIconMaterialKind.WeatherNight;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)

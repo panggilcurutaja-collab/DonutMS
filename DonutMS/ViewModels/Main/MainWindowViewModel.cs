@@ -12,6 +12,8 @@ public partial class MainWindowViewModel : BaseViewModel
 {
     private readonly INavigationService _navigationService;
     private readonly NavigationViewModel _navigationViewModel;
+    private readonly IWindowService _windowService;
+    private readonly IThemeService _themeService;
 
     [ObservableProperty]
     private BaseViewModel? currentViewModel;
@@ -37,10 +39,14 @@ public partial class MainWindowViewModel : BaseViewModel
     public MainWindowViewModel(
         INavigationService navigationService,
         NavigationViewModel navigationViewModel,
+        IWindowService windowService,
+        IThemeService themeService,
         ILogger<MainWindowViewModel> logger) : base(logger)
     {
         _navigationService = navigationService;
         _navigationViewModel = navigationViewModel;
+        _windowService = windowService;
+        _themeService = themeService;
         NavigationViewModel = navigationViewModel;
     }
 
@@ -55,7 +61,15 @@ public partial class MainWindowViewModel : BaseViewModel
             CurrentUser = _navigationService.CurrentUser;
             _navigationViewModel.LoadMenuItemsCommand.Execute(null);
 
-            await NavigateToDashboardAsync();
+            CurrentPageName = "Home";
+            CurrentViewModel = _navigationService.GetViewModel("Home");
+            if (CurrentViewModel == null)
+            {
+                CurrentPageName = "Dashboard";
+                CurrentViewModel = _navigationService.GetViewModel("Dashboard");
+            }
+
+            _themeService.ApplyTheme(IsDarkTheme);
             
             LogInfo("Application loaded successfully");
         }
@@ -215,6 +229,12 @@ public partial class MainWindowViewModel : BaseViewModel
             case "Promotions":
                 await NavigateToPromotionsAsync();
                 break;
+            case "Reports":
+                await NavigateToReportsAsync();
+                break;
+            case "Security":
+                await NavigateToSecurityAsync();
+                break;
             default:
                 SetError($"Unknown menu: {item.Label}");
                 break;
@@ -362,6 +382,46 @@ public partial class MainWindowViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    public async Task NavigateToReportsAsync()
+    {
+        if (!_navigationService.CanNavigateTo("Reports"))
+        {
+            SetError("You don't have permission to access Reports");
+            return;
+        }
+
+        CurrentPageName = "Reports";
+        CurrentViewModel = _navigationService.GetViewModel("Reports");
+
+        if (CurrentViewModel is ReportsViewModel reportsVM)
+        {
+            await reportsVM.LoadReportsCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Reports");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToSecurityAsync()
+    {
+        if (!_navigationService.CanNavigateTo("Security"))
+        {
+            SetError("You don't have permission to access Security & Audit");
+            return;
+        }
+
+        CurrentPageName = "Security & Audit";
+        CurrentViewModel = _navigationService.GetViewModel("Security");
+
+        if (CurrentViewModel is SecurityViewModel securityVM)
+        {
+            await securityVM.LoadCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Security & Audit");
+    }
+
+    [RelayCommand]
     public void ToggleMenu()
     {
         IsMenuOpen = !IsMenuOpen;
@@ -372,6 +432,21 @@ public partial class MainWindowViewModel : BaseViewModel
     public void ToggleTheme()
     {
         IsDarkTheme = !IsDarkTheme;
-        _navigationViewModel.ToggleThemeCommand.Execute(null);
+        _navigationViewModel.IsDarkTheme = IsDarkTheme;
+        _themeService.ApplyTheme(IsDarkTheme);
+    }
+
+    [RelayCommand]
+    public void OpenRegister()
+    {
+        try
+        {
+            ClearError();
+            _windowService.ShowRegisterWindow();
+        }
+        catch (Exception ex)
+        {
+            SetError($"Unable to open register window: {ex.Message}");
+        }
     }
 }

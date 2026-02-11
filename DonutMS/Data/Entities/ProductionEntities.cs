@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DonutMS.Core.Domain;
 using DonutMS.Core.MVVM;
 
 namespace DonutMS.Data.Entities;
@@ -29,20 +30,20 @@ public class Batch : BaseModel
     public decimal? WasteQuantity { get; set; }
 
     [StringLength(50)]
-    public string Status { get; set; } = "Planned";
+    public string Status { get; set; } = DomainConstants.BatchStatus.Planned;
 
     [StringLength(500)]
     public string? Notes { get; set; }
 
     public bool HasQCPass { get; set; }
 
-    public Recipe? Recipe { get; set; }
+    public Recipe Recipe { get; set; } = null!;
     public RecipeVersion? RecipeVersion { get; set; }
-    public Unit? YieldUnit { get; set; }
-    public ICollection<BatchIngredient>? Ingredients { get; set; }
-    public ICollection<BatchLabor>? LaborRecords { get; set; }
-    public ICollection<QualityControl>? QualityControls { get; set; }
-    public ICollection<StockTransaction>? StockTransactions { get; set; }
+    public Unit YieldUnit { get; set; } = null!;
+    public ICollection<BatchIngredient> Ingredients { get; set; } = new List<BatchIngredient>();
+    public ICollection<BatchLabor> LaborRecords { get; set; } = new List<BatchLabor>();
+    public ICollection<QualityControl> QualityControls { get; set; } = new List<QualityControl>();
+    public ICollection<StockTransaction> StockTransactions { get; set; } = new List<StockTransaction>();
 }
 
 [Table("BatchIngredients")]
@@ -65,14 +66,14 @@ public class BatchIngredient : BaseModel
     public int? StockBatchId { get; set; }
 
     [StringLength(50)]
-    public string Status { get; set; } = "Planned";
+    public string Status { get; set; } = DomainConstants.BatchIngredientStatus.Planned;
 
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Batch? Batch { get; set; }
-    public Ingredient? Ingredient { get; set; }
-    public Unit? PlannedUnit { get; set; }
+    public Batch Batch { get; set; } = null!;
+    public Ingredient Ingredient { get; set; } = null!;
+    public Unit PlannedUnit { get; set; } = null!;
     public StockBatch? StockBatch { get; set; }
 }
 
@@ -103,7 +104,7 @@ public class QualityControl : BaseModel
     [StringLength(500)]
     public string? Remarks { get; set; }
 
-    public Batch? Batch { get; set; }
+    public Batch Batch { get; set; } = null!;
 }
 
 [Table("BatchLaborRecords")]
@@ -129,6 +130,6 @@ public class BatchLabor : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Batch? Batch { get; set; }
-    public Operator? Operator { get; set; }
+    public Batch Batch { get; set; } = null!;
+    public Operator Operator { get; set; } = null!;
 }

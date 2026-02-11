@@ -54,7 +54,7 @@
                         <ComboBox ItemsSource="{Binding Skus}"
                                   SelectedItem="{Binding SelectedSKU}"
                                   DisplayMemberPath="Name"
-                                  Background="White" />
+                                  Background="{DynamicResource SurfaceBrush}" />
 
                         <TextBlock Text="HPP" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                         <TextBlock Text="{Binding Hpp, StringFormat=N2}" FontSize="16" FontWeight="SemiBold" />
@@ -68,16 +68,16 @@
                         <TextBlock Text="Pricing Mode" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                         <ComboBox ItemsSource="{Binding PricingModes}"
                                   SelectedItem="{Binding SelectedPricingMode}"
-                                  Background="White" />
+                                  Background="{DynamicResource SurfaceBrush}" />
 
                         <TextBlock Text="Target Margin %" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                        <TextBox Text="{Binding DesiredMarginPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                        <TextBox Text="{Binding DesiredMarginPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                         <TextBlock Text="Markup %" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                        <TextBox Text="{Binding MarkupPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                        <TextBox Text="{Binding MarkupPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                         <TextBlock Text="Markup Amount" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                        <TextBox Text="{Binding MarkupAmount, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                        <TextBox Text="{Binding MarkupAmount, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                         <Button Command="{Binding CalculatePriceCommand}"
                                 Content="Calculate Price"
@@ -131,7 +131,7 @@
                         <TextBlock Text="What-If Simulation" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
                         <TextBlock Text="Test Selling Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                        <TextBox Text="{Binding WhatIfSellingPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                        <TextBox Text="{Binding WhatIfSellingPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                         <Button Command="{Binding RunWhatIfCommand}"
                                 Content="Run Simulation"

@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using DonutMS.Data.Entities;
 using DonutMS.Data.Repositories;
 using DonutMS.Models.DTOs;
@@ -38,6 +39,7 @@ public class SKUService : ISKUService
     private readonly IMapper _mapper;
     private readonly ILogger<SKUService> _logger;
     private readonly IValidator<SKU> _validator;
+    private readonly IAuditService _auditService;
 
     public SKUService(
         ISKURepository skuRepository,
@@ -47,7 +49,8 @@ public class SKUService : ISKUService
         IRepository<NutritionalInfo> nutritionRepository,
         IMapper mapper,
         ILogger<SKUService> logger,
-        IValidator<SKU> validator)
+        IValidator<SKU> validator,
+        IAuditService auditService)
     {
         _skuRepository = skuRepository;
         _skuCostRepository = skuCostRepository;
@@ -57,6 +60,7 @@ public class SKUService : ISKUService
         _mapper = mapper;
         _logger = logger;
         _validator = validator;
+        _auditService = auditService;
     }
 
     public async Task<IEnumerable<SKUDto>> GetAllSkusAsync()
@@ -108,6 +112,13 @@ public class SKUService : ISKUService
         await _skuRepository.AddAsync(sku);
         await _skuRepository.SaveChangesAsync();
 
+        await _auditService.LogAsync(
+            "SKU",
+            sku.Id,
+            "Create",
+            remarks: sku.Code,
+            newValues: JsonConvert.SerializeObject(new { sku.Name, sku.Code, sku.RetailPrice, sku.RecipeId }));
+
         _logger.LogInformation($"SKU '{sku.Name}' created");
         return MapSkuWithCost(sku);
     }
@@ -117,6 +128,17 @@ public class SKUService : ISKUService
         var sku = await _skuRepository.GetByIdAsync(id);
         if (sku == null)
             throw new KeyNotFoundException($"SKU with ID {id} not found");
+
+        var oldSnapshot = JsonConvert.SerializeObject(new
+        {
+            sku.Name,
+            sku.Code,
+            sku.Description,
+            sku.Category,
+            sku.RecipeId,
+            sku.RetailPrice,
+            sku.IsActive
+        });
 
         if (!string.IsNullOrWhiteSpace(dto.Code) && !string.Equals(dto.Code, sku.Code, StringComparison.OrdinalIgnoreCase))
         {
@@ -153,6 +175,25 @@ public class SKUService : ISKUService
         await _skuRepository.UpdateAsync(sku);
         await _skuRepository.SaveChangesAsync();
 
+        var newSnapshot = JsonConvert.SerializeObject(new
+        {
+            sku.Name,
+            sku.Code,
+            sku.Description,
+            sku.Category,
+            sku.RecipeId,
+            sku.RetailPrice,
+            sku.IsActive
+        });
+
+        await _auditService.LogAsync(
+            "SKU",
+            sku.Id,
+            "Update",
+            oldValues: oldSnapshot,
+            newValues: newSnapshot,
+            remarks: sku.Code);
+
         _logger.LogInformation($"SKU '{sku.Name}' updated");
         return await GetSkuByIdAsync(id) ?? _mapper.Map<SKUDto>(sku);
     }
@@ -166,6 +207,8 @@ public class SKUService : ISKUService
         sku.IsDeleted = true;
         await _skuRepository.UpdateAsync(sku);
         await _skuRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync("SKU", sku.Id, "Delete", remarks: sku.Code);
 
         _logger.LogInformation($"SKU '{sku.Name}' deleted");
         return true;
@@ -186,6 +229,11 @@ public class SKUService : ISKUService
         var sku = await _skuRepository.GetByIdAsync(skuId);
         if (sku == null)
             throw new KeyNotFoundException($"SKU with ID {skuId} not found");
+
+        var oldCost = await _skuCostRepository.AsQueryable()
+            .Where(c => c.SKUId == skuId && c.IsActive)
+            .OrderByDescending(c => c.EffectiveDate)
+            .FirstOrDefaultAsync();
 
         var now = DateTime.UtcNow;
         var existingActive = await _skuCostRepository.AsQueryable()
@@ -217,6 +265,28 @@ public class SKUService : ISKUService
 
         await _skuCostRepository.AddAsync(newCost);
         await _skuCostRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            "SKUCost",
+            newCost.Id,
+            "AddCostVersion",
+            oldValues: oldCost == null ? null : JsonConvert.SerializeObject(new
+            {
+                oldCost.MaterialCost,
+                oldCost.PackagingCost,
+                oldCost.LaborCost,
+                oldCost.OverheadCost,
+                oldCost.TotalHPP
+            }),
+            newValues: JsonConvert.SerializeObject(new
+            {
+                newCost.MaterialCost,
+                newCost.PackagingCost,
+                newCost.LaborCost,
+                newCost.OverheadCost,
+                newCost.TotalHPP
+            }),
+            remarks: sku.Code);
 
         _logger.LogInformation($"SKU cost version created for SKU '{sku.Code}'");
         return _mapper.Map<SKUCostDto>(newCost);

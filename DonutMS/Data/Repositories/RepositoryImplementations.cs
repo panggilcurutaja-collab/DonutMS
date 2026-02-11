@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using DonutMS.Core.Domain;
 using DonutMS.Data.DbContext;
 using DonutMS.Data.Entities;
 
@@ -72,7 +73,8 @@ public class IngredientRepository : Repository<Ingredient>, IIngredientRepositor
     {
         return await _context.Ingredients
             .Include(i => i.InventoryStocks)
-            .Where(i => !i.IsDeleted && i.InventoryStocks != null && i.InventoryStocks.Any(s => s.AvailableQuantity <= i.MinimumStockLevel))
+            .Where(i => !i.IsDeleted && i.InventoryStocks != null &&
+                i.InventoryStocks.Any(s => (s.Quantity - s.ReservedQuantity) <= i.MinimumStockLevel))
             .ToListAsync();
     }
 
@@ -113,7 +115,8 @@ public class InventoryRepository : Repository<InventoryStock>, IInventoryReposit
     {
         var expiryDate = DateTime.UtcNow.AddDays(daysUntilExpiry);
         return await _context.StockBatches
-            .Where(sb => sb.ExpiryDate.HasValue && sb.ExpiryDate <= expiryDate && sb.AvailableQuantity > 0)
+            .Where(sb => sb.ExpiryDate.HasValue && sb.ExpiryDate <= expiryDate &&
+                (sb.QuantityReceived - sb.QuantityUsed - sb.QuantityWasted) > 0)
             .OrderBy(sb => sb.ExpiryDate)
             .ToListAsync();
     }
@@ -180,7 +183,7 @@ public class ProductionRepository : Repository<Batch>, IProductionRepository
         return await _context.Batches
             .Include(b => b.Recipe)
             .Include(b => b.YieldUnit)
-            .Where(b => (b.Status == "Planned" || b.Status == "In Progress") && !b.IsDeleted)
+            .Where(b => (b.Status == DomainConstants.BatchStatus.Planned || b.Status == DomainConstants.BatchStatus.InProgress) && !b.IsDeleted)
             .OrderByDescending(b => b.ProductionDate)
             .ToListAsync();
     }
@@ -217,7 +220,9 @@ public class PurchaseOrderRepository : Repository<PurchaseOrder>, IPurchaseOrder
     public async Task<IEnumerable<PurchaseOrder>> GetPendingAsync()
     {
         return await _context.PurchaseOrders
-            .Where(po => po.Status != "Received" && po.Status != "Cancelled" && !po.IsDeleted)
+            .Where(po => po.Status != DomainConstants.PurchaseOrderStatus.Received &&
+                po.Status != DomainConstants.PurchaseOrderStatus.Cancelled &&
+                !po.IsDeleted)
             .OrderBy(po => po.RequiredDeliveryDate)
             .ToListAsync();
     }

@@ -71,7 +71,7 @@
                     <TextBox Text="{Binding ExpiringWithinDays, UpdateSourceTrigger=PropertyChanged}"
                              Width="60"
                              Padding="8,6"
-                             Background="White"
+                             Background="{DynamicResource SurfaceBrush}"
                              Foreground="{DynamicResource MaterialDesignBody}"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource DividerBrush}"
@@ -109,7 +109,7 @@
                       AutoGenerateColumns="False"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
-                      Background="White"
+                      Background="{DynamicResource SurfaceBrush}"
                       Foreground="{DynamicResource MaterialDesignBody}"
                       TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                       BorderThickness="1"
@@ -192,7 +192,7 @@
 
                                     <TextBox Text="{Binding TransactionQuantity, UpdateSourceTrigger=PropertyChanged}"
                                              Padding="10,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderThickness="1"
                                              BorderBrush="{DynamicResource DividerBrush}"
@@ -201,7 +201,7 @@
                                     <TextBox Text="{Binding StockInBatchNumber, UpdateSourceTrigger=PropertyChanged}"
                                              Margin="0,8,0,0"
                                              Padding="10,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderThickness="1"
                                              BorderBrush="{DynamicResource DividerBrush}"
@@ -212,19 +212,19 @@
                                                FontSize="11"
                                                Margin="0,8,0,4" />
                                     <DatePicker SelectedDate="{Binding StockInReceiptDate}"
-                                                Background="White" />
+                                                Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Expiry Date"
                                                Foreground="{DynamicResource MaterialDesignBodyLight}"
                                                FontSize="11"
                                                Margin="0,8,0,4" />
                                     <DatePicker SelectedDate="{Binding StockInExpiryDate}"
-                                                Background="White" />
+                                                Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBox Text="{Binding TransactionReference, UpdateSourceTrigger=PropertyChanged}"
                                              Margin="0,8,0,0"
                                              Padding="10,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderThickness="1"
                                              BorderBrush="{DynamicResource DividerBrush}"
@@ -234,7 +234,7 @@
                                             Content="Record Stock In"
                                             Padding="12,8"
                                             Margin="0,10,0,0"
-                                            Background="Green"
+                                            Background="{DynamicResource SuccessBrush}"
                                             Foreground="White"
                                             BorderThickness="0" />
                                 </StackPanel>
@@ -254,7 +254,7 @@
 
                                     <TextBox Text="{Binding TransactionQuantity, UpdateSourceTrigger=PropertyChanged}"
                                              Padding="10,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderThickness="1"
                                              BorderBrush="{DynamicResource DividerBrush}"
@@ -264,14 +264,14 @@
                                              SelectedItem="{Binding SelectedBatch}"
                                              DisplayMemberPath="SupplierBatchNumber"
                                              Margin="0,8,0,0"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              mah:TextBoxHelper.Watermark="Batch (optional)" />
 
                                     <ComboBox SelectedValuePath="Content"
                                              SelectedValue="{Binding ConsumptionMethod}"
                                              Margin="0,8,0,0"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}">
                                         <ComboBoxItem Content="FEFO" />
                                         <ComboBoxItem Content="FIFO" />
@@ -280,7 +280,7 @@
                                     <TextBox Text="{Binding TransactionReference, UpdateSourceTrigger=PropertyChanged}"
                                              Margin="0,8,0,0"
                                              Padding="10,6"
-                                             Background="White"
+                                             Background="{DynamicResource SurfaceBrush}"
                                              Foreground="{DynamicResource MaterialDesignBody}"
                                              BorderThickness="1"
                                              BorderBrush="{DynamicResource DividerBrush}"
@@ -290,7 +290,7 @@
                                             Content="Record Stock Out"
                                             Padding="12,8"
                                             Margin="0,10,0,0"
-                                            Background="Tomato"
+                                            Background="{DynamicResource DangerBrush}"
                                             Foreground="White"
                                             BorderThickness="0" />
                                 </StackPanel>
@@ -304,7 +304,7 @@
                               AutoGenerateColumns="False"
                               CanUserAddRows="False"
                               CanUserDeleteRows="False"
-                              Background="White"
+                              Background="{DynamicResource SurfaceBrush}"
                               Foreground="{DynamicResource MaterialDesignBody}"
                               TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                               BorderThickness="1"
@@ -354,7 +354,7 @@
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
                                   CanUserDeleteRows="False"
-                                  Background="White"
+                                  Background="{DynamicResource SurfaceBrush}"
                                   Foreground="{DynamicResource MaterialDesignBody}"
                                   TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                   BorderThickness="1"

@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using DonutMS.Core.Domain;
 using DonutMS.Data.Entities;
 using DonutMS.Data.Repositories;
 using DonutMS.Models.DTOs;
@@ -120,7 +121,7 @@ public class InventoryService : IInventoryService
         var transaction = new StockTransaction
         {
             InventoryStockId = stock.Id,
-            TransactionType = "In",
+            TransactionType = DomainConstants.StockTransactionType.In,
             Quantity = normalizedQuantity,
             UnitId = stock.UnitId,
             TransactionDate = DateTime.UtcNow,
@@ -137,7 +138,7 @@ public class InventoryService : IInventoryService
             QuantityReceived = normalizedQuantity,
             QuantityUsed = 0,
             QuantityWasted = 0,
-            Status = "Active"
+            Status = DomainConstants.StockBatchStatus.Active
         };
 
         transaction.StockBatch = batch;
@@ -220,7 +221,7 @@ public class InventoryService : IInventoryService
             var transaction = new StockTransaction
             {
                 InventoryStockId = stock.Id,
-                TransactionType = "Out",
+                TransactionType = DomainConstants.StockTransactionType.Out,
                 Quantity = remaining,
                 UnitId = stock.UnitId,
                 TransactionDate = DateTime.UtcNow,
@@ -262,7 +263,8 @@ public class InventoryService : IInventoryService
             .AsQueryable()
             .Include(s => s.Ingredient)
             .Include(s => s.Unit)
-            .Where(s => !s.IsDeleted && s.Ingredient != null && s.AvailableQuantity <= s.Ingredient.MinimumStockLevel)
+            .Where(s => !s.IsDeleted && s.Ingredient != null &&
+                (s.Quantity - s.ReservedQuantity) <= s.Ingredient.MinimumStockLevel)
             .ToListAsync();
 
         return _mapper.Map<IEnumerable<InventoryStockDto>>(lowStocks);
@@ -313,14 +315,14 @@ public class InventoryService : IInventoryService
         batch.QuantityUsed += quantity;
         if (batch.AvailableQuantity <= 0)
         {
-            batch.Status = "Depleted";
+            batch.Status = DomainConstants.StockBatchStatus.Depleted;
         }
 
         var transaction = new StockTransaction
         {
             InventoryStockId = stock.Id,
             StockBatchId = batch.Id,
-            TransactionType = "Out",
+            TransactionType = DomainConstants.StockTransactionType.Out,
             Quantity = quantity,
             UnitId = stock.UnitId,
             TransactionDate = DateTime.UtcNow,
@@ -382,7 +384,7 @@ public class ProductionService : IProductionService
             throw new InvalidOperationException("Target yield must be greater than 0");
 
         var batch = _mapper.Map<Batch>(dto);
-        batch.Status = "Planned";
+        batch.Status = DomainConstants.BatchStatus.Planned;
         batch.TargetYield = targetYield;
         batch.YieldUnitId = recipe.YieldUnitId;
         batch.RecipeVersionId = recipe.CurrentVersionId;
@@ -401,7 +403,7 @@ public class ProductionService : IProductionService
                     IngredientId = ingredient.IngredientId,
                     PlannedQuantity = plannedQty,
                     PlannedUnitId = ingredient.UnitId,
-                    Status = "Planned"
+                    Status = DomainConstants.BatchIngredientStatus.Planned
                 });
             }
         }
@@ -436,7 +438,7 @@ public class ProductionService : IProductionService
     public async Task<bool> StartBatchProductionAsync(int batchId)
     {
         var batch = await _productionRepository.GetBatchWithIngredientsAsync(batchId);
-        if (batch == null || batch.Status != "Planned")
+        if (batch == null || batch.Status != DomainConstants.BatchStatus.Planned)
             return false;
 
         var ingredients = batch.Ingredients ?? new List<BatchIngredient>();
@@ -455,9 +457,9 @@ public class ProductionService : IProductionService
                         IngredientId = i.IngredientId,
                         PlannedQuantity = i.QuantityPerBatch * scaleFactor,
                         PlannedUnitId = i.UnitId,
-                        Status = "Planned"
-                    })
-                    .ToList();
+                    Status = DomainConstants.BatchIngredientStatus.Planned
+                })
+                .ToList();
 
                 batch.Ingredients = ingredients;
             }
@@ -477,10 +479,10 @@ public class ProductionService : IProductionService
                 batch.Id);
 
             ingredient.ActualQuantity = ingredient.PlannedQuantity;
-            ingredient.Status = "Allocated";
+            ingredient.Status = DomainConstants.BatchIngredientStatus.Allocated;
         }
 
-        batch.Status = "In Progress";
+        batch.Status = DomainConstants.BatchStatus.InProgress;
         await _productionRepository.UpdateAsync(batch);
         await _productionRepository.SaveChangesAsync();
 
@@ -494,7 +496,7 @@ public class ProductionService : IProductionService
         if (batch == null)
             return false;
 
-        batch.Status = "Completed";
+        batch.Status = DomainConstants.BatchStatus.Completed;
         batch.ActualYield = actualYield;
         var computedWaste = Math.Max(batch.TargetYield - actualYield, 0);
         batch.WasteQuantity = wasteQuantity.HasValue ? Math.Max(wasteQuantity.Value, 0) : computedWaste;
@@ -507,9 +509,9 @@ public class ProductionService : IProductionService
         {
             foreach (var ingredient in batch.Ingredients)
             {
-                if (ingredient.Status == "Allocated")
+                if (ingredient.Status == DomainConstants.BatchIngredientStatus.Allocated)
                 {
-                    ingredient.Status = "Consumed";
+                    ingredient.Status = DomainConstants.BatchIngredientStatus.Consumed;
                 }
             }
         }

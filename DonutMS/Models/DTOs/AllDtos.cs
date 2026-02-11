@@ -159,6 +159,7 @@ public class IngredientDto
     public string Name { get; set; } = string.Empty;
     public string SKU { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? Notes { get; set; }
     public int ConsumptionUnitId { get; set; }
     public string ConsumptionUnitCode { get; set; } = string.Empty;
     public int PurchaseUnitId { get; set; }
@@ -176,6 +177,7 @@ public class CreateIngredientDto
     public string Name { get; set; } = string.Empty;
     public string SKU { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? Notes { get; set; }
     public int ConsumptionUnitId { get; set; }
     public int PurchaseUnitId { get; set; }
     public decimal MinimumStockLevel { get; set; }
@@ -188,6 +190,7 @@ public class UpdateIngredientDto
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
+    public string? Notes { get; set; }
     public int? ConsumptionUnitId { get; set; }
     public int? PurchaseUnitId { get; set; }
     public decimal? MinimumStockLevel { get; set; }
@@ -209,6 +212,28 @@ public class UnitDto
     public bool IsActive { get; set; }
 }
 
+public class CreateUnitDto
+{
+    public string Code { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string Category { get; set; } = string.Empty;
+    public decimal ConversionFactor { get; set; } = 1;
+    public string? BaseUnit { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class UpdateUnitDto
+{
+    public string? Code { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public string? Category { get; set; }
+    public decimal? ConversionFactor { get; set; }
+    public string? BaseUnit { get; set; }
+    public bool? IsActive { get; set; }
+}
+
 public class SupplierDto
 {
     public int Id { get; set; }
@@ -223,6 +248,32 @@ public class SupplierDto
     public bool IsActive { get; set; }
 }
 
+public class CreateSupplierDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Address { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Email { get; set; }
+    public string? ContactPerson { get; set; }
+    public decimal MinimumOrderQuantity { get; set; }
+    public int LeadTimeDays { get; set; }
+    public string? PaymentTerms { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class UpdateSupplierDto
+{
+    public string? Name { get; set; }
+    public string? Address { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Email { get; set; }
+    public string? ContactPerson { get; set; }
+    public decimal? MinimumOrderQuantity { get; set; }
+    public int? LeadTimeDays { get; set; }
+    public string? PaymentTerms { get; set; }
+    public bool? IsActive { get; set; }
+}
+
 public class IngredientPriceDto
 {
     public int Id { get; set; }
@@ -235,6 +286,32 @@ public class IngredientPriceDto
     public DateTime EffectiveDate { get; set; }
     public DateTime? EndDate { get; set; }
     public bool IsActive { get; set; }
+    public decimal MinimumQuantity { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateIngredientPriceDto
+{
+    public int IngredientId { get; set; }
+    public int SupplierId { get; set; }
+    public decimal Price { get; set; }
+    public int UnitId { get; set; }
+    public DateTime EffectiveDate { get; set; } = DateTime.UtcNow;
+    public DateTime? EndDate { get; set; }
+    public decimal MinimumQuantity { get; set; }
+    public string? Notes { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class UpdateIngredientPriceDto
+{
+    public decimal? Price { get; set; }
+    public int? UnitId { get; set; }
+    public DateTime? EffectiveDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public decimal? MinimumQuantity { get; set; }
+    public string? Notes { get; set; }
+    public bool? IsActive { get; set; }
 }
 
 // ========== INVENTORY DTOs ==========
@@ -625,6 +702,112 @@ public class TrendPointDto
     public decimal PercentOfMax { get; set; }
 }
 
+public class AuditLogDto
+{
+    public int Id { get; set; }
+    public string EntityName { get; set; } = string.Empty;
+    public int EntityId { get; set; }
+    public string Action { get; set; } = string.Empty;
+    public string? UserId { get; set; }
+    public string? UserName { get; set; }
+    public DateTime AuditDate { get; set; }
+    public string? OldValues { get; set; }
+    public string? NewValues { get; set; }
+    public string? Remarks { get; set; }
+    public string? IPAddress { get; set; }
+}
+
+public class UserDto
+{
+    public int Id { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? FullName { get; set; }
+    public string Role { get; set; } = "Operator";
+    public bool IsActive { get; set; }
+    public DateTime? LastLogin { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateUserDto
+{
+    public string Username { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? FullName { get; set; }
+    public string Role { get; set; } = "Operator";
+    public string Password { get; set; } = string.Empty;
+    public string? Notes { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class UpdateUserDto
+{
+    public string? Email { get; set; }
+    public string? FullName { get; set; }
+    public string? Role { get; set; }
+    public bool? IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+// ========== REPORTING DTOs ==========
+public class HppReportItemDto
+{
+    public string SKUCode { get; set; } = string.Empty;
+    public string SKUName { get; set; } = string.Empty;
+    public decimal RetailPrice { get; set; }
+    public decimal HppPerUnit { get; set; }
+    public decimal GrossMarginPercent { get; set; }
+    public DateTime? CostEffectiveDate { get; set; }
+}
+
+public class InventoryAgingReportItemDto
+{
+    public string IngredientName { get; set; } = string.Empty;
+    public string? BatchNumber { get; set; }
+    public DateTime ReceiptDate { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+    public int DaysInStock { get; set; }
+    public int DaysToExpiry { get; set; }
+    public decimal AvailableQuantity { get; set; }
+    public string UnitCode { get; set; } = string.Empty;
+    public string AgeCategory { get; set; } = string.Empty;
+    public string ExpiryStatus { get; set; } = string.Empty;
+}
+
+public class SupplierPurchaseReportItemDto
+{
+    public string SupplierName { get; set; } = string.Empty;
+    public int TotalOrders { get; set; }
+    public decimal TotalQuantity { get; set; }
+    public decimal TotalAmount { get; set; }
+    public decimal AverageLeadTimeDays { get; set; }
+    public DateTime? LastOrderDate { get; set; }
+}
+
+public class ProductionReportItemDto
+{
+    public string BatchCode { get; set; } = string.Empty;
+    public string RecipeName { get; set; } = string.Empty;
+    public DateTime ProductionDate { get; set; }
+    public decimal TargetYield { get; set; }
+    public decimal ActualYield { get; set; }
+    public decimal WasteQuantity { get; set; }
+    public decimal WastePercent { get; set; }
+    public string Status { get; set; } = string.Empty;
+}
+
+public class CostingAnalysisReportItemDto
+{
+    public string RecipeName { get; set; } = string.Empty;
+    public decimal YieldPerBatch { get; set; }
+    public decimal MaterialCost { get; set; }
+    public decimal PackagingCost { get; set; }
+    public decimal LaborCost { get; set; }
+    public decimal OverheadCost { get; set; }
+    public decimal TotalCost { get; set; }
+    public decimal HppPerUnit { get; set; }
+}
+
 // ========== LABOR & OVERHEAD DTOs ==========
 public class OperatorDto
 {
@@ -809,6 +992,8 @@ public class DtoMappingProfile : Profile
         CreateMap<IngredientPrice, IngredientPriceDto>()
             .ForMember(d => d.SupplierName, o => o.MapFrom(s => s.Supplier != null ? s.Supplier.Name : ""))
             .ForMember(d => d.UnitCode, o => o.MapFrom(s => s.Unit != null ? s.Unit.Code : ""));
+        CreateMap<CreateIngredientPriceDto, IngredientPrice>();
+        CreateMap<UpdateIngredientPriceDto, IngredientPrice>();
 
         // Inventory Mappings
         CreateMap<InventoryStock, InventoryStockDto>()
@@ -881,9 +1066,13 @@ public class DtoMappingProfile : Profile
 
         // Unit Mappings
         CreateMap<Unit, UnitDto>();
+        CreateMap<CreateUnitDto, Unit>();
+        CreateMap<UpdateUnitDto, Unit>();
 
         // Supplier Mappings
         CreateMap<Supplier, SupplierDto>();
+        CreateMap<CreateSupplierDto, Supplier>();
+        CreateMap<UpdateSupplierDto, Supplier>();
 
         // Labor & Overhead Mappings
         CreateMap<Operator, OperatorDto>();
@@ -912,5 +1101,9 @@ public class DtoMappingProfile : Profile
         CreateMap<BundlePackage, BundlePackageDto>()
             .ForMember(d => d.SKUName, o => o.MapFrom(s => s.SKU != null ? s.SKU.Name : null));
         CreateMap<CreateBundlePackageDto, BundlePackage>();
+
+        // Audit / User Mappings
+        CreateMap<AuditLog, AuditLogDto>();
+        CreateMap<User, UserDto>();
     }
 }

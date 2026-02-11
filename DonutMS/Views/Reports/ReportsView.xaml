@@ -1,0 +1,241 @@
+<UserControl x:Class="DonutMS.Views.Reports.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource PrimaryHueMidBrush}"
+                Padding="20,16"
+                BorderBrush="{DynamicResource PrimaryHueLightBrush}"
+                BorderThickness="0,0,0,2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Reports &amp; Export"
+                               Foreground="White"
+                               FontSize="22"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="HPP, inventory, supplier, production, dan costing analysis"
+                               Foreground="White"
+                               Opacity="0.9"
+                               FontSize="12"
+                               Margin="0,6,0,0" />
+                </StackPanel>
+
+                <mah:ProgressRing Grid.Column="1"
+                                  Width="20"
+                                  Height="20"
+                                  IsActive="{Binding IsLoading}"
+                                  Foreground="White"
+                                  VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <Grid Grid.Row="1" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Filters & Actions -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource MaterialDesignCardBackground}"
+                    BorderBrush="{DynamicResource DividerBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="16"
+                    Margin="0,0,12,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Report Filters"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MaterialDesignBody}" />
+
+                        <TextBlock Text="Report Type"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Margin="0,12,0,0" />
+                        <ComboBox ItemsSource="{Binding Reports}"
+                                  SelectedItem="{Binding SelectedReport}"
+                                  DisplayMemberPath="Name"
+                                  Background="{DynamicResource SurfaceBrush}" />
+
+                        <StackPanel Margin="0,12,0,0"
+                                    Visibility="{Binding ShowDateRange, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="From"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                            <DatePicker SelectedDate="{Binding FromDate}" Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="To"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       Margin="0,8,0,0" />
+                            <DatePicker SelectedDate="{Binding ToDate}" Background="{DynamicResource SurfaceBrush}" />
+                        </StackPanel>
+
+                        <StackPanel Margin="0,12,0,0"
+                                    Visibility="{Binding ShowExpiryDays, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="Expiry Warning (days)"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                            <TextBox Text="{Binding ExpiryWarningDays}"
+                                     Padding="8,6"
+                                     Background="{DynamicResource SurfaceBrush}"
+                                     mah:TextBoxHelper.Watermark="Days" />
+
+                            <CheckBox Content="Only show expiring batches"
+                                      IsChecked="{Binding ShowOnlyExpiring}"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      Margin="0,8,0,0" />
+                        </StackPanel>
+
+                        <Button Command="{Binding LoadReportCommand}"
+                                Content="Load Report"
+                                Padding="12,6"
+                                Margin="0,14,0,0"
+                                Background="{DynamicResource PrimaryHueMidBrush}"
+                                Foreground="White" />
+
+                        <Separator Margin="0,16,0,12" />
+
+                        <TextBlock Text="Export"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MaterialDesignBody}" />
+
+                        <TextBlock Text="Output Folder"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Margin="0,8,0,0" />
+                        <TextBox Text="{Binding OutputFolder}"
+                                 Padding="8,6"
+                                 Background="{DynamicResource SurfaceBrush}" />
+
+                        <Button Command="{Binding ExportCsvCommand}"
+                                Content="Export CSV"
+                                Padding="10,6"
+                                Margin="0,10,0,0"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1" />
+
+                        <Button Command="{Binding ExportJsonCommand}"
+                                Content="Export JSON"
+                                Padding="10,6"
+                                Margin="0,8,0,0"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1" />
+
+                        <Button Command="{Binding ExportExcelCommand}"
+                                Content="Export Excel (CSV)"
+                                Padding="10,6"
+                                Margin="0,8,0,0"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1" />
+
+                        <Button Command="{Binding ExportPdfCommand}"
+                                Content="Export PDF"
+                                Padding="10,6"
+                                Margin="0,8,0,0"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1" />
+
+                        <Button Command="{Binding GenerateTemplateCommand}"
+                                Content="Generate Excel Template"
+                                Padding="10,6"
+                                Margin="0,12,0,0"
+                                Background="{DynamicResource MaterialDesignCardBackground}"
+                                Foreground="{DynamicResource MaterialDesignBody}"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1" />
+
+                        <TextBlock Text="{Binding LastExportPath, StringFormat=Last export: {0}}"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                   Margin="0,12,0,0"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            <!-- Report Preview -->
+            <Border Grid.Column="1"
+                    Background="{DynamicResource MaterialDesignCardBackground}"
+                    BorderBrush="{DynamicResource DividerBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="16">
+                <StackPanel>
+                    <TextBlock Text="{Binding ReportTitle}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource MaterialDesignBody}" />
+                    <TextBlock Text="{Binding ReportDescription}"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               FontSize="11"
+                               Margin="0,6,0,0" />
+                    <TextBlock Text="{Binding ResultCount, StringFormat=Total rows: {0}}"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               FontSize="11"
+                               Margin="0,8,0,0" />
+
+                    <DataGrid ItemsSource="{Binding CurrentReportItems}"
+                              AutoGenerateColumns="True"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              Margin="0,12,0,0"
+                              Background="{DynamicResource SurfaceBrush}"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                              BorderThickness="1"
+                              BorderBrush="{DynamicResource DividerBrush}"
+                              RowBackground="{DynamicResource MaterialDesignPaper}"
+                              AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.Resources>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource MaterialDesignDividerBackground}"
+                Padding="12,8"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource DividerBrush}">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                       FontSize="11" />
+        </Border>
+    </Grid>
+</UserControl>

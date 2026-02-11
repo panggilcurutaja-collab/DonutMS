@@ -56,24 +56,24 @@
                             <TextBlock Text="Operator Details" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
                             <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding OperatorName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding OperatorName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Employee ID" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding OperatorEmployeeId, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding OperatorEmployeeId, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Job Title" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding OperatorJobTitle, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding OperatorJobTitle, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Base Salary" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding OperatorBaseSalary, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding OperatorBaseSalary, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Salary Period" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding SalaryPeriods}"
                                       SelectedItem="{Binding OperatorSalaryPeriod}"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Hire Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <DatePicker SelectedDate="{Binding OperatorHireDate}" Background="White" />
+                            <DatePicker SelectedDate="{Binding OperatorHireDate}" Background="{DynamicResource SurfaceBrush}" />
 
                             <CheckBox Content="Active" IsChecked="{Binding OperatorIsActive}" Margin="0,12,0,0" />
 
@@ -105,7 +105,7 @@
                                   SelectedItem="{Binding SelectedOperator}"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
-                                  Background="White"
+                                  Background="{DynamicResource SurfaceBrush}"
                                   Foreground="{DynamicResource MaterialDesignBody}"
                                   TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                   RowBackground="{DynamicResource MaterialDesignPaper}"
@@ -147,21 +147,21 @@
                             <ComboBox ItemsSource="{Binding Operators}"
                                       SelectedItem="{Binding SelectedRateOperator}"
                                       DisplayMemberPath="Name"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Hourly Rate" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding RateHourlyRate, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding RateHourlyRate, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Overtime Multiplier" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding RateOvertimeMultiplier, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding RateOvertimeMultiplier, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Effective Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <DatePicker SelectedDate="{Binding RateEffectiveDate}" Background="White" />
+                            <DatePicker SelectedDate="{Binding RateEffectiveDate}" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Shift Type" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding ShiftTypes}"
                                       SelectedItem="{Binding RateShiftType}"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <Button Command="{Binding AddLaborRateCommand}"
                                     Content="Add Rate"
@@ -181,7 +181,7 @@
                         <DataGrid ItemsSource="{Binding LaborRates}"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
-                                  Background="White"
+                                  Background="{DynamicResource SurfaceBrush}"
                                   Foreground="{DynamicResource MaterialDesignBody}"
                                   TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                   RowBackground="{DynamicResource MaterialDesignPaper}"
@@ -224,27 +224,27 @@
                             <ComboBox ItemsSource="{Binding Batches}"
                                       SelectedItem="{Binding SelectedBatch}"
                                       DisplayMemberPath="BatchCode"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Operator" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding Operators}"
                                       SelectedItem="{Binding SelectedBatchOperator}"
                                       DisplayMemberPath="Name"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Work Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <DatePicker SelectedDate="{Binding BatchLaborDate}" Background="White" />
+                            <DatePicker SelectedDate="{Binding BatchLaborDate}" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Hours Worked" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding BatchHoursWorked, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding BatchHoursWorked, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Overtime Hours" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                            <TextBox Text="{Binding BatchOvertimeHours, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                            <TextBox Text="{Binding BatchOvertimeHours, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="Shift Type" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                             <ComboBox ItemsSource="{Binding ShiftTypes}"
                                       SelectedItem="{Binding BatchShiftType}"
-                                      Background="White" />
+                                      Background="{DynamicResource SurfaceBrush}" />
 
                             <Button Command="{Binding AddBatchLaborCommand}"
                                     Content="Save Labor"
@@ -264,7 +264,7 @@
                         <DataGrid ItemsSource="{Binding BatchLaborRecords}"
                                   AutoGenerateColumns="False"
                                   CanUserAddRows="False"
-                                  Background="White"
+                                  Background="{DynamicResource SurfaceBrush}"
                                   Foreground="{DynamicResource MaterialDesignBody}"
                                   TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                   RowBackground="{DynamicResource MaterialDesignPaper}"
@@ -306,23 +306,23 @@
                                     <TextBlock Text="Utility Entry" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
                                     <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding UtilityName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding UtilityName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Type" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                                     <ComboBox ItemsSource="{Binding UtilityTypes}"
                                               SelectedItem="{Binding UtilityType}"
-                                              Background="White" />
+                                              Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Monthly Amount" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding UtilityMonthlyAmount, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding UtilityMonthlyAmount, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Allocation Method" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
                                     <ComboBox ItemsSource="{Binding AllocationMethods}"
                                               SelectedItem="{Binding UtilityAllocationMethod}"
-                                              Background="White" />
+                                              Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Allocation Value" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding UtilityAllocationValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding UtilityAllocationValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <CheckBox Content="Active" IsChecked="{Binding UtilityIsActive}" Margin="0,12,0,0" />
 
@@ -354,7 +354,7 @@
                                           SelectedItem="{Binding SelectedUtilityExpense}"
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
-                                          Background="White"
+                                          Background="{DynamicResource SurfaceBrush}"
                                           Foreground="{DynamicResource MaterialDesignBody}"
                                           TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                           RowBackground="{DynamicResource MaterialDesignPaper}"
@@ -393,19 +393,19 @@
                                     <TextBlock Text="Equipment Entry" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
                                     <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding EquipmentName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding EquipmentName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Acquisition Cost" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding EquipmentAcquisitionCost, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding EquipmentAcquisitionCost, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Depreciation Years" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding EquipmentDepreciationYears, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding EquipmentDepreciationYears, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Residual Value" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding EquipmentResidualValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="White" />
+                                    <TextBox Text="{Binding EquipmentResidualValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                     <TextBlock Text="Monthly Depreciation" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
-                                    <TextBox Text="{Binding EquipmentMonthlyDepreciation}" Padding="8,6" Background="White" IsReadOnly="True" />
+                                    <TextBox Text="{Binding EquipmentMonthlyDepreciation}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" IsReadOnly="True" />
 
                                     <CheckBox Content="Active" IsChecked="{Binding EquipmentIsActive}" Margin="0,12,0,0" />
 
@@ -437,7 +437,7 @@
                                           SelectedItem="{Binding SelectedEquipment}"
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
-                                          Background="White"
+                                          Background="{DynamicResource SurfaceBrush}"
                                           Foreground="{DynamicResource MaterialDesignBody}"
                                           TextElement.Foreground="{DynamicResource MaterialDesignBody}"
                                           RowBackground="{DynamicResource MaterialDesignPaper}"

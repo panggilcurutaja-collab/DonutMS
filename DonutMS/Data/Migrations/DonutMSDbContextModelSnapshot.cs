@@ -242,13 +242,14 @@ namespace DonutMS.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BatchId");
-
                     b.HasIndex("IngredientId");
 
                     b.HasIndex("PlannedUnitId");
 
                     b.HasIndex("StockBatchId");
+
+                    b.HasIndex("BatchId", "IngredientId")
+                        .IsUnique();
 
                     b.ToTable("BatchIngredients");
                 });
@@ -735,7 +736,8 @@ namespace DonutMS.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IngredientId");
+                    b.HasIndex("IngredientId")
+                        .IsUnique();
 
                     b.HasIndex("UnitId");
 
@@ -1431,9 +1433,10 @@ namespace DonutMS.Data.Migrations
 
                     b.HasIndex("IngredientId");
 
-                    b.HasIndex("RecipeId");
-
                     b.HasIndex("UnitId");
+
+                    b.HasIndex("RecipeId", "IngredientId")
+                        .IsUnique();
 
                     b.ToTable("RecipeIngredients");
                 });
@@ -1583,9 +1586,10 @@ namespace DonutMS.Data.Migrations
 
                     b.HasIndex("IngredientId");
 
-                    b.HasIndex("RecipeVersionId");
-
                     b.HasIndex("UnitId");
+
+                    b.HasIndex("RecipeVersionId", "IngredientId")
+                        .IsUnique();
 
                     b.ToTable("RecipeVersionIngredients");
                 });

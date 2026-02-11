@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using DonutMS.Configuration;
+using DonutMS.Services;
 using DonutMS.ViewModels;
 
 namespace DonutMS;
@@ -19,6 +20,7 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         // Stage 1: Configure logging FIRST before anything else
         try
@@ -90,6 +92,9 @@ public partial class App : Application
                         var connectionString = context.Configuration.GetConnectionString("Default") ?? "Data Source=donutms.db";
                         Log.Information($"  - Connection String: {connectionString}");
 
+                        // App settings
+                        services.Configure<ModuleSettings>(context.Configuration.GetSection("Modules"));
+
                         // Application services
                         Log.Debug("  - Adding application services...");
                         services.AddApplicationServices(connectionString);
@@ -117,11 +122,12 @@ public partial class App : Application
             ServiceProvider = AppHost.Services;
             Log.Information("✅ Service provider created");
 
-            // Stage 6: Initialize database
+            // Stage 6: Initialize database (scoped)
             Log.Information("[Stage 6] Initializing database...");
             try
             {
-                var dbInitializer = ServiceProvider.GetRequiredService<DonutMS.Data.DbContext.DatabaseInitializer>();
+                using var initScope = ServiceProvider.CreateScope();
+                var dbInitializer = initScope.ServiceProvider.GetRequiredService<DonutMS.Data.DbContext.DatabaseInitializer>();
                 Log.Debug("  - Running database initialization...");
                 dbInitializer.InitializeAsync().GetAwaiter().GetResult();
                 Log.Information("✅ Database initialized");
@@ -132,9 +138,58 @@ public partial class App : Application
                 // Non-fatal, continue anyway
             }
 
+            // Stage 6.5: Auto backup database (daily)
+            Log.Information("[Stage 6.5] Checking daily database backup...");
+            try
+            {
+                using var backupScope = ServiceProvider.CreateScope();
+                var backupService = backupScope.ServiceProvider.GetRequiredService<IBackupService>();
+                var backupPath = backupService.EnsureDailyBackupAsync().GetAwaiter().GetResult();
+                if (!string.IsNullOrWhiteSpace(backupPath))
+                {
+                    Log.Information("✅ Auto backup created: {Path}", backupPath);
+                }
+            }
+            catch (Exception backupEx)
+            {
+                Log.Warning(backupEx, "⚠️ Auto backup skipped due to error (non-critical)");
+            }
+
+            // Stage 6.6: Show login window
+            Log.Information("[Stage 6.6] Displaying login window...");
+            try
+            {
+                var loginWindow = ServiceProvider.GetRequiredService<DonutMS.Views.Auth.LoginWindow>();
+                var loginResult = loginWindow.ShowDialog();
+                if (loginResult != true)
+                {
+                    Log.Warning("Login cancelled or failed. Shutting down application.");
+                    Shutdown(0);
+                    return;
+                }
+            }
+            catch (Exception loginEx)
+            {
+                Log.Fatal(loginEx, "❌ Error displaying login window");
+                throw;
+            }
+
+            // Stage 6.7: Load UI resource dictionaries after login
+            Log.Information("[Stage 6.7] Loading UI theme resources...");
+            try
+            {
+                LoadUiResources();
+                Log.Information("✅ UI resources loaded");
+            }
+            catch (Exception themeEx)
+            {
+                Log.Fatal(themeEx, "❌ Error loading UI resources");
+                throw;
+            }
+
             // Stage 7: Create main window
             Log.Information("[Stage 7] Creating main window...");
-            MainWindow mainWindow = null;
+            MainWindow? mainWindow = null;
             try
             {
                 mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
@@ -153,6 +208,8 @@ public partial class App : Application
             Log.Information("[Stage 8] Displaying main window...");
             try
             {
+                Application.Current.MainWindow = mainWindow;
+                ShutdownMode = ShutdownMode.OnMainWindowClose;
                 mainWindow?.Show();
                 Log.Information("✅ MainWindow displayed");
             }
@@ -194,6 +251,20 @@ Please check the logs in the 'Logs' folder for more details.
             Log.CloseAndFlush();
             Shutdown(1);
         }
+    }
+
+    private static void LoadUiResources()
+    {
+        var app = Application.Current;
+        if (app == null)
+            return;
+
+        var uri = new Uri("pack://application:,,,/DonutMS;component/Resources/Styles/AppTheme.xaml", UriKind.Absolute);
+        var alreadyLoaded = app.Resources.MergedDictionaries.Any(d => d.Source != null && d.Source == uri);
+        if (alreadyLoaded)
+            return;
+
+        app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = uri });
     }
 
     protected override void OnExit(ExitEventArgs e)

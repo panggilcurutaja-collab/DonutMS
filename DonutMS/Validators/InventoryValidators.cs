@@ -1,4 +1,5 @@
 using FluentValidation;
+using DonutMS.Core.Domain;
 using DonutMS.Data.Entities;
 
 namespace DonutMS.Validators;
@@ -34,6 +35,57 @@ public class IngredientValidator : AbstractValidator<Ingredient>
 
         RuleFor(x => x.ShelfLifeDays)
             .GreaterThan(0).WithMessage("Shelf life must be greater than 0 days");
+    }
+}
+
+public class UnitValidator : AbstractValidator<Unit>
+{
+    public UnitValidator()
+    {
+        RuleFor(x => x.Code)
+            .NotEmpty().WithMessage("Unit code is required")
+            .Length(1, 50).WithMessage("Unit code must be between 1 and 50 characters");
+
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Unit name is required")
+            .Length(1, 150).WithMessage("Unit name must be between 1 and 150 characters");
+
+        RuleFor(x => x.Category)
+            .NotEmpty().WithMessage("Unit category is required")
+            .Length(1, 50).WithMessage("Unit category must be between 1 and 50 characters");
+
+        RuleFor(x => x.ConversionFactor)
+            .GreaterThan(0).WithMessage("Conversion factor must be greater than 0");
+
+        RuleFor(x => x.BaseUnit)
+            .MaximumLength(50)
+            .When(x => !string.IsNullOrWhiteSpace(x.BaseUnit))
+            .WithMessage("Base unit must be 50 characters or less");
+    }
+}
+
+public class SupplierValidator : AbstractValidator<Supplier>
+{
+    public SupplierValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Supplier name is required")
+            .Length(1, 200).WithMessage("Supplier name must be between 1 and 200 characters");
+
+        RuleFor(x => x.Email)
+            .EmailAddress().WithMessage("Supplier email is not valid")
+            .When(x => !string.IsNullOrWhiteSpace(x.Email));
+
+        RuleFor(x => x.PhoneNumber)
+            .MaximumLength(20)
+            .When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber))
+            .WithMessage("Phone number must be 20 characters or less");
+
+        RuleFor(x => x.MinimumOrderQuantity)
+            .GreaterThanOrEqualTo(0).WithMessage("Minimum order quantity cannot be negative");
+
+        RuleFor(x => x.LeadTimeDays)
+            .GreaterThanOrEqualTo(0).WithMessage("Lead time days cannot be negative");
     }
 }
 
@@ -136,8 +188,8 @@ public class StockTransactionValidator : AbstractValidator<StockTransaction>
 
         RuleFor(x => x.TransactionType)
             .NotEmpty().WithMessage("Transaction type is required")
-            .Must(x => x == "In" || x == "Out" || x == "Adjustment" || x == "Waste")
-            .WithMessage("Transaction type must be 'In', 'Out', 'Adjustment', or 'Waste'");
+            .Must(x => DomainConstants.StockTransactionType.All.Contains(x))
+            .WithMessage($"Transaction type must be '{DomainConstants.StockTransactionType.In}', '{DomainConstants.StockTransactionType.Out}', '{DomainConstants.StockTransactionType.Adjustment}', or '{DomainConstants.StockTransactionType.Waste}'");
 
         RuleFor(x => x.Quantity)
             .NotEmpty().WithMessage("Quantity is required")

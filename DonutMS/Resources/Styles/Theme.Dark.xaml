@@ -1,0 +1,35 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Custom theme colors (dark) -->
+    <Color x:Key="PrimaryColor">#FF3B82F6</Color>
+    <Color x:Key="AccentColor">#FFF59E0B</Color>
+    <Color x:Key="BackgroundColor">#FF0F1115</Color>
+
+    <!-- Modern palette -->
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#FF171A21" />
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="#FF1F2430" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFE5E7EB" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#FF9CA3AF" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#FF2B3240" />
+
+    <SolidColorBrush x:Key="AccentBrush" Color="#FF3B82F6" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF2563EB" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#FF1D4ED8" />
+    <SolidColorBrush x:Key="AccentLightBrush" Color="#FF1E293B" />
+
+    <SolidColorBrush x:Key="SuccessBrush" Color="#FF22C55E" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#FFF59E0B" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#FFEF4444" />
+    <SolidColorBrush x:Key="DangerHoverBrush" Color="#FFDC2626" />
+    <SolidColorBrush x:Key="DangerPressedBrush" Color="#FFB91C1C" />
+
+    <!-- MaterialDesign brush overrides for consistent contrast -->
+    <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#FF3B82F6" />
+    <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#FF93C5FD" />
+    <SolidColorBrush x:Key="MaterialDesignPaper" Color="#FF0F1115" />
+    <SolidColorBrush x:Key="MaterialDesignCardBackground" Color="#FF171A21" />
+    <SolidColorBrush x:Key="MaterialDesignBody" Color="#FFE5E7EB" />
+    <SolidColorBrush x:Key="MaterialDesignBodyLight" Color="#FF9CA3AF" />
+    <SolidColorBrush x:Key="MaterialDesignDividerBackground" Color="#FF1F2430" />
+    <SolidColorBrush x:Key="DividerBrush" Color="#FF2B3240" />
+</ResourceDictionary>

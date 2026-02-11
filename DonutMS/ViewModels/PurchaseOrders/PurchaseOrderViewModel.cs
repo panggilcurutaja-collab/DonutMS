@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
+using DonutMS.Core.Domain;
 using DonutMS.Core.MVVM;
 using DonutMS.Models.DTOs;
 using DonutMS.Services;
@@ -210,7 +211,7 @@ public partial class PurchaseOrderViewModel : BaseViewModel
             UnitPrice = ItemUnitPrice,
             LineTotal = lineTotal,
             LineNumber = EditingItems.Count + 1,
-            Status = "Pending"
+            Status = DomainConstants.PurchaseOrderItemStatus.Pending
         };
 
         EditingItems.Add(item);
@@ -289,7 +290,7 @@ public partial class PurchaseOrderViewModel : BaseViewModel
             return;
         }
 
-        if (purchaseOrder.Status == "Cancelled")
+        if (purchaseOrder.Status == DomainConstants.PurchaseOrderStatus.Cancelled)
         {
             SetError("Cannot receive a cancelled purchase order");
             return;
@@ -398,7 +399,7 @@ public partial class PurchaseOrderViewModel : BaseViewModel
         if (purchaseOrder == null)
             return;
 
-        if (!string.Equals(purchaseOrder.Status, "Draft", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(purchaseOrder.Status, DomainConstants.PurchaseOrderStatus.Draft, StringComparison.OrdinalIgnoreCase))
         {
             SetError("Only draft purchase orders can be confirmed");
             return;
@@ -429,7 +430,7 @@ public partial class PurchaseOrderViewModel : BaseViewModel
         if (purchaseOrder == null)
             return;
 
-        if (string.Equals(purchaseOrder.Status, "Received", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(purchaseOrder.Status, DomainConstants.PurchaseOrderStatus.Received, StringComparison.OrdinalIgnoreCase))
         {
             SetError("Cannot cancel a received purchase order");
             return;
@@ -522,8 +523,8 @@ public partial class PurchaseOrderViewModel : BaseViewModel
     private void CalculateSummary()
     {
         TotalOrders = PurchaseOrders.Count;
-        PendingOrders = PurchaseOrders.Count(po => po.Status != "Received" && po.Status != "Cancelled");
-        OverdueOrders = PurchaseOrders.Count(po => po.Status != "Received" && po.Status != "Cancelled" && po.RequiredDeliveryDate.Date < DateTime.Today);
+        PendingOrders = PurchaseOrders.Count(po => po.Status != DomainConstants.PurchaseOrderStatus.Received && po.Status != DomainConstants.PurchaseOrderStatus.Cancelled);
+        OverdueOrders = PurchaseOrders.Count(po => po.Status != DomainConstants.PurchaseOrderStatus.Received && po.Status != DomainConstants.PurchaseOrderStatus.Cancelled && po.RequiredDeliveryDate.Date < DateTime.Today);
         TotalOrderValue = PurchaseOrders.Sum(po => po.TotalAmount);
     }
 }

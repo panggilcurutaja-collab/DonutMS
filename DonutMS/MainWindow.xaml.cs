@@ -3,6 +3,9 @@ using MahApps.Metro.Controls;
 using Serilog;
 using DonutMS.ViewModels;
 using DonutMS.Services;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows;
 
 namespace DonutMS;
 
@@ -64,6 +67,7 @@ public partial class MainWindow : MetroWindow
                     frameworkElement.DataContext = viewModel;
                 }
                 ContentArea.Content = view;
+                AnimateContent(view);
                 Log.Information($"[UpdateContentView] ✅ View loaded for {viewModel.GetType().Name}");
             }
             else
@@ -105,6 +109,48 @@ public partial class MainWindow : MetroWindow
         {
             Log.Fatal(ex, "[MainWindow.Loaded] ❌ Error in window loaded event");
             throw;
+        }
+    }
+
+    private static void AnimateContent(UIElement view)
+    {
+        try
+        {
+            view.Opacity = 0;
+            if (view.RenderTransform is not TranslateTransform)
+            {
+                view.RenderTransform = new TranslateTransform(0, 8);
+            }
+
+            var storyboard = new Storyboard();
+
+            var opacityAnimation = new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromMilliseconds(200),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            Storyboard.SetTarget(opacityAnimation, view);
+            Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(UIElement.OpacityProperty));
+
+            var translateAnimation = new DoubleAnimation
+            {
+                From = 8,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(240),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            Storyboard.SetTarget(translateAnimation, view);
+            Storyboard.SetTargetProperty(translateAnimation, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+
+            storyboard.Children.Add(opacityAnimation);
+            storyboard.Children.Add(translateAnimation);
+            storyboard.Begin();
+        }
+        catch
+        {
+            // Ignore animation failures
         }
     }
 }

@@ -52,7 +52,16 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IPricingService, PricingService>();
         services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
         services.AddScoped<IReportingService, ReportingService>();
+        services.AddScoped<IExportService, ExportService>();
+        services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IEncryptionService, EncryptionService>();
+        services.AddScoped<IBackupService, BackupService>();
+        services.AddScoped<IWindowService, WindowService>();
+        services.AddScoped<ICredentialStore, CredentialStore>();
+        services.AddSingleton<IThemeService, ThemeService>();
         services.AddScoped<IUnitConversionService, UnitConversionService>();
+        services.AddScoped<IUnitService, UnitService>();
         services.AddScoped<ISKUService, SKUService>();
         services.AddScoped<ISupplierService, SupplierService>();
         services.AddScoped<ILaborOverheadService, LaborOverheadService>();
@@ -64,6 +73,7 @@ public static class DependencyInjectionConfiguration
 
         // Views - Register all views so they can be resolved
         services.AddTransient<DonutMS.Views.Main.DashboardView>();
+        services.AddTransient<DonutMS.Views.Main.HomeView>();
         services.AddTransient<DonutMS.Views.Ingredients.IngredientListView>();
         services.AddTransient<DonutMS.Views.Recipes.RecipeListView>();
         services.AddTransient<DonutMS.Views.Recipes.SubstitutionManagerView>();
@@ -75,6 +85,10 @@ public static class DependencyInjectionConfiguration
         services.AddTransient<DonutMS.Views.Labor.LaborOverheadViewV2>();
         services.AddTransient<DonutMS.Views.Pricing.PricingCalculatorView>();
         services.AddTransient<DonutMS.Views.Promotions.PromoManagerViewV2>();
+        services.AddTransient<DonutMS.Views.Reports.ReportsView>();
+        services.AddTransient<DonutMS.Views.Admin.SecurityView>();
+        services.AddTransient<DonutMS.Views.Auth.RegisterWindow>();
+        services.AddTransient<DonutMS.Views.Auth.LoginWindow>();
 
         // ViewModels - Register with proper dependency resolution
         // Note: NavigationViewModel must be registered first as it's a dependency of MainWindowViewModel
@@ -87,6 +101,8 @@ public static class DependencyInjectionConfiguration
             new MainWindowViewModel(
                 sp.GetRequiredService<INavigationService>(),
                 sp.GetRequiredService<NavigationViewModel>(),
+                sp.GetRequiredService<IWindowService>(),
+                sp.GetRequiredService<IThemeService>(),
                 sp.GetRequiredService<ILogger<MainWindowViewModel>>()));
         
         services.AddScoped<DashboardViewModel>(sp =>
@@ -96,6 +112,10 @@ public static class DependencyInjectionConfiguration
                 sp.GetRequiredService<IInventoryService>(),
                 sp.GetRequiredService<IPricingService>(),
                 sp.GetRequiredService<ILogger<DashboardViewModel>>()));
+
+        services.AddScoped<HomeViewModel>(sp =>
+            new HomeViewModel(
+                sp.GetRequiredService<ILogger<HomeViewModel>>()));
         
         services.AddScoped<RecipeEditorViewModel>(sp =>
             new RecipeEditorViewModel(
@@ -128,7 +148,8 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IngredientsViewModel>(sp =>
             new IngredientsViewModel(
                 sp.GetRequiredService<IIngredientService>(),
-                sp.GetRequiredService<IUnitConversionService>(),
+                sp.GetRequiredService<IUnitService>(),
+                sp.GetRequiredService<ISupplierService>(),
                 sp.GetRequiredService<ILogger<IngredientsViewModel>>()));
 
         services.AddScoped<SubstitutionManagerViewModel>(sp =>
@@ -170,6 +191,37 @@ public static class DependencyInjectionConfiguration
                 sp.GetRequiredService<IPricingService>(),
                 sp.GetRequiredService<ISKURepository>(),
                 sp.GetRequiredService<ILogger<PromoManagerViewModel>>()));
+
+        services.AddScoped<ReportsViewModel>(sp =>
+            new ReportsViewModel(
+                sp.GetRequiredService<IInventoryService>(),
+                sp.GetRequiredService<IIngredientService>(),
+                sp.GetRequiredService<IPurchaseOrderService>(),
+                sp.GetRequiredService<IProductionService>(),
+                sp.GetRequiredService<ISKUService>(),
+                sp.GetRequiredService<IRecipeService>(),
+                sp.GetRequiredService<ICostCalculationService>(),
+                sp.GetRequiredService<IExportService>(),
+                sp.GetRequiredService<ILogger<ReportsViewModel>>()));
+
+        services.AddScoped<SecurityViewModel>(sp =>
+            new SecurityViewModel(
+                sp.GetRequiredService<IAuditService>(),
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<IBackupService>(),
+                sp.GetRequiredService<ILogger<SecurityViewModel>>()));
+
+        services.AddScoped<RegisterViewModel>(sp =>
+            new RegisterViewModel(
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<ILogger<RegisterViewModel>>()));
+
+        services.AddScoped<LoginViewModel>(sp =>
+            new LoginViewModel(
+                sp.GetRequiredService<IAuthService>(),
+                sp.GetRequiredService<ICredentialStore>(),
+                sp.GetRequiredService<IWindowService>(),
+                sp.GetRequiredService<ILogger<LoginViewModel>>()));
 
         return services;
     }

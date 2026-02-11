@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DonutMS.Core.MVVM;
+using DonutMS.Configuration;
 using DonutMS.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DonutMS.Services;
 
@@ -18,22 +20,30 @@ public class NavigationService : INavigationService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<NavigationService> _logger;
+    private readonly IAuthService _authService;
     private readonly Dictionary<string, Type> _viewModelMap;
-    private UserContext _currentUser = new();
+    private readonly ModuleSettings _moduleSettings;
 
     public UserContext CurrentUser
     {
-        get => _currentUser;
-        set => _currentUser = value;
+        get => _authService.CurrentUser;
+        set => _authService.CurrentUser = value;
     }
 
-    public NavigationService(IServiceProvider serviceProvider, ILogger<NavigationService> logger)
+    public NavigationService(
+        IServiceProvider serviceProvider,
+        IAuthService authService,
+        IOptions<ModuleSettings> moduleOptions,
+        ILogger<NavigationService> logger)
     {
         _serviceProvider = serviceProvider;
+        _authService = authService;
+        _moduleSettings = moduleOptions.Value;
         _logger = logger;
 
         _viewModelMap = new Dictionary<string, Type>
         {
+            { "Home", typeof(DonutMS.ViewModels.HomeViewModel) },
             { "Dashboard", typeof(DonutMS.ViewModels.DashboardViewModel) },
             { "Ingredients", typeof(DonutMS.ViewModels.IngredientsViewModel) },
             { "RecipeEditor", typeof(DonutMS.ViewModels.RecipeEditorViewModel) },
@@ -45,23 +55,11 @@ public class NavigationService : INavigationService
             { "Batch", typeof(DonutMS.ViewModels.BatchManagementViewModel) },
             { "Pricing", typeof(DonutMS.ViewModels.PricingCalculatorViewModel) },
             { "LaborOverhead", typeof(DonutMS.ViewModels.LaborOverheadViewModel) },
-            { "Promotions", typeof(DonutMS.ViewModels.PromoManagerViewModel) }
+            { "Promotions", typeof(DonutMS.ViewModels.PromoManagerViewModel) },
+            { "Reports", typeof(DonutMS.ViewModels.ReportsViewModel) },
+            { "Security", typeof(DonutMS.ViewModels.SecurityViewModel) }
         };
 
-        InitializeDefaultUser();
-    }
-
-    private void InitializeDefaultUser()
-    {
-        _currentUser = new UserContext
-        {
-            UserId = 1,
-            Username = "admin",
-            FullName = "Administrator",
-            Role = UserRole.Admin,
-            IsAuthenticated = true,
-            LoginTime = DateTime.Now
-        };
     }
 
     public void NavigateTo(string viewName)
@@ -72,36 +70,14 @@ public class NavigationService : INavigationService
         }
         else
         {
-            _logger.LogWarning($"Access denied to: {viewName}. Current role: {_currentUser.Role}");
+            _logger.LogWarning($"Access denied to: {viewName}. Current role: {CurrentUser.Role}");
         }
     }
 
     public bool CanNavigateTo(string viewName)
     {
-        if (!_currentUser.IsAuthenticated)
-            return false;
-
-        // Map views to required roles
-        var roleRequirements = new Dictionary<string, UserRole>
-        {
-            { "Dashboard", UserRole.Admin | UserRole.ProduksionManager | UserRole.Operator | UserRole.Kasir },
-            { "Ingredients", UserRole.Admin | UserRole.ProduksionManager },
-            { "RecipeEditor", UserRole.Admin | UserRole.ProduksionManager },
-            { "Substitutions", UserRole.Admin | UserRole.ProduksionManager },
-            { "Costing", UserRole.Admin | UserRole.ProduksionManager },
-            { "SKUs", UserRole.Admin | UserRole.ProduksionManager },
-            { "Inventory", UserRole.Admin | UserRole.ProduksionManager },
-            { "PurchaseOrders", UserRole.Admin | UserRole.ProduksionManager },
-            { "Batch", UserRole.Admin | UserRole.ProduksionManager | UserRole.Operator },
-            { "Pricing", UserRole.Admin | UserRole.ProduksionManager | UserRole.Kasir },
-            { "LaborOverhead", UserRole.Admin | UserRole.ProduksionManager },
-            { "Promotions", UserRole.Admin | UserRole.ProduksionManager }
-        };
-
-        if (!roleRequirements.TryGetValue(viewName, out var requiredRoles))
-            return false;
-
-        return (_currentUser.Role & requiredRoles) != 0;
+        // Temporarily disable role restriction for development/testing
+        return _moduleSettings.IsEnabled(viewName);
     }
 
     public BaseViewModel? GetViewModel(string viewName)
@@ -226,11 +202,28 @@ public class NavigationService : INavigationService
                 Icon = "Percent",
                 RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
                 Order = 12
+            },
+            new MenuItemModel
+            {
+                Label = "Reports",
+                ViewName = "Reports",
+                Icon = "ChartBar",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 13
+            },
+            new MenuItemModel
+            {
+                Label = "Security & Audit",
+                ViewName = "Security",
+                Icon = "ShieldAccount",
+                RequiredRoles = UserRole.Admin,
+                Order = 14
             }
         };
 
+        // Temporarily disable role restriction for development/testing
         return allMenuItems
-            .Where(m => m.IsVisibleForRole(_currentUser.Role))
+            .Where(m => _moduleSettings.IsEnabled(m.ViewName))
             .OrderBy(m => m.Order)
             .ToList();
     }

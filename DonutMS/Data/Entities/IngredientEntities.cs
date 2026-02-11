@@ -29,7 +29,7 @@ public class Unit : BaseModel
 
     public bool IsActive { get; set; } = true;
 
-    public ICollection<Ingredient>? Ingredients { get; set; }
+    public ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
 }
 
 [Table("Suppliers")]
@@ -64,8 +64,8 @@ public class Supplier : BaseModel
 
     public decimal? Longitude { get; set; }
 
-    public ICollection<IngredientPrice>? IngredientPrices { get; set; }
-    public ICollection<PurchaseOrder>? PurchaseOrders { get; set; }
+    public ICollection<IngredientPrice> IngredientPrices { get; set; } = new List<IngredientPrice>();
+    public ICollection<PurchaseOrder> PurchaseOrders { get; set; } = new List<PurchaseOrder>();
 }
 
 [Table("Ingredients")]
@@ -101,13 +101,13 @@ public class Ingredient : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Unit? ConsumptionUnit { get; set; }
-    public Unit? PurchaseUnit { get; set; }
-    public ICollection<IngredientPrice>? Prices { get; set; }
-    public ICollection<InventoryStock>? InventoryStocks { get; set; }
-    public ICollection<RecipeIngredient>? RecipeIngredients { get; set; }
-    public ICollection<BatchIngredient>? BatchIngredients { get; set; }
-    public ICollection<IngredientAllergen>? Allergens { get; set; }
+    public Unit ConsumptionUnit { get; set; } = null!;
+    public Unit PurchaseUnit { get; set; } = null!;
+    public ICollection<IngredientPrice> Prices { get; set; } = new List<IngredientPrice>();
+    public ICollection<InventoryStock> InventoryStocks { get; set; } = new List<InventoryStock>();
+    public ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
+    public ICollection<BatchIngredient> BatchIngredients { get; set; } = new List<BatchIngredient>();
+    public ICollection<IngredientAllergen> Allergens { get; set; } = new List<IngredientAllergen>();
 }
 
 [Table("IngredientPrices")]
@@ -135,7 +135,7 @@ public class IngredientPrice : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Ingredient? Ingredient { get; set; }
-    public Supplier? Supplier { get; set; }
-    public Unit? Unit { get; set; }
+    public Ingredient Ingredient { get; set; } = null!;
+    public Supplier Supplier { get; set; } = null!;
+    public Unit Unit { get; set; } = null!;
 }
