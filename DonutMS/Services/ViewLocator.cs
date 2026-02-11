@@ -77,6 +77,18 @@ public class ViewLocator : IViewLocator
         RegisterViewMapping(
             typeof(DonutMS.ViewModels.BatchManagementViewModel),
             typeof(DonutMS.Views.Production.BatchManagementView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.LaborOverheadViewModel),
+            typeof(DonutMS.Views.Labor.LaborOverheadViewV2));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.PricingCalculatorViewModel),
+            typeof(DonutMS.Views.Pricing.PricingCalculatorView));
+
+        RegisterViewMapping(
+            typeof(DonutMS.ViewModels.PromoManagerViewModel),
+            typeof(DonutMS.Views.Promotions.PromoManagerViewV2));
     }
 
     public UIElement? GetViewForViewModel(Type viewModelType)

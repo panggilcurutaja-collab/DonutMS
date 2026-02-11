@@ -209,6 +209,12 @@ public partial class MainWindowViewModel : BaseViewModel
             case "Pricing":
                 await NavigateToPricingAsync();
                 break;
+            case "LaborOverhead":
+                await NavigateToLaborOverheadAsync();
+                break;
+            case "Promotions":
+                await NavigateToPromotionsAsync();
+                break;
             default:
                 SetError($"Unknown menu: {item.Label}");
                 break;
@@ -313,6 +319,46 @@ public partial class MainWindowViewModel : BaseViewModel
         }
 
         LogInfo("Navigated to Purchase Orders");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToLaborOverheadAsync()
+    {
+        if (!_navigationService.CanNavigateTo("LaborOverhead"))
+        {
+            SetError("You don't have permission to access Labor & Overhead");
+            return;
+        }
+
+        CurrentPageName = "Labor & Overhead";
+        CurrentViewModel = _navigationService.GetViewModel("LaborOverhead");
+
+        if (CurrentViewModel is LaborOverheadViewModel laborVM)
+        {
+            await laborVM.LoadCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Labor & Overhead");
+    }
+
+    [RelayCommand]
+    public async Task NavigateToPromotionsAsync()
+    {
+        if (!_navigationService.CanNavigateTo("Promotions"))
+        {
+            SetError("You don't have permission to access Promo Manager");
+            return;
+        }
+
+        CurrentPageName = "Promo Manager";
+        CurrentViewModel = _navigationService.GetViewModel("Promotions");
+
+        if (CurrentViewModel is PromoManagerViewModel promoVM)
+        {
+            await promoVM.LoadCommand.ExecuteAsync(null);
+        }
+
+        LogInfo("Navigated to Promo Manager");
     }
 
     [RelayCommand]

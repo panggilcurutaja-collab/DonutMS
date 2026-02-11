@@ -282,6 +282,8 @@ public class StockTransactionDto
     public decimal Quantity { get; set; }
     public int UnitId { get; set; }
     public string UnitCode { get; set; } = string.Empty;
+    public string IngredientName { get; set; } = string.Empty;
+    public string? StockBatchNumber { get; set; }
     public DateTime TransactionDate { get; set; }
     public int? BatchId { get; set; }
     public string? ReferenceNumber { get; set; }
@@ -301,6 +303,7 @@ public class BatchDto
     public decimal? WasteQuantity { get; set; }
     public string Status { get; set; } = string.Empty;
     public bool HasQCPass { get; set; }
+    public string? Notes { get; set; }
     public IEnumerable<BatchIngredientDto> Ingredients { get; set; } = new List<BatchIngredientDto>();
     public IEnumerable<QualityControlDto> QualityControls { get; set; } = new List<QualityControlDto>();
 }
@@ -338,6 +341,8 @@ public class QualityControlDto
     public decimal? Appearance { get; set; }
     public decimal? Aroma { get; set; }
     public decimal? AverageScore { get; set; }
+    public string? DefectsFound { get; set; }
+    public string? Remarks { get; set; }
 }
 
 // ========== SKU / COSTING DTOs ==========
@@ -547,6 +552,194 @@ public class CreatePurchaseOrderReceivingDetailDto
     public string? Notes { get; set; }
 }
 
+// ========== PROMO / DISCOUNT DTOs ==========
+public class DiscountDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string DiscountType { get; set; } = "Percentage";
+    public decimal DiscountValue { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public string? ApplicableFor { get; set; }
+    public int? MinimumQuantity { get; set; }
+    public bool IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateDiscountDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string DiscountType { get; set; } = "Percentage";
+    public decimal DiscountValue { get; set; }
+    public DateTime StartDate { get; set; } = DateTime.Today;
+    public DateTime EndDate { get; set; } = DateTime.Today.AddMonths(1);
+    public string? ApplicableFor { get; set; }
+    public int? MinimumQuantity { get; set; }
+    public bool IsActive { get; set; } = true;
+    public string? Notes { get; set; }
+}
+
+public class BundlePackageDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public decimal BundlePrice { get; set; }
+    public int Quantity { get; set; }
+    public int? SKUId { get; set; }
+    public string? SKUName { get; set; }
+    public bool IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateBundlePackageDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public decimal BundlePrice { get; set; }
+    public int Quantity { get; set; }
+    public int? SKUId { get; set; }
+    public bool IsActive { get; set; } = true;
+    public string? Notes { get; set; }
+}
+
+// ========== LABOR & OVERHEAD DTOs ==========
+public class OperatorDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string EmployeeId { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Address { get; set; }
+    public DateTime HireDate { get; set; }
+    public DateTime? TerminationDate { get; set; }
+    public string? JobTitle { get; set; }
+    public decimal BaseSalary { get; set; }
+    public string SalaryPeriod { get; set; } = "Monthly";
+    public bool IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateOperatorDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string EmployeeId { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Address { get; set; }
+    public DateTime HireDate { get; set; } = DateTime.UtcNow;
+    public DateTime? TerminationDate { get; set; }
+    public string? JobTitle { get; set; }
+    public decimal BaseSalary { get; set; }
+    public string SalaryPeriod { get; set; } = "Monthly";
+    public bool IsActive { get; set; } = true;
+    public string? Notes { get; set; }
+}
+
+public class UpdateOperatorDto
+{
+    public string? Name { get; set; }
+    public string? EmployeeId { get; set; }
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Address { get; set; }
+    public DateTime? HireDate { get; set; }
+    public DateTime? TerminationDate { get; set; }
+    public string? JobTitle { get; set; }
+    public decimal? BaseSalary { get; set; }
+    public string? SalaryPeriod { get; set; }
+    public bool? IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class LaborRateDto
+{
+    public int Id { get; set; }
+    public int OperatorId { get; set; }
+    public string OperatorName { get; set; } = string.Empty;
+    public decimal HourlyRate { get; set; }
+    public decimal OvertimeMultiplier { get; set; }
+    public DateTime EffectiveDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public string? ShiftType { get; set; }
+    public bool IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateLaborRateDto
+{
+    public int OperatorId { get; set; }
+    public decimal HourlyRate { get; set; }
+    public decimal OvertimeMultiplier { get; set; } = 1.5m;
+    public DateTime EffectiveDate { get; set; } = DateTime.UtcNow;
+    public DateTime? EndDate { get; set; }
+    public string? ShiftType { get; set; }
+    public string? Notes { get; set; }
+    public bool IsActive { get; set; } = true;
+}
+
+public class BatchLaborDto
+{
+    public int Id { get; set; }
+    public int BatchId { get; set; }
+    public string BatchCode { get; set; } = string.Empty;
+    public int OperatorId { get; set; }
+    public string OperatorName { get; set; } = string.Empty;
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
+    public decimal HoursWorked { get; set; }
+    public decimal OvertimeHours { get; set; }
+    public string? ShiftType { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class CreateBatchLaborDto
+{
+    public int BatchId { get; set; }
+    public int OperatorId { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
+    public decimal HoursWorked { get; set; }
+    public decimal OvertimeHours { get; set; }
+    public string? ShiftType { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class EquipmentDepreciationDto
+{
+    public int Id { get; set; }
+    public string EquipmentName { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public decimal AcquisitionCost { get; set; }
+    public DateTime AcquisitionDate { get; set; }
+    public int DepreciationYears { get; set; }
+    public string DepreciationMethod { get; set; } = "StraightLine";
+    public decimal ResidualValue { get; set; }
+    public decimal MonthlyDepreciation { get; set; }
+    public DateTime? DisposalDate { get; set; }
+    public bool IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
+public class UtilityExpenseDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string UtilityType { get; set; } = string.Empty;
+    public decimal MonthlyAmount { get; set; }
+    public DateTime EffectiveDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public string AllocationMethod { get; set; } = "Percentage";
+    public decimal AllocationValue { get; set; }
+    public bool IsActive { get; set; }
+    public string? Notes { get; set; }
+}
+
 // ========== AUTOMAP PROFILE ==========
 public class DtoMappingProfile : Profile
 {
@@ -612,7 +805,9 @@ public class DtoMappingProfile : Profile
         CreateMap<StockBatch, StockBatchDto>();
 
         CreateMap<StockTransaction, StockTransactionDto>()
-            .ForMember(d => d.UnitCode, o => o.MapFrom(s => s.Unit != null ? s.Unit.Code : ""));
+            .ForMember(d => d.UnitCode, o => o.MapFrom(s => s.Unit != null ? s.Unit.Code : ""))
+            .ForMember(d => d.IngredientName, o => o.MapFrom(s => s.InventoryStock != null && s.InventoryStock.Ingredient != null ? s.InventoryStock.Ingredient.Name : ""))
+            .ForMember(d => d.StockBatchNumber, o => o.MapFrom(s => s.StockBatch != null ? s.StockBatch.SupplierBatchNumber : null));
 
         // Batch/Production Mappings
         CreateMap<Batch, BatchDto>()
@@ -670,5 +865,33 @@ public class DtoMappingProfile : Profile
 
         // Supplier Mappings
         CreateMap<Supplier, SupplierDto>();
+
+        // Labor & Overhead Mappings
+        CreateMap<Operator, OperatorDto>();
+        CreateMap<CreateOperatorDto, Operator>();
+        CreateMap<UpdateOperatorDto, Operator>();
+
+        CreateMap<LaborRate, LaborRateDto>()
+            .ForMember(d => d.OperatorName, o => o.MapFrom(s => s.Operator != null ? s.Operator.Name : ""));
+        CreateMap<CreateLaborRateDto, LaborRate>();
+
+        CreateMap<BatchLabor, BatchLaborDto>()
+            .ForMember(d => d.OperatorName, o => o.MapFrom(s => s.Operator != null ? s.Operator.Name : ""))
+            .ForMember(d => d.BatchCode, o => o.MapFrom(s => s.Batch != null ? s.Batch.BatchCode : ""));
+        CreateMap<CreateBatchLaborDto, BatchLabor>();
+
+        CreateMap<EquipmentDepreciation, EquipmentDepreciationDto>();
+        CreateMap<EquipmentDepreciationDto, EquipmentDepreciation>();
+
+        CreateMap<UtilityExpense, UtilityExpenseDto>();
+        CreateMap<UtilityExpenseDto, UtilityExpense>();
+
+        // Promo / Discount Mappings
+        CreateMap<Discount, DiscountDto>();
+        CreateMap<CreateDiscountDto, Discount>();
+
+        CreateMap<BundlePackage, BundlePackageDto>()
+            .ForMember(d => d.SKUName, o => o.MapFrom(s => s.SKU != null ? s.SKU.Name : null));
+        CreateMap<CreateBundlePackageDto, BundlePackage>();
     }
 }

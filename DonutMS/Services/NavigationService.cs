@@ -43,7 +43,9 @@ public class NavigationService : INavigationService
             { "Inventory", typeof(DonutMS.ViewModels.InventoryManagerViewModel) },
             { "PurchaseOrders", typeof(DonutMS.ViewModels.PurchaseOrderViewModel) },
             { "Batch", typeof(DonutMS.ViewModels.BatchManagementViewModel) },
-            { "Pricing", typeof(DonutMS.ViewModels.PricingCalculatorViewModel) }
+            { "Pricing", typeof(DonutMS.ViewModels.PricingCalculatorViewModel) },
+            { "LaborOverhead", typeof(DonutMS.ViewModels.LaborOverheadViewModel) },
+            { "Promotions", typeof(DonutMS.ViewModels.PromoManagerViewModel) }
         };
 
         InitializeDefaultUser();
@@ -91,7 +93,9 @@ public class NavigationService : INavigationService
             { "Inventory", UserRole.Admin | UserRole.ProduksionManager },
             { "PurchaseOrders", UserRole.Admin | UserRole.ProduksionManager },
             { "Batch", UserRole.Admin | UserRole.ProduksionManager | UserRole.Operator },
-            { "Pricing", UserRole.Admin | UserRole.ProduksionManager | UserRole.Kasir }
+            { "Pricing", UserRole.Admin | UserRole.ProduksionManager | UserRole.Kasir },
+            { "LaborOverhead", UserRole.Admin | UserRole.ProduksionManager },
+            { "Promotions", UserRole.Admin | UserRole.ProduksionManager }
         };
 
         if (!roleRequirements.TryGetValue(viewName, out var requiredRoles))
@@ -206,6 +210,22 @@ public class NavigationService : INavigationService
                 Icon = "CurrencyUsd",
                 RequiredRoles = UserRole.Admin | UserRole.ProduksionManager | UserRole.Kasir,
                 Order = 10
+            },
+            new MenuItemModel
+            {
+                Label = "Labor & Overhead",
+                ViewName = "LaborOverhead",
+                Icon = "AccountGroup",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 11
+            },
+            new MenuItemModel
+            {
+                Label = "Promo Manager",
+                ViewName = "Promotions",
+                Icon = "Percent",
+                RequiredRoles = UserRole.Admin | UserRole.ProduksionManager,
+                Order = 12
             }
         };
 

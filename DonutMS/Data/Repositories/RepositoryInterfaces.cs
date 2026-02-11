@@ -22,6 +22,7 @@ public interface IInventoryRepository : IRepository<InventoryStock>
     Task<InventoryStock?> GetByIngredientIdAsync(int ingredientId);
     Task<IEnumerable<StockBatch>> GetExpiringStockAsync(int daysUntilExpiry);
     Task<IEnumerable<StockTransaction>> GetTransactionsAsync(int ingredientId, DateTime fromDate, DateTime toDate);
+    Task<IEnumerable<StockTransaction>> GetTransactionsByBatchIdAsync(int batchId);
 }
 
 public interface IProductionRepository : IRepository<Batch>

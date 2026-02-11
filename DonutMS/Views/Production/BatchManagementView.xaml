@@ -240,122 +240,322 @@
                     </DataGrid>
                 </StackPanel>
 
-                <!-- Right Panel: Job Sheet + Actions -->
-                <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                            Padding="16"
-                            CornerRadius="4"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            Margin="0,0,0,12">
-                        <StackPanel>
-                            <TextBlock Text="{Binding SelectedBatch.BatchCode, FallbackValue='Select a batch'}"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MaterialDesignBody}" />
-                            <TextBlock Text="{Binding SelectedBatch.RecipeName, StringFormat='Recipe: {0}'}"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,4,0,0" />
-                            <TextBlock Text="{Binding SelectedBatch.Status, StringFormat='Status: {0}'}"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,2,0,0" />
-                            <TextBlock Text="{Binding SelectedBatch.TargetYield, StringFormat='Target: {0:N2}'}"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,2,0,0" />
-                            <TextBlock Text="{Binding SelectedBatch.ActualYield, StringFormat='Actual: {0:N2}'}"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,2,0,0" />
-                            <TextBlock Text="{Binding SelectedBatch.WasteQuantity, StringFormat='Waste: {0:N2}'}"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,2,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                            Padding="16"
-                            CornerRadius="4"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            Margin="0,0,0,12">
-                        <StackPanel>
-                            <TextBlock Text="Material Requirements" FontSize="13" FontWeight="SemiBold" />
-                            <DataGrid ItemsSource="{Binding SelectedBatch.Ingredients}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      CanUserDeleteRows="False"
-                                      Background="White"
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-                                      BorderThickness="1"
-                                      BorderBrush="{DynamicResource DividerBrush}"
-                                      RowBackground="{DynamicResource MaterialDesignPaper}"
-                                      AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}"
-                                      Margin="0,8,0,0">
-                                <DataGrid.Resources>
-                                    <Style TargetType="DataGridCell">
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
-                                    </Style>
-                                </DataGrid.Resources>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="160" IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Planned" Binding="{Binding PlannedQuantity, StringFormat=N2}" Width="80" IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Unit" Binding="{Binding PlannedUnitCode}" Width="60" IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Actual" Binding="{Binding ActualQuantity, StringFormat=N2}" Width="80" IsReadOnly="True" />
-                                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80" IsReadOnly="True" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                            Padding="16"
-                            CornerRadius="4"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1">
-                        <StackPanel>
-                            <TextBlock Text="Actions" FontSize="13" FontWeight="SemiBold" />
-
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <Button Command="{Binding StartProductionCommand}"
-                                        Content="Start Production"
-                                        Padding="12,6"
-                                        Background="DodgerBlue"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Margin="0,0,8,0" />
-                                <Button Command="{Binding OpenJobSheetCommand}"
-                                        Content="Generate Job Sheet"
-                                        Padding="12,6"
-                                        Background="{DynamicResource PrimaryHueMidBrush}"
-                                        Foreground="White"
-                                        BorderThickness="0" />
+                <!-- Right Panel: Details, Execution, QC, Traceability -->
+                <ScrollViewer Grid.Column="1" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                Padding="16"
+                                CornerRadius="4"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1"
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="{Binding SelectedBatch.BatchCode, FallbackValue='Select a batch'}"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                <TextBlock Text="{Binding SelectedBatch.RecipeName, StringFormat='Recipe: {0}'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,4,0,0" />
+                                <TextBlock Text="{Binding SelectedBatch.Status, StringFormat='Status: {0}'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding SelectedBatch.TargetYield, StringFormat='Target: {0:N2}'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding SelectedBatch.ActualYield, StringFormat='Actual: {0:N2}'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding SelectedBatch.WasteQuantity, StringFormat='Waste: {0:N2}'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding YieldVariance, StringFormat='Variance: {0:N2}'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,2,0,0" />
+                                <TextBlock Text="{Binding YieldVariancePercent, StringFormat='Variance %: {0:N1}%'}"
+                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                           FontSize="11"
+                                           Margin="0,2,0,0" />
                             </StackPanel>
+                        </Border>
 
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <TextBox Text="{Binding ActualYield, UpdateSourceTrigger=PropertyChanged}"
-                                         Width="120"
+                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                Padding="16"
+                                CornerRadius="4"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1"
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Actions" FontSize="13" FontWeight="SemiBold" />
+
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <Button Command="{Binding StartProductionCommand}"
+                                            Content="Start Production"
+                                            Padding="12,6"
+                                            Background="DodgerBlue"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            Margin="0,0,8,0" />
+                                    <Button Command="{Binding OpenJobSheetCommand}"
+                                            Content="Generate Job Sheet"
+                                            Padding="12,6"
+                                            Background="{DynamicResource PrimaryHueMidBrush}"
+                                            Foreground="White"
+                                            BorderThickness="0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                Padding="16"
+                                CornerRadius="4"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1"
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Material Requirements" FontSize="13" FontWeight="SemiBold" />
+                                <DataGrid ItemsSource="{Binding SelectedBatch.Ingredients}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserDeleteRows="False"
+                                          Background="White"
+                                          Foreground="{DynamicResource MaterialDesignBody}"
+                                          TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                          BorderThickness="1"
+                                          BorderBrush="{DynamicResource DividerBrush}"
+                                          RowBackground="{DynamicResource MaterialDesignPaper}"
+                                          AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}"
+                                          Margin="0,8,0,0">
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="160" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Planned" Binding="{Binding PlannedQuantity, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Unit" Binding="{Binding PlannedUnitCode}" Width="60" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Actual" Binding="{Binding ActualQuantity, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                Padding="16"
+                                CornerRadius="4"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1"
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Batch Execution" FontSize="13" FontWeight="SemiBold" />
+
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                    <TextBox Text="{Binding ActualYield, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="120"
+                                             Padding="8,6"
+                                             Background="White"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             BorderThickness="1"
+                                             Margin="0,0,8,0"
+                                             mah:TextBoxHelper.Watermark="Actual yield" />
+                                    <TextBox Text="{Binding WasteQuantityInput, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="120"
+                                             Padding="8,6"
+                                             Background="White"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             BorderThickness="1"
+                                             Margin="0,0,8,0"
+                                             mah:TextBoxHelper.Watermark="Waste" />
+                                    <Button Command="{Binding CompleteBatchCommand}"
+                                            Content="Complete Batch"
+                                            Padding="12,6"
+                                            Background="Green"
+                                            Foreground="White"
+                                            BorderThickness="0" />
+                                </StackPanel>
+
+                                <TextBox Text="{Binding ExecutionNotes, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,8,0,0"
                                          Padding="8,6"
                                          Background="White"
                                          Foreground="{DynamicResource MaterialDesignBody}"
                                          BorderBrush="{DynamicResource DividerBrush}"
                                          BorderThickness="1"
-                                         Margin="0,0,8,0"
-                                         mah:TextBoxHelper.Watermark="Actual yield" />
-                                <Button Command="{Binding CompleteBatchCommand}"
-                                        Content="Complete Batch"
-                                        Padding="12,6"
-                                        Background="Green"
-                                        Foreground="White"
-                                        BorderThickness="0" />
+                                         AcceptsReturn="True"
+                                         Height="70"
+                                         mah:TextBoxHelper.Watermark="Execution notes / issues" />
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                Padding="16"
+                                CornerRadius="4"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1"
+                                Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Quality Control" FontSize="13" FontWeight="SemiBold" />
+
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                        <TextBox Text="{Binding QcInspectedBy, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 mah:TextBoxHelper.Watermark="Inspected by" />
+
+                                        <TextBox Text="{Binding QcTaste, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,6,0,0"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 mah:TextBoxHelper.Watermark="Taste (0-10)" />
+
+                                        <TextBox Text="{Binding QcTexture, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,6,0,0"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 mah:TextBoxHelper.Watermark="Texture (0-10)" />
+
+                                        <TextBox Text="{Binding QcAppearance, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,6,0,0"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 mah:TextBoxHelper.Watermark="Appearance (0-10)" />
+
+                                        <TextBox Text="{Binding QcAroma, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,6,0,0"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 mah:TextBoxHelper.Watermark="Aroma (0-10)" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBox Text="{Binding QcDefectsFound, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 Height="70"
+                                                 AcceptsReturn="True"
+                                                 mah:TextBoxHelper.Watermark="Defects found" />
+
+                                        <TextBox Text="{Binding QcRemarks, UpdateSourceTrigger=PropertyChanged}"
+                                                 Margin="0,6,0,0"
+                                                 Padding="8,6"
+                                                 Background="White"
+                                                 Foreground="{DynamicResource MaterialDesignBody}"
+                                                 BorderBrush="{DynamicResource DividerBrush}"
+                                                 BorderThickness="1"
+                                                 Height="70"
+                                                 AcceptsReturn="True"
+                                                 mah:TextBoxHelper.Watermark="Remarks / follow-up" />
+
+                                        <Button Command="{Binding SubmitQualityControlCommand}"
+                                                Content="Submit QC"
+                                                Padding="12,6"
+                                                Background="{DynamicResource PrimaryHueMidBrush}"
+                                                Foreground="White"
+                                                BorderThickness="0"
+                                                Margin="0,8,0,0" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="QC History" FontWeight="SemiBold" Margin="0,12,0,6" />
+                                <DataGrid ItemsSource="{Binding SelectedBatch.QualityControls}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserDeleteRows="False"
+                                          Background="White"
+                                          Foreground="{DynamicResource MaterialDesignBody}"
+                                          TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                          BorderThickness="1"
+                                          BorderBrush="{DynamicResource DividerBrush}"
+                                          RowBackground="{DynamicResource MaterialDesignPaper}"
+                                          AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Date" Binding="{Binding InspectionDate, StringFormat=dd MMM yyyy HH:mm}" Width="150" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Inspector" Binding="{Binding InspectedBy}" Width="120" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Taste" Binding="{Binding Taste}" Width="60" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Texture" Binding="{Binding Texture}" Width="70" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Appearance" Binding="{Binding Appearance}" Width="80" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Aroma" Binding="{Binding Aroma}" Width="70" IsReadOnly="True" />
+                                        <DataGridCheckBoxColumn Header="Pass" Binding="{Binding Passed}" Width="60" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                Padding="16"
+                                CornerRadius="4"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Lot Traceability" FontSize="13" FontWeight="SemiBold" />
+                                <DataGrid ItemsSource="{Binding BatchTransactions}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserDeleteRows="False"
+                                          Background="White"
+                                          Foreground="{DynamicResource MaterialDesignBody}"
+                                          TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                          BorderThickness="1"
+                                          BorderBrush="{DynamicResource DividerBrush}"
+                                          RowBackground="{DynamicResource MaterialDesignPaper}"
+                                          AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}"
+                                          Margin="0,8,0,0">
+                                    <DataGrid.Resources>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="160" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Qty" Binding="{Binding Quantity, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Unit" Binding="{Binding UnitCode}" Width="60" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Lot" Binding="{Binding StockBatchNumber}" Width="120" IsReadOnly="True" />
+                                        <DataGridTextColumn Header="Date" Binding="{Binding TransactionDate, StringFormat=dd MMM yyyy HH:mm}" Width="150" IsReadOnly="True" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
 
             <Border Grid.Row="3"

@@ -31,6 +31,7 @@ public interface IInventoryService
         string? referenceNumber = null,
         int? productionBatchId = null);
     Task<IEnumerable<StockTransactionDto>> GetTransactionsAsync(int ingredientId, DateTime fromDate, DateTime toDate);
+    Task<IEnumerable<StockTransactionDto>> GetTransactionsByBatchIdAsync(int batchId);
     Task<IEnumerable<InventoryStockDto>> GetLowStockItemsAsync();
     Task<bool> ReserveStockAsync(int ingredientId, decimal quantity);
     Task<bool> ReleaseReservedStockAsync(int ingredientId, decimal quantity);
@@ -249,6 +250,12 @@ public class InventoryService : IInventoryService
         return _mapper.Map<IEnumerable<StockTransactionDto>>(transactions);
     }
 
+    public async Task<IEnumerable<StockTransactionDto>> GetTransactionsByBatchIdAsync(int batchId)
+    {
+        var transactions = await _inventoryRepository.GetTransactionsByBatchIdAsync(batchId);
+        return _mapper.Map<IEnumerable<StockTransactionDto>>(transactions);
+    }
+
     public async Task<IEnumerable<InventoryStockDto>> GetLowStockItemsAsync()
     {
         var lowStocks = await _inventoryRepository
@@ -335,7 +342,7 @@ public interface IProductionService
     Task<IEnumerable<BatchDto>> GetActiveBatchesAsync();
     Task<IEnumerable<BatchDto>> GetBatchesByDateRangeAsync(DateTime fromDate, DateTime toDate);
     Task<bool> StartBatchProductionAsync(int batchId);
-    Task<bool> CompleteBatchAsync(int batchId, decimal actualYield);
+    Task<bool> CompleteBatchAsync(int batchId, decimal actualYield, decimal? wasteQuantity = null, string? notes = null);
     Task<QualityControlDto> AddQualityControlAsync(int batchId, QualityControlDto qcDto);
 }
 
@@ -344,6 +351,7 @@ public class ProductionService : IProductionService
     private readonly IProductionRepository _productionRepository;
     private readonly IInventoryService _inventoryService;
     private readonly IRecipeRepository _recipeRepository;
+    private readonly IRepository<QualityControl> _qualityControlRepository;
     private readonly ILogger<ProductionService> _logger;
     private readonly IMapper _mapper;
 
@@ -351,12 +359,14 @@ public class ProductionService : IProductionService
         IProductionRepository productionRepository,
         IInventoryService inventoryService,
         IRecipeRepository recipeRepository,
+        IRepository<QualityControl> qualityControlRepository,
         ILogger<ProductionService> logger,
         IMapper mapper)
     {
         _productionRepository = productionRepository;
         _inventoryService = inventoryService;
         _recipeRepository = recipeRepository;
+        _qualityControlRepository = qualityControlRepository;
         _logger = logger;
         _mapper = mapper;
     }
@@ -478,7 +488,7 @@ public class ProductionService : IProductionService
         return true;
     }
 
-    public async Task<bool> CompleteBatchAsync(int batchId, decimal actualYield)
+    public async Task<bool> CompleteBatchAsync(int batchId, decimal actualYield, decimal? wasteQuantity = null, string? notes = null)
     {
         var batch = await _productionRepository.GetBatchWithIngredientsAsync(batchId);
         if (batch == null)
@@ -486,7 +496,12 @@ public class ProductionService : IProductionService
 
         batch.Status = "Completed";
         batch.ActualYield = actualYield;
-        batch.WasteQuantity = Math.Max(batch.TargetYield - actualYield, 0);
+        var computedWaste = Math.Max(batch.TargetYield - actualYield, 0);
+        batch.WasteQuantity = wasteQuantity.HasValue ? Math.Max(wasteQuantity.Value, 0) : computedWaste;
+        if (!string.IsNullOrWhiteSpace(notes))
+        {
+            batch.Notes = notes;
+        }
 
         if (batch.Ingredients != null)
         {
@@ -517,8 +532,19 @@ public class ProductionService : IProductionService
         qc.InspectionDate = DateTime.UtcNow;
 
         // Mock: assume QC passes if avg score > 7
-        batch.HasQCPass = (qc.Taste + qc.Texture + qc.Appearance + qc.Aroma) / 4 >= 7;
+        var scoreCount = 0;
+        decimal totalScore = 0;
+        if (qc.Taste.HasValue) { totalScore += qc.Taste.Value; scoreCount++; }
+        if (qc.Texture.HasValue) { totalScore += qc.Texture.Value; scoreCount++; }
+        if (qc.Appearance.HasValue) { totalScore += qc.Appearance.Value; scoreCount++; }
+        if (qc.Aroma.HasValue) { totalScore += qc.Aroma.Value; scoreCount++; }
 
+        var averageScore = scoreCount > 0 ? totalScore / scoreCount : 0;
+        qc.Passed = averageScore >= 7;
+        batch.HasQCPass = qc.Passed;
+
+        await _qualityControlRepository.AddAsync(qc);
+        await _qualityControlRepository.SaveChangesAsync();
         await _productionRepository.UpdateAsync(batch);
         await _productionRepository.SaveChangesAsync();
 

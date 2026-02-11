@@ -23,6 +23,9 @@ public partial class BatchManagementViewModel : BaseViewModel
     private ObservableCollection<RecipeDto> availableRecipes = new();
 
     [ObservableProperty]
+    private ObservableCollection<StockTransactionDto> batchTransactions = new();
+
+    [ObservableProperty]
     private BatchDto? selectedBatch;
 
     [ObservableProperty]
@@ -33,6 +36,18 @@ public partial class BatchManagementViewModel : BaseViewModel
 
     [ObservableProperty]
     private decimal actualYield;
+
+    [ObservableProperty]
+    private decimal wasteQuantityInput;
+
+    [ObservableProperty]
+    private string? executionNotes;
+
+    [ObservableProperty]
+    private decimal yieldVariance;
+
+    [ObservableProperty]
+    private decimal yieldVariancePercent;
 
     [ObservableProperty]
     private string batchCode = string.Empty;
@@ -66,6 +81,27 @@ public partial class BatchManagementViewModel : BaseViewModel
 
     [ObservableProperty]
     private string jobSheetTitle = "Job Sheet";
+
+    [ObservableProperty]
+    private string? qcInspectedBy;
+
+    [ObservableProperty]
+    private decimal? qcTaste;
+
+    [ObservableProperty]
+    private decimal? qcTexture;
+
+    [ObservableProperty]
+    private decimal? qcAppearance;
+
+    [ObservableProperty]
+    private decimal? qcAroma;
+
+    [ObservableProperty]
+    private string? qcDefectsFound;
+
+    [ObservableProperty]
+    private string? qcRemarks;
 
     public BatchManagementViewModel(
         IProductionService productionService,
@@ -169,6 +205,10 @@ public partial class BatchManagementViewModel : BaseViewModel
             if (SelectedBatch != null)
             {
                 ActualYield = SelectedBatch.ActualYield ?? 0;
+                WasteQuantityInput = SelectedBatch.WasteQuantity ?? 0;
+                ExecutionNotes = SelectedBatch.Notes;
+                await LoadBatchTransactionsAsync();
+                UpdateVariance();
                 LogInfo($"Batch '{batch.BatchCode}' selected");
             }
         }
@@ -223,10 +263,16 @@ public partial class BatchManagementViewModel : BaseViewModel
             IsLoading = true;
             ClearError();
 
-            await _productionService.CompleteBatchAsync(SelectedBatch.Id, ActualYield);
+            await _productionService.CompleteBatchAsync(
+                SelectedBatch.Id,
+                ActualYield,
+                WasteQuantityInput > 0 ? WasteQuantityInput : null,
+                ExecutionNotes);
             await LoadBatchesAsync();
 
             ActualYield = 0;
+            WasteQuantityInput = 0;
+            ExecutionNotes = null;
             StatusMessage = $"Batch '{SelectedBatch.BatchCode}' completed";
             LogInfo($"Batch '{SelectedBatch.BatchCode}' completed");
         }
@@ -265,12 +311,112 @@ public partial class BatchManagementViewModel : BaseViewModel
         await LoadBatchesAsync();
     }
 
+    [RelayCommand]
+    public async Task SubmitQualityControlAsync()
+    {
+        try
+        {
+            if (SelectedBatch == null)
+            {
+                SetError("Please select a batch");
+                return;
+            }
+
+            if (!ValidateQcScore(QcTaste) || !ValidateQcScore(QcTexture) || !ValidateQcScore(QcAppearance) || !ValidateQcScore(QcAroma))
+            {
+                SetError("QC scores must be between 0 and 10");
+                return;
+            }
+
+            IsLoading = true;
+            ClearError();
+
+            var qcDto = new QualityControlDto
+            {
+                BatchId = SelectedBatch.Id,
+                InspectedBy = QcInspectedBy,
+                Taste = QcTaste,
+                Texture = QcTexture,
+                Appearance = QcAppearance,
+                Aroma = QcAroma,
+                DefectsFound = QcDefectsFound,
+                Remarks = QcRemarks
+            };
+
+            var result = await _productionService.AddQualityControlAsync(SelectedBatch.Id, qcDto);
+            SelectedBatch = await _productionService.GetBatchByIdAsync(SelectedBatch.Id);
+
+            QcInspectedBy = null;
+            QcTaste = null;
+            QcTexture = null;
+            QcAppearance = null;
+            QcAroma = null;
+            QcDefectsFound = null;
+            QcRemarks = null;
+
+            StatusMessage = result.Passed ? "QC passed and recorded" : "QC recorded (needs review)";
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error saving QC: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
     private void UpdateSummary()
     {
         TotalBatches = Batches.Count;
         PlannedCount = Batches.Count(b => b.Status == "Planned");
         InProgressCount = Batches.Count(b => b.Status == "In Progress");
         CompletedCount = Batches.Count(b => b.Status == "Completed");
+    }
+
+    private async Task LoadBatchTransactionsAsync()
+    {
+        if (SelectedBatch == null)
+        {
+            BatchTransactions = new ObservableCollection<StockTransactionDto>();
+            return;
+        }
+
+        var transactions = await _inventoryService.GetTransactionsByBatchIdAsync(SelectedBatch.Id);
+        BatchTransactions = new ObservableCollection<StockTransactionDto>(transactions);
+    }
+
+    private static bool ValidateQcScore(decimal? value)
+    {
+        if (!value.HasValue)
+            return false;
+
+        return value.Value >= 0 && value.Value <= 10;
+    }
+
+    private void UpdateVariance()
+    {
+        if (SelectedBatch == null)
+        {
+            YieldVariance = 0;
+            YieldVariancePercent = 0;
+            return;
+        }
+
+        var target = SelectedBatch.TargetYield;
+        var actual = ActualYield > 0 ? ActualYield : SelectedBatch.ActualYield ?? 0;
+        YieldVariance = actual - target;
+        YieldVariancePercent = target > 0 ? (YieldVariance / target) * 100 : 0;
+    }
+
+    partial void OnSelectedBatchChanged(BatchDto? value)
+    {
+        UpdateVariance();
+    }
+
+    partial void OnActualYieldChanged(decimal value)
+    {
+        UpdateVariance();
     }
 }
 
@@ -294,6 +440,12 @@ public partial class PricingCalculatorViewModel : BaseViewModel
     private decimal desiredMarginPercent;
 
     [ObservableProperty]
+    private decimal markupPercent;
+
+    [ObservableProperty]
+    private decimal markupAmount;
+
+    [ObservableProperty]
     private decimal calculatedSellingPrice;
 
     [ObservableProperty]
@@ -305,6 +457,24 @@ public partial class PricingCalculatorViewModel : BaseViewModel
     [ObservableProperty]
     private decimal breakEvenPrice;
 
+    [ObservableProperty]
+    private decimal currentRetailPrice;
+
+    [ObservableProperty]
+    private decimal whatIfSellingPrice;
+
+    [ObservableProperty]
+    private decimal whatIfGrossMargin;
+
+    [ObservableProperty]
+    private decimal whatIfNetMargin;
+
+    [ObservableProperty]
+    private ObservableCollection<string> pricingModes = new();
+
+    [ObservableProperty]
+    private string selectedPricingMode = "Margin %";
+
     public PricingCalculatorViewModel(
         IPricingService pricingService,
         ICostCalculationService costCalculationService,
@@ -314,6 +484,13 @@ public partial class PricingCalculatorViewModel : BaseViewModel
         _pricingService = pricingService;
         _costCalculationService = costCalculationService;
         _skuRepository = skuRepository;
+
+        PricingModes = new ObservableCollection<string>
+        {
+            "Margin %",
+            "Markup %",
+            "Markup Amount"
+        };
     }
 
     [RelayCommand]
@@ -353,9 +530,12 @@ public partial class PricingCalculatorViewModel : BaseViewModel
             IsLoading = true;
             ClearError();
 
-            SelectedSKU = sku;
-            Hpp = await _costCalculationService.CalculateHPPAsync(sku.Id);
-            BreakEvenPrice = Hpp;
+            if (SelectedSKU == null || SelectedSKU.Id != sku.Id)
+            {
+                SelectedSKU = sku;
+            }
+
+            await LoadSkuPricingAsync(sku);
 
             LogInfo($"SKU '{sku.Name}' selected");
         }
@@ -374,18 +554,47 @@ public partial class PricingCalculatorViewModel : BaseViewModel
     {
         try
         {
-            if (SelectedSKU == null || DesiredMarginPercent < 0)
+            if (SelectedSKU == null)
             {
-                SetError("Please select SKU and enter margin");
+                SetError("Please select SKU");
                 return;
             }
 
             IsLoading = true;
             ClearError();
 
-            CalculatedSellingPrice = await _pricingService.CalculateSellingPriceAsync(
-                SelectedSKU.Id,
-                DesiredMarginPercent);
+            if (SelectedPricingMode == "Markup %")
+            {
+                if (MarkupPercent < 0)
+                {
+                    SetError("Markup % must be 0 or higher");
+                    return;
+                }
+
+                CalculatedSellingPrice = await _pricingService.CalculateMarkupAsync(Hpp, MarkupPercent);
+            }
+            else if (SelectedPricingMode == "Markup Amount")
+            {
+                if (MarkupAmount < 0)
+                {
+                    SetError("Markup amount must be 0 or higher");
+                    return;
+                }
+
+                CalculatedSellingPrice = Hpp + MarkupAmount;
+            }
+            else
+            {
+                if (DesiredMarginPercent < 0)
+                {
+                    SetError("Margin % must be 0 or higher");
+                    return;
+                }
+
+                CalculatedSellingPrice = await _pricingService.CalculateSellingPriceAsync(
+                    SelectedSKU.Id,
+                    DesiredMarginPercent);
+            }
 
             var (grossMargin, netMargin) = await _pricingService.CalculateMarginsAsync(
                 SelectedSKU.Id,
@@ -403,6 +612,67 @@ public partial class PricingCalculatorViewModel : BaseViewModel
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task RunWhatIfAsync()
+    {
+        try
+        {
+            if (SelectedSKU == null)
+            {
+                SetError("Please select SKU");
+                return;
+            }
+
+            if (WhatIfSellingPrice <= 0)
+            {
+                SetError("What-if price must be greater than 0");
+                return;
+            }
+
+            IsLoading = true;
+            ClearError();
+
+            var (grossMargin, netMargin) = await _pricingService.CalculateMarginsAsync(
+                SelectedSKU.Id,
+                WhatIfSellingPrice);
+
+            WhatIfGrossMargin = grossMargin;
+            WhatIfNetMargin = netMargin;
+            LogInfo("What-if simulation completed");
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error running what-if: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    partial void OnSelectedSKUChanged(SKUDto? value)
+    {
+        if (value == null)
+            return;
+
+        _ = LoadSkuPricingAsync(value);
+    }
+
+    private async Task LoadSkuPricingAsync(SKUDto sku)
+    {
+        try
+        {
+            Hpp = await _costCalculationService.CalculateHPPAsync(sku.Id);
+            BreakEvenPrice = Hpp;
+            CurrentRetailPrice = sku.RetailPrice;
+            WhatIfSellingPrice = sku.RetailPrice > 0 ? sku.RetailPrice : Hpp;
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error loading SKU pricing: {ex.Message}");
         }
     }
 }

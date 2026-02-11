@@ -62,6 +62,8 @@
 
 	<ItemGroup>
 		<Page Remove="Views\PurchaseOrders\PurchaseOrderView.xaml" />
+		<Page Remove="Views\Labor\LaborOverheadView.xaml" />
+		<Page Remove="Views\Promotions\PromoManagerView.xaml" />
 	</ItemGroup>
 
 </Project>

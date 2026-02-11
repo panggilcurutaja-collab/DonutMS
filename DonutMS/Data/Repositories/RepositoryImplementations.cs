@@ -122,7 +122,22 @@ public class InventoryRepository : Repository<InventoryStock>, IInventoryReposit
     {
         return await _context.StockTransactions
             .Include(t => t.Unit)
+            .Include(t => t.StockBatch)
+            .Include(t => t.InventoryStock)
+            .ThenInclude(s => s.Ingredient)
             .Where(t => t.InventoryStock.IngredientId == ingredientId && t.TransactionDate >= fromDate && t.TransactionDate <= toDate)
+            .OrderByDescending(t => t.TransactionDate)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<StockTransaction>> GetTransactionsByBatchIdAsync(int batchId)
+    {
+        return await _context.StockTransactions
+            .Include(t => t.Unit)
+            .Include(t => t.StockBatch)
+            .Include(t => t.InventoryStock)
+            .ThenInclude(s => s.Ingredient)
+            .Where(t => t.BatchId == batchId)
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
     }

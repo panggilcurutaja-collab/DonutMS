@@ -55,6 +55,8 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IUnitConversionService, UnitConversionService>();
         services.AddScoped<ISKUService, SKUService>();
         services.AddScoped<ISupplierService, SupplierService>();
+        services.AddScoped<ILaborOverheadService, LaborOverheadService>();
+        services.AddScoped<IPromoService, PromoService>();
 
         // Navigation & UI Services
         services.AddScoped<INavigationService, NavigationService>();
@@ -70,6 +72,9 @@ public static class DependencyInjectionConfiguration
         services.AddTransient<DonutMS.Views.SKUs.SKUMasterView>();
         services.AddTransient<DonutMS.Views.PurchaseOrders.PurchaseOrdersView>();
         services.AddTransient<DonutMS.Views.Production.BatchManagementView>();
+        services.AddTransient<DonutMS.Views.Labor.LaborOverheadViewV2>();
+        services.AddTransient<DonutMS.Views.Pricing.PricingCalculatorView>();
+        services.AddTransient<DonutMS.Views.Promotions.PromoManagerViewV2>();
 
         // ViewModels - Register with proper dependency resolution
         // Note: NavigationViewModel must be registered first as it's a dependency of MainWindowViewModel
@@ -153,6 +158,18 @@ public static class DependencyInjectionConfiguration
                 sp.GetRequiredService<IUnitConversionService>(),
                 sp.GetRequiredService<ISupplierService>(),
                 sp.GetRequiredService<ILogger<PurchaseOrderViewModel>>()));
+
+        services.AddScoped<LaborOverheadViewModel>(sp =>
+            new LaborOverheadViewModel(
+                sp.GetRequiredService<ILaborOverheadService>(),
+                sp.GetRequiredService<ILogger<LaborOverheadViewModel>>()));
+
+        services.AddScoped<PromoManagerViewModel>(sp =>
+            new PromoManagerViewModel(
+                sp.GetRequiredService<IPromoService>(),
+                sp.GetRequiredService<IPricingService>(),
+                sp.GetRequiredService<ISKURepository>(),
+                sp.GetRequiredService<ILogger<PromoManagerViewModel>>()));
 
         return services;
     }
