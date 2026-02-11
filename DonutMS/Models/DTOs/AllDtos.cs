@@ -606,6 +606,25 @@ public class CreateBundlePackageDto
     public string? Notes { get; set; }
 }
 
+// ========== DASHBOARD DTOs ==========
+public class SkuPerformanceDto
+{
+    public int SKUId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
+    public decimal RetailPrice { get; set; }
+    public decimal HPP { get; set; }
+    public decimal ProfitPerUnit { get; set; }
+    public decimal GrossMarginPercent { get; set; }
+}
+
+public class TrendPointDto
+{
+    public string Label { get; set; } = string.Empty;
+    public decimal Value { get; set; }
+    public decimal PercentOfMax { get; set; }
+}
+
 // ========== LABOR & OVERHEAD DTOs ==========
 public class OperatorDto
 {

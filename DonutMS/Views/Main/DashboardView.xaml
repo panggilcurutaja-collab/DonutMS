@@ -4,169 +4,514 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/materialdesign"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900">
+             d:DesignHeight="700" d:DesignWidth="1100">
 
     <Grid Background="{DynamicResource MaterialDesignPaper}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Title Section -->
+        <!-- Header -->
         <Border Grid.Row="0"
                 Background="{DynamicResource PrimaryHueMidBrush}"
                 Padding="20,16"
                 BorderBrush="{DynamicResource PrimaryHueLightBrush}"
                 BorderThickness="0,0,0,2">
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="Dashboard"
-                          Foreground="White"
-                          FontSize="28"
-                          FontWeight="SemiBold" />
-                <TextBlock Text="Welcome to DonutMS - Donut Management System"
-                          Foreground="{DynamicResource MaterialDesignPaper}"
-                          FontSize="14"
-                          Opacity="0.9"
-                          Margin="0,8,0,0" />
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Dashboard"
+                               Foreground="White"
+                               FontSize="24"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Ringkasan KPI, tren biaya, dan performa SKU"
+                               Foreground="White"
+                               Opacity="0.9"
+                               FontSize="12"
+                               Margin="0,6,0,0" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding RefreshDataCommand}"
+                            Content="Refresh"
+                            Padding="10,4"
+                            Margin="0,0,10,0"
+                            Background="White"
+                            Foreground="{DynamicResource PrimaryHueMidBrush}"
+                            BorderThickness="0" />
+                    <mah:ProgressRing Width="18"
+                                      Height="18"
+                                      IsActive="{Binding IsLoading}"
+                                      Foreground="White" />
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- Dashboard Content -->
+        <!-- Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
             <StackPanel Orientation="Vertical">
-                <!-- Welcome Message -->
-                <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                       Padding="20"
-                       CornerRadius="4"
-                       BorderBrush="{DynamicResource DividerBrush}"
-                       BorderThickness="1"
-                       Margin="0,0,0,16">
-                    <StackPanel Orientation="Vertical" Margin="0,0,0,0">
-                        <TextBlock Text="Getting Started"
-                                  FontSize="18"
-                                  FontWeight="SemiBold"
-                                  Foreground="{DynamicResource MaterialDesignBody}" />
-                        <TextBlock Text="This is the DonutMS Dashboard. Navigate using the menu on the left to access different modules:"
-                                  Foreground="{DynamicResource MaterialDesignBody}"
-                                  TextWrapping="Wrap"
-                                  Margin="0,12,0,0" />
-                        <StackPanel Orientation="Vertical" Margin="0,12,0,0">
-                            <TextBlock Text="?? Ingredients - Manage ingredient inventory and suppliers"
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      Margin="0,4,0,0" />
-                            <TextBlock Text="?? Recipes - Create and manage donut recipes"
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      Margin="0,4,0,0" />
-                            <TextBlock Text="?? Inventory - Track stock levels and movements"
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      Margin="0,4,0,0" />
-                            <TextBlock Text="?? Production - Manage production batches and jobs"
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      Margin="0,4,0,0" />
-                            <TextBlock Text="?? Pricing - Calculate costs and margins"
-                                      Foreground="{DynamicResource MaterialDesignBody}"
-                                      Margin="0,4,0,0" />
+                <!-- KPI Cards -->
+                <UniformGrid Columns="4" Margin="0,0,0,16">
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,12,12">
+                        <StackPanel>
+                            <TextBlock Text="Average HPP"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding AverageHPP, Converter={StaticResource CurrencyConverter}}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="Last 30 days"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- Stats Cards Grid -->
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,12,12">
+                        <StackPanel>
+                            <TextBlock Text="Gross Margin"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding GrossMarginPercent, StringFormat={}{0:N1}%}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="Avg per SKU"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,12,12">
+                        <StackPanel>
+                            <TextBlock Text="Total Material Cost"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding TotalMaterialCost, Converter={StaticResource CurrencyConverter}}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="Last 30 days"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="Cost per Donut"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding CostPerUnit, Converter={StaticResource CurrencyConverter}}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="HPP/unit"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,12,0">
+                        <StackPanel>
+                            <TextBlock Text="Avg Profit / SKU"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding AverageProfitPerSku, Converter={StaticResource CurrencyConverter}}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="Per unit"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,12,0">
+                        <StackPanel>
+                            <TextBlock Text="Low Stock Items"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding LowStockCount}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="Needs reorder"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,12,0">
+                        <StackPanel>
+                            <TextBlock Text="Active Batches"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding ActiveBatchCount}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="In progress"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="14"
+                            Margin="0,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Waste %"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="11" />
+                            <TextBlock Text="{Binding WastePercent, StringFormat={}{0:N1}%}"
+                                       FontSize="20"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <TextBlock Text="Last 30 days"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+                <!-- Trends -->
                 <Grid Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Card 1: Total Ingredients -->
                     <Border Grid.Column="0"
-                           Background="{DynamicResource MaterialDesignCardBackground}"
-                           Padding="16"
-                           CornerRadius="4"
-                           Margin="0,0,8,0"
-                           BorderBrush="{DynamicResource DividerBrush}"
-                           BorderThickness="1">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="Total Ingredients"
-                                      FontSize="12"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                            <TextBlock Text="--"
-                                      FontSize="32"
-                                      FontWeight="Bold"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"
-                                      Margin="0,8,0,0" />
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="Weekly Material Cost Trend"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <ItemsControl ItemsSource="{Binding WeeklyTrend}" Margin="0,10,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="90" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Label}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <ProgressBar Grid.Column="1"
+                                                         Height="6"
+                                                         Margin="8,6,8,0"
+                                                         Maximum="100"
+                                                         Value="{Binding PercentOfMax}"
+                                                         Background="{DynamicResource MaterialDesignDividerBackground}"
+                                                         Foreground="{DynamicResource PrimaryHueMidBrush}" />
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding Value, Converter={StaticResource CurrencyConverter}}"
+                                                       FontSize="11"
+                                                       HorizontalAlignment="Right"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
 
-                    <!-- Card 2: Active Recipes -->
                     <Border Grid.Column="1"
-                           Background="{DynamicResource MaterialDesignCardBackground}"
-                           Padding="16"
-                           CornerRadius="4"
-                           Margin="8,0,8,0"
-                           BorderBrush="{DynamicResource DividerBrush}"
-                           BorderThickness="1">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="Active Recipes"
-                                      FontSize="12"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                            <TextBlock Text="--"
-                                      FontSize="32"
-                                      FontWeight="Bold"
-                                      Foreground="{DynamicResource PrimaryHueMidBrush}"
-                                      Margin="0,8,0,0" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Card 3: Low Stock Items -->
-                    <Border Grid.Column="2"
-                           Background="{DynamicResource MaterialDesignCardBackground}"
-                           Padding="16"
-                           CornerRadius="4"
-                           Margin="8,0,0,0"
-                           BorderBrush="{DynamicResource DividerBrush}"
-                           BorderThickness="1">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="Low Stock Items"
-                                      FontSize="12"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                            <TextBlock Text="--"
-                                      FontSize="32"
-                                      FontWeight="Bold"
-                                      Foreground="#FF2196F3"
-                                      Margin="0,8,0,0" />
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="10,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Monthly Material Cost Trend"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <ItemsControl ItemsSource="{Binding MonthlyTrend}" Margin="0,10,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="90" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Label}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <ProgressBar Grid.Column="1"
+                                                         Height="6"
+                                                         Margin="8,6,8,0"
+                                                         Maximum="100"
+                                                         Value="{Binding PercentOfMax}"
+                                                         Background="{DynamicResource MaterialDesignDividerBackground}"
+                                                         Foreground="{DynamicResource PrimaryHueMidBrush}" />
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding Value, Converter={StaticResource CurrencyConverter}}"
+                                                       FontSize="11"
+                                                       HorizontalAlignment="Right"
+                                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
                 </Grid>
+                <!-- SKU Performance -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                <!-- Info Section -->
-                <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                       Padding="20"
-                       CornerRadius="4"
-                       BorderBrush="{DynamicResource DividerBrush}"
-                       BorderThickness="1">
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Text="System Information"
-                                  FontSize="16"
-                                  FontWeight="SemiBold"
-                                  Foreground="{DynamicResource MaterialDesignBody}" />
-                        <TextBlock Text="Version: 1.0.0 (Phase 7)"
-                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                  FontSize="12"
-                                  Margin="0,8,0,0" />
-                        <TextBlock Text="Status: Development"
-                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                  FontSize="12"
-                                  Margin="0,4,0,0" />
-                        <TextBlock Text="All modules are being implemented in phases. Check back soon for updates!"
-                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                  FontSize="12"
-                                  Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="Top SKU Performance"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <DataGrid ItemsSource="{Binding TopSkuPerformance}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      Margin="0,10,0,0"
+                                      Background="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                      BorderThickness="1"
+                                      BorderBrush="{DynamicResource DividerBrush}"
+                                      RowBackground="{DynamicResource MaterialDesignPaper}"
+                                      AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="SKU" Binding="{Binding Code}" Width="80" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="160" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="HPP" Binding="{Binding HPP, Converter={StaticResource CurrencyConverter}}" Width="90" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Profit" Binding="{Binding ProfitPerUnit, Converter={StaticResource CurrencyConverter}}" Width="90" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Margin" Binding="{Binding GrossMarginPercent, StringFormat={}{0:N1}%}" Width="80" IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="10,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Bottom SKU Performance"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <DataGrid ItemsSource="{Binding BottomSkuPerformance}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      Margin="0,10,0,0"
+                                      Background="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                      BorderThickness="1"
+                                      BorderBrush="{DynamicResource DividerBrush}"
+                                      RowBackground="{DynamicResource MaterialDesignPaper}"
+                                      AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="SKU" Binding="{Binding Code}" Width="80" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="160" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="HPP" Binding="{Binding HPP, Converter={StaticResource CurrencyConverter}}" Width="90" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Profit" Binding="{Binding ProfitPerUnit, Converter={StaticResource CurrencyConverter}}" Width="90" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Margin" Binding="{Binding GrossMarginPercent, StringFormat={}{0:N1}%}" Width="80" IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+                <!-- Production & Inventory -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="Production Metrics"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Target Yield" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                    <TextBlock Text="{Binding TargetYield, StringFormat=N0}" FontSize="16" FontWeight="SemiBold" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Actual Yield" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                    <TextBlock Text="{Binding ActualYield, StringFormat=N0}" FontSize="16" FontWeight="SemiBold" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Yield %" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                    <TextBlock Text="{Binding YieldPercent, StringFormat={}{0:N1}%}" FontSize="16" FontWeight="SemiBold" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Yield Achievement"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       Margin="0,12,0,4" />
+                            <ProgressBar Height="8"
+                                         Maximum="100"
+                                         Value="{Binding YieldPercent}"
+                                         Background="{DynamicResource MaterialDesignDividerBackground}"
+                                         Foreground="{DynamicResource PrimaryHueMidBrush}" />
+
+                            <TextBlock Text="{Binding WastePercent, StringFormat=Waste {0:N1}%}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       Margin="0,10,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="10,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Low Stock Inventory"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}" />
+                            <DataGrid ItemsSource="{Binding LowStockItems}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      Margin="0,10,0,0"
+                                      Background="White"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                      BorderThickness="1"
+                                      BorderBrush="{DynamicResource DividerBrush}"
+                                      RowBackground="{DynamicResource MaterialDesignPaper}"
+                                      AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="160" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Available" Binding="{Binding AvailableQuantity, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Unit" Binding="{Binding UnitCode}" Width="60" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Min" Binding="{Binding MinimumStockLevel, StringFormat=N2}" Width="70" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Reorder" Binding="{Binding ReorderPoint, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </StackPanel>
         </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource MaterialDesignDividerBackground}"
+                Padding="12,8"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource DividerBrush}">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                       FontSize="11" />
+        </Border>
     </Grid>
 </UserControl>

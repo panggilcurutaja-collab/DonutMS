@@ -12,6 +12,10 @@ public interface IReportingService
     Task<IEnumerable<(string SKU, decimal HPP, decimal Margin)>> GetSKUCostAnalysisAsync();
     Task<IEnumerable<(string SKU, decimal TotalProfit)>> GetProfitBySKUAsync(DateTime fromDate, DateTime toDate);
     Task<(decimal TargetYield, decimal ActualYield, decimal WastePercent)> GetProductionMetricsAsync(DateTime fromDate, DateTime toDate);
+    Task<IEnumerable<TrendPointDto>> GetWeeklyMaterialTrendAsync(int weeks);
+    Task<IEnumerable<TrendPointDto>> GetMonthlyMaterialTrendAsync(int months);
+    Task<IEnumerable<SkuPerformanceDto>> GetSkuPerformanceAsync();
+    Task<int> GetActiveBatchCountAsync();
 }
 
 public class ReportingService : IReportingService
@@ -71,5 +75,104 @@ public class ReportingService : IReportingService
         var wastePercent = targetYield > 0 ? ((targetYield - actualYield) / targetYield) * 100 : 0;
 
         return (targetYield, actualYield, wastePercent);
+    }
+
+    public async Task<IEnumerable<TrendPointDto>> GetWeeklyMaterialTrendAsync(int weeks)
+    {
+        if (weeks <= 0)
+            return Array.Empty<TrendPointDto>();
+
+        var today = DateTime.Today;
+        var weekStart = StartOfWeek(today, DayOfWeek.Monday);
+        var results = new List<TrendPointDto>();
+
+        for (var i = weeks - 1; i >= 0; i--)
+        {
+            var periodStart = weekStart.AddDays(-7 * i).Date;
+            var periodEnd = periodStart.AddDays(7).AddTicks(-1);
+
+            var batches = await _productionRepository.GetBatchesByDateRangeAsync(periodStart, periodEnd);
+            var totalCost = batches.Sum(b => b.TargetYield * 100);
+
+            results.Add(new TrendPointDto
+            {
+                Label = periodStart.ToString("dd MMM"),
+                Value = totalCost
+            });
+        }
+
+        return results;
+    }
+
+    public async Task<IEnumerable<TrendPointDto>> GetMonthlyMaterialTrendAsync(int months)
+    {
+        if (months <= 0)
+            return Array.Empty<TrendPointDto>();
+
+        var today = DateTime.Today;
+        var monthStart = new DateTime(today.Year, today.Month, 1);
+        var results = new List<TrendPointDto>();
+
+        for (var i = months - 1; i >= 0; i--)
+        {
+            var periodStart = monthStart.AddMonths(-i);
+            var periodEnd = periodStart.AddMonths(1).AddTicks(-1);
+
+            var batches = await _productionRepository.GetBatchesByDateRangeAsync(periodStart, periodEnd);
+            var totalCost = batches.Sum(b => b.TargetYield * 100);
+
+            results.Add(new TrendPointDto
+            {
+                Label = periodStart.ToString("MMM yy"),
+                Value = totalCost
+            });
+        }
+
+        return results;
+    }
+
+    public async Task<IEnumerable<SkuPerformanceDto>> GetSkuPerformanceAsync()
+    {
+        var skus = await _skuRepository.GetAllAsync();
+        var costs = await _skuRepository.GetCurrentCostsAsync();
+
+        var costLookup = costs
+            .Where(c => c.IsActive)
+            .GroupBy(c => c.SKUId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(c => c.EffectiveDate).First());
+
+        var results = new List<SkuPerformanceDto>();
+        foreach (var sku in skus.Where(s => !s.IsDeleted))
+        {
+            costLookup.TryGetValue(sku.Id, out var cost);
+            var hpp = cost?.TotalHPP ?? 0m;
+            var profit = sku.RetailPrice - hpp;
+            var marginPercent = sku.RetailPrice > 0 ? (profit / sku.RetailPrice) * 100 : 0m;
+
+            results.Add(new SkuPerformanceDto
+            {
+                SKUId = sku.Id,
+                Name = sku.Name,
+                Code = sku.Code,
+                RetailPrice = sku.RetailPrice,
+                HPP = hpp,
+                ProfitPerUnit = profit,
+                GrossMarginPercent = marginPercent
+            });
+        }
+
+        return results;
+    }
+
+    public async Task<int> GetActiveBatchCountAsync()
+    {
+        var batches = await _productionRepository.GetActiveBatchesAsync();
+        return batches.Count();
+    }
+
+    private static DateTime StartOfWeek(DateTime date, DayOfWeek startDay)
+    {
+        var diff = (7 + (date.DayOfWeek - startDay)) % 7;
+        return date.AddDays(-diff).Date;
     }
 }
