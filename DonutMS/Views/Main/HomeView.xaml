@@ -3,32 +3,64 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900">
+             d:DesignHeight="600"
+             d:DesignWidth="900">
 
     <Grid Background="{DynamicResource MaterialDesignPaper}">
-        <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                BorderBrush="{DynamicResource DividerBrush}"
-                BorderThickness="1"
-                CornerRadius="8"
-                Padding="24"
+        <Border Style="{StaticResource ModernCardStyle}"
+                Padding="28"
+                CornerRadius="14"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                MaxWidth="520">
-            <StackPanel>
-                <TextBlock Text="{Binding WelcomeTitle}"
-                           FontSize="22"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource MaterialDesignBody}" />
-                <TextBlock Text="{Binding WelcomeSubtitle}"
-                           FontSize="12"
-                           Margin="0,8,0,0"
-                           Foreground="{DynamicResource MaterialDesignBodyLight}" />
-                <TextBlock Text="Tip: buka Dashboard hanya saat perlu untuk mengurangi beban awal."
-                           FontSize="11"
-                           Margin="0,16,0,0"
-                           Foreground="{DynamicResource MaterialDesignBodyLight}" />
-            </StackPanel>
+                MaxWidth="620">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Width="68"
+                        Height="68"
+                        CornerRadius="34"
+                        Background="{DynamicResource AccentLightBrush}"
+                        VerticalAlignment="Top"
+                        Margin="0,2,18,0">
+                    <iconPacks:PackIconMaterial Kind="Home"
+                                                Width="34"
+                                                Height="34"
+                                                Foreground="{DynamicResource AccentBrush}"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center" />
+                </Border>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="{Binding WelcomeTitle}"
+                               Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Text="{Binding WelcomeSubtitle}"
+                               Style="{StaticResource PageSubtitleStyle}"
+                               Margin="0,8,0,0"
+                               TextWrapping="Wrap" />
+                    <Border Background="{DynamicResource SurfaceAltBrush}"
+                            CornerRadius="10"
+                            Margin="0,18,0,0"
+                            Padding="12,10">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Kind="LightbulbOnOutline"
+                                                        Width="16"
+                                                        Height="16"
+                                                        Foreground="{DynamicResource WarningBrush}"
+                                                        Margin="0,1,8,0" />
+                            <TextBlock Text="Tip: open Dashboard when needed to keep startup snappy."
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       FontSize="12"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>
+

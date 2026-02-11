@@ -1,38 +1,43 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Custom theme colors -->
+    <!-- Core palette -->
     <Color x:Key="PrimaryColor">#FF2563EB</Color>
-    <Color x:Key="AccentColor">#FFF59E0B</Color>
-    <Color x:Key="BackgroundColor">#FFF5F7FB</Color>
+    <Color x:Key="AccentColor">#FF0EA5E9</Color>
+    <Color x:Key="BackgroundColor">#FFF8FAFC</Color>
 
-    <!-- Modern palette -->
+    <!-- Surfaces and text -->
     <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="SurfaceAltBrush" Color="#FFF1F5F9" />
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FF111827" />
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#FF6B7280" />
-    <SolidColorBrush x:Key="BorderBrush" Color="#FFE2E8F0" />
+    <SolidColorBrush x:Key="SurfaceMutedBrush" Color="#FFE2E8F0" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FF0F172A" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#FF475569" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#FFD9E2EC" />
 
+    <!-- Brand and semantic -->
     <SolidColorBrush x:Key="AccentBrush" Color="#FF2563EB" />
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF1D4ED8" />
     <SolidColorBrush x:Key="AccentPressedBrush" Color="#FF1E40AF" />
     <SolidColorBrush x:Key="AccentLightBrush" Color="#FFE0E7FF" />
-
     <SolidColorBrush x:Key="SuccessBrush" Color="#FF22C55E" />
     <SolidColorBrush x:Key="WarningBrush" Color="#FFF59E0B" />
     <SolidColorBrush x:Key="DangerBrush" Color="#FFEF4444" />
     <SolidColorBrush x:Key="DangerHoverBrush" Color="#FFDC2626" />
     <SolidColorBrush x:Key="DangerPressedBrush" Color="#FFB91C1C" />
 
-    <SolidColorBrush x:Key="HeaderBrush" Color="#FF2563EB" />
+    <!-- Shell -->
+    <SolidColorBrush x:Key="HeaderBrush" Color="#FF1D4ED8" />
     <SolidColorBrush x:Key="HeaderForegroundBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="ShellGradientStartBrush" Color="#FF1E3A8A" />
+    <SolidColorBrush x:Key="ShellGradientEndBrush" Color="#FF0EA5E9" />
+    <SolidColorBrush x:Key="NavigationBackgroundBrush" Color="#FFF8FAFC" />
 
-    <!-- MaterialDesign brush overrides for consistent contrast -->
+    <!-- MaterialDesign compatibility -->
     <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#FF2563EB" />
     <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#FF93C5FD" />
-    <SolidColorBrush x:Key="MaterialDesignPaper" Color="#FFF5F7FB" />
+    <SolidColorBrush x:Key="MaterialDesignPaper" Color="#FFF8FAFC" />
     <SolidColorBrush x:Key="MaterialDesignCardBackground" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="MaterialDesignBody" Color="#FF111827" />
-    <SolidColorBrush x:Key="MaterialDesignBodyLight" Color="#FF6B7280" />
+    <SolidColorBrush x:Key="MaterialDesignBody" Color="#FF0F172A" />
+    <SolidColorBrush x:Key="MaterialDesignBodyLight" Color="#FF64748B" />
     <SolidColorBrush x:Key="MaterialDesignDividerBackground" Color="#FFF1F5F9" />
-    <SolidColorBrush x:Key="DividerBrush" Color="#FFE2E8F0" />
+    <SolidColorBrush x:Key="DividerBrush" Color="#FFD9E2EC" />
 </ResourceDictionary>

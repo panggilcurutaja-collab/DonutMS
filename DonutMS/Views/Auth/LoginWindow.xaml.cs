@@ -1,10 +1,11 @@
 using System.ComponentModel;
 using System.Windows;
 using DonutMS.ViewModels;
+using MahApps.Metro.Controls;
 
 namespace DonutMS.Views.Auth;
 
-public partial class LoginWindow : Window
+public partial class LoginWindow : MetroWindow
 {
     public LoginWindow(LoginViewModel viewModel)
     {

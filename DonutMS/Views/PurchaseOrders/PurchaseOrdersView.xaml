@@ -12,11 +12,8 @@
     <Grid Background="{DynamicResource MaterialDesignPaper}">
         <child:ChildWindow IsOpen="{Binding IsDialogOpen}" OverlayBrush="#88000000">
             <child:ChildWindow.Content>
-                <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                <Border Style="{StaticResource ModernCardStyle}"
                         Padding="16"
-                        CornerRadius="6"
-                        BorderBrush="{DynamicResource DividerBrush}"
-                        BorderThickness="1"
                         Width="900"
                         MaxHeight="680">
                     <Grid>
@@ -26,10 +23,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0"
-                                   Text="{Binding DialogTitle}"
-                                   FontSize="18"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MaterialDesignBody}" />
+                                   Text="{Binding DialogTitle}"  Style="{StaticResource DialogTitleStyle}" />
 
                         <Grid Grid.Row="1" Margin="0,12,0,0">
                             <Grid.RowDefinitions>
@@ -59,7 +53,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                            <TextBlock Text="Supplier" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Supplier"  Style="{StaticResource FieldLabelStyle}" />
                                             <ComboBox ItemsSource="{Binding Suppliers}"
                                                       SelectedItem="{Binding SelectedSupplier}"
                                                       DisplayMemberPath="Name"
@@ -70,12 +64,12 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                                            <TextBlock Text="Required Delivery" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Required Delivery"  Style="{StaticResource FieldLabelStyle}" />
                                             <DatePicker SelectedDate="{Binding RequiredDeliveryDate}" Margin="0,6,0,0" Background="{DynamicResource SurfaceBrush}" />
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2">
-                                            <TextBlock Text="PO Number (optional)" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="PO Number (optional)"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding PoNumber, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="0,6,0,0"
                                                      Padding="8,6"
@@ -94,7 +88,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                            <TextBlock Text="Delivery Address" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Delivery Address"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="0,6,0,0"
                                                      Padding="8,6"
@@ -105,7 +99,7 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                                            <TextBlock Text="Payment Status" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Payment Status"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding PaymentStatus, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="0,6,0,0"
                                                      Padding="8,6"
@@ -116,7 +110,7 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Notes"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="0,6,0,0"
                                                      Padding="8,6"
@@ -128,10 +122,7 @@
                                     </Grid>
 
                                     <TextBlock Text="Order Items"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource MaterialDesignBody}"
-                                               Margin="0,0,0,8" />
+                                               Margin="0,0,0,8"  Style="{StaticResource SectionTitleStyle}" />
 
                                     <Grid Margin="0,0,0,8">
                                         <Grid.ColumnDefinitions>
@@ -184,9 +175,7 @@
                                                 Command="{Binding AddItemCommand}"
                                                 Content="Add"
                                                 Padding="12,6"
-                                                Background="{DynamicResource SuccessBrush}"
-                                                Foreground="White"
-                                                BorderThickness="0" />
+                                                Style="{StaticResource SuccessButtonStyle}" />
                                     </Grid>
 
                                     <DataGrid ItemsSource="{Binding EditingItems}"
@@ -219,9 +208,7 @@
                                                                 CommandParameter="{Binding .}"
                                                                 Content="Remove"
                                                                 Padding="8,4"
-                                                                Background="{DynamicResource DangerBrush}"
-                                                                Foreground="White"
-                                                                BorderThickness="0" />
+                                                                Style="{StaticResource DangerButtonStyle}" />
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
@@ -242,9 +229,7 @@
                                         <Button Command="{Binding SavePurchaseOrderCommand}"
                                                 Content="Save Purchase Order"
                                                 Padding="16,8"
-                                                Background="{DynamicResource SuccessBrush}"
-                                                Foreground="White"
-                                                BorderThickness="0"
+                                                Style="{StaticResource SuccessButtonStyle}"
                                                 Margin="0,0,8,0" />
                                         <Button Command="{Binding CloseDialogCommand}"
                                                 Content="Close"
@@ -281,7 +266,7 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                            <TextBlock Text="PO Number" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="PO Number"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBlock Text="{Binding SelectedPurchaseOrder.PONumber}"
                                                        Margin="0,6,0,0"
                                                        FontWeight="SemiBold"
@@ -289,14 +274,14 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                                            <TextBlock Text="Supplier" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Supplier"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBlock Text="{Binding SelectedPurchaseOrder.SupplierName}"
                                                        Margin="0,6,0,0"
                                                        Foreground="{DynamicResource MaterialDesignBody}" />
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Status" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Status"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBlock Text="{Binding SelectedPurchaseOrder.Status}"
                                                        Margin="0,6,0,0"
                                                        Foreground="{DynamicResource MaterialDesignBody}" />
@@ -311,12 +296,12 @@
                                         </Grid.ColumnDefinitions>
 
                                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                                            <TextBlock Text="Receiving Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Receiving Date"  Style="{StaticResource FieldLabelStyle}" />
                                             <DatePicker SelectedDate="{Binding ReceivingDate}" Margin="0,6,0,0" Background="{DynamicResource SurfaceBrush}" />
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                                            <TextBlock Text="Received By" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Received By"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding ReceivedBy, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="0,6,0,0"
                                                      Padding="8,6"
@@ -327,7 +312,7 @@
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                                            <TextBlock Text="Notes"  Style="{StaticResource FieldLabelStyle}" />
                                             <TextBox Text="{Binding ReceivingNotes, UpdateSourceTrigger=PropertyChanged}"
                                                      Margin="0,6,0,0"
                                                      Padding="8,6"
@@ -339,10 +324,7 @@
                                     </Grid>
 
                                     <TextBlock Text="Receiving Lines"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource MaterialDesignBody}"
-                                               Margin="0,0,0,8" />
+                                               Margin="0,0,0,8"  Style="{StaticResource SectionTitleStyle}" />
 
                                     <DataGrid ItemsSource="{Binding ReceivingLines}"
                                               AutoGenerateColumns="False"
@@ -404,9 +386,7 @@
                                         <Button Command="{Binding SubmitReceivingCommand}"
                                                 Content="Post Receiving"
                                                 Padding="16,8"
-                                                Background="{DynamicResource SuccessBrush}"
-                                                Foreground="White"
-                                                BorderThickness="0"
+                                                Style="{StaticResource SuccessButtonStyle}"
                                                 Margin="0,0,8,0" />
                                         <Button Command="{Binding CloseDialogCommand}"
                                                 Content="Close"
@@ -435,10 +415,7 @@
 
             <TextBlock Grid.Row="0"
                        Text="Purchase Orders"
-                       FontSize="24"
-                       FontWeight="SemiBold"
-                       Foreground="{DynamicResource MaterialDesignBody}"
-                       Margin="0,0,0,16" />
+                       Margin="0,0,0,16"  Style="{StaticResource PageTitleStyle}" />
 
             <Border Grid.Row="1"
                     Background="{DynamicResource MaterialDesignCardBackground}"
@@ -486,16 +463,12 @@
                         <Button Command="{Binding AutoGenerateCommand}"
                                 Content="Auto Generate"
                                 Padding="12,6"
-                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                Foreground="White"
-                                BorderThickness="0"
+                                Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="0,0,8,0" />
                         <Button Command="{Binding OpenCreateDialogCommand}"
                                 Content="+ New PO"
                                 Padding="12,6"
-                                Background="{DynamicResource SuccessBrush}"
-                                Foreground="White"
-                                BorderThickness="0"
+                                Style="{StaticResource SuccessButtonStyle}"
                                 Margin="0,0,8,0" />
                         <Button Command="{Binding RefreshCommand}"
                                 Content="Refresh"
@@ -551,18 +524,14 @@
                                             Content="Confirm"
                                             Padding="8,4"
                                             FontSize="11"
-                                            Background="{DynamicResource SuccessBrush}"
-                                            Foreground="White"
-                                            BorderThickness="0"
+                                            Style="{StaticResource SuccessButtonStyle}"
                                             Margin="0,0,4,0" />
                                     <Button Command="{Binding DataContext.CancelPurchaseOrderCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                             CommandParameter="{Binding .}"
                                             Content="Cancel"
                                             Padding="8,4"
                                             FontSize="11"
-                                            Background="{DynamicResource DangerBrush}"
-                                            Foreground="White"
-                                            BorderThickness="0" />
+                                            Style="{StaticResource DangerButtonStyle}" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -595,3 +564,6 @@
         </Grid>
     </Grid>
 </UserControl>
+
+
+

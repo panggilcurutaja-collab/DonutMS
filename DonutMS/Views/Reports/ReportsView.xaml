@@ -28,9 +28,7 @@
 
                 <StackPanel>
                     <TextBlock Text="Reports &amp; Export"
-                               Foreground="White"
-                               FontSize="22"
-                               FontWeight="SemiBold" />
+                               Foreground="White"  Style="{StaticResource PageTitleStyle}" />
                     <TextBlock Text="HPP, inventory, supplier, production, dan costing analysis"
                                Foreground="White"
                                Opacity="0.9"
@@ -56,10 +54,7 @@
 
             <!-- Filters & Actions -->
             <Border Grid.Column="0"
-                    Background="{DynamicResource MaterialDesignCardBackground}"
-                    BorderBrush="{DynamicResource DividerBrush}"
-                    BorderThickness="1"
-                    CornerRadius="6"
+                    Style="{StaticResource ModernCardStyle}"
                     Padding="16"
                     Margin="0,0,12,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -69,9 +64,7 @@
                                    Foreground="{DynamicResource MaterialDesignBody}" />
 
                         <TextBlock Text="Report Type"
-                                   FontSize="11"
-                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                   Margin="0,12,0,0" />
+                                   Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <ComboBox ItemsSource="{Binding Reports}"
                                   SelectedItem="{Binding SelectedReport}"
                                   DisplayMemberPath="Name"
@@ -79,23 +72,17 @@
 
                         <StackPanel Margin="0,12,0,0"
                                     Visibility="{Binding ShowDateRange, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="From"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                            <TextBlock Text="From"  Style="{StaticResource FieldLabelStyle}" />
                             <DatePicker SelectedDate="{Binding FromDate}" Background="{DynamicResource SurfaceBrush}" />
 
                             <TextBlock Text="To"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       Margin="0,8,0,0" />
+                                       Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <DatePicker SelectedDate="{Binding ToDate}" Background="{DynamicResource SurfaceBrush}" />
                         </StackPanel>
 
                         <StackPanel Margin="0,12,0,0"
                                     Visibility="{Binding ShowExpiryDays, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <TextBlock Text="Expiry Warning (days)"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+                            <TextBlock Text="Expiry Warning (days)"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding ExpiryWarningDays}"
                                      Padding="8,6"
                                      Background="{DynamicResource SurfaceBrush}"
@@ -111,8 +98,7 @@
                                 Content="Load Report"
                                 Padding="12,6"
                                 Margin="0,14,0,0"
-                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                Foreground="White" />
+                                Style="{StaticResource PrimaryButtonStyle}" />
 
                         <Separator Margin="0,16,0,12" />
 
@@ -121,9 +107,7 @@
                                    Foreground="{DynamicResource MaterialDesignBody}" />
 
                         <TextBlock Text="Output Folder"
-                                   FontSize="11"
-                                   Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                   Margin="0,8,0,0" />
+                                   Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBox Text="{Binding OutputFolder}"
                                  Padding="8,6"
                                  Background="{DynamicResource SurfaceBrush}" />
@@ -183,24 +167,14 @@
             </Border>
             <!-- Report Preview -->
             <Border Grid.Column="1"
-                    Background="{DynamicResource MaterialDesignCardBackground}"
-                    BorderBrush="{DynamicResource DividerBrush}"
-                    BorderThickness="1"
-                    CornerRadius="6"
+                    Style="{StaticResource ModernCardStyle}"
                     Padding="16">
                 <StackPanel>
-                    <TextBlock Text="{Binding ReportTitle}"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource MaterialDesignBody}" />
+                    <TextBlock Text="{Binding ReportTitle}"  Style="{StaticResource DialogTitleStyle}" />
                     <TextBlock Text="{Binding ReportDescription}"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}"
-                               FontSize="11"
-                               Margin="0,6,0,0" />
+                               Margin="0,6,0,0"  Style="{StaticResource FieldLabelStyle}" />
                     <TextBlock Text="{Binding ResultCount, StringFormat=Total rows: {0}}"
-                               Foreground="{DynamicResource MaterialDesignBodyLight}"
-                               FontSize="11"
-                               Margin="0,8,0,0" />
+                               Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
 
                     <DataGrid ItemsSource="{Binding CurrentReportItems}"
                               AutoGenerateColumns="True"
@@ -233,9 +207,10 @@
                 Padding="12,8"
                 BorderThickness="0,1,0,0"
                 BorderBrush="{DynamicResource DividerBrush}">
-            <TextBlock Text="{Binding StatusMessage}"
-                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                       FontSize="11" />
+            <TextBlock Text="{Binding StatusMessage}"  Style="{StaticResource FieldLabelStyle}" />
         </Border>
     </Grid>
 </UserControl>
+
+
+

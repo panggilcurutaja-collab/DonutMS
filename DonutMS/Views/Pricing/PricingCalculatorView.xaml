@@ -22,9 +22,7 @@
                 BorderThickness="0,0,0,2">
             <StackPanel>
                 <TextBlock Text="HPP &amp; Margin Calculator"
-                           Foreground="White"
-                           FontSize="22"
-                           FontWeight="SemiBold" />
+                           Foreground="White"  Style="{StaticResource PageTitleStyle}" />
                 <TextBlock Text="Target margin, markup, break-even, and what-if pricing"
                            Foreground="White"
                            Opacity="0.9"
@@ -40,51 +38,47 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    Background="{DynamicResource MaterialDesignCardBackground}"
-                    BorderBrush="{DynamicResource DividerBrush}"
-                    BorderThickness="1"
-                    CornerRadius="6"
+                    Style="{StaticResource ModernCardStyle}"
                     Padding="16"
                     Margin="0,0,12,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
                         <TextBlock Text="Inputs" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
-                        <TextBlock Text="SKU" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="SKU" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <ComboBox ItemsSource="{Binding Skus}"
                                   SelectedItem="{Binding SelectedSKU}"
                                   DisplayMemberPath="Name"
                                   Background="{DynamicResource SurfaceBrush}" />
 
-                        <TextBlock Text="HPP" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="HPP" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBlock Text="{Binding Hpp, StringFormat=N2}" FontSize="16" FontWeight="SemiBold" />
 
-                        <TextBlock Text="Break-even Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Break-even Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBlock Text="{Binding BreakEvenPrice, StringFormat=N2}" FontSize="14" />
 
-                        <TextBlock Text="Current Retail Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Current Retail Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBlock Text="{Binding CurrentRetailPrice, StringFormat=N2}" FontSize="14" />
 
-                        <TextBlock Text="Pricing Mode" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Pricing Mode" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <ComboBox ItemsSource="{Binding PricingModes}"
                                   SelectedItem="{Binding SelectedPricingMode}"
                                   Background="{DynamicResource SurfaceBrush}" />
 
-                        <TextBlock Text="Target Margin %" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Target Margin %" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBox Text="{Binding DesiredMarginPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                        <TextBlock Text="Markup %" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Markup %" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBox Text="{Binding MarkupPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                        <TextBlock Text="Markup Amount" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Markup Amount" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBox Text="{Binding MarkupAmount, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                         <Button Command="{Binding CalculatePriceCommand}"
                                 Content="Calculate Price"
                                 Padding="12,6"
                                 Margin="0,16,0,0"
-                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                Foreground="White" />
+                                Style="{StaticResource PrimaryButtonStyle}" />
                     </StackPanel>
                 </ScrollViewer>
             </Border>
@@ -95,10 +89,7 @@
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
-                        Background="{DynamicResource MaterialDesignCardBackground}"
-                        BorderBrush="{DynamicResource DividerBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
+                        Style="{StaticResource ModernCardStyle}"
                         Padding="16"
                         Margin="0,0,0,12">
                     <StackPanel>
@@ -122,23 +113,19 @@
                 </Border>
 
                 <Border Grid.Row="1"
-                        Background="{DynamicResource MaterialDesignCardBackground}"
-                        BorderBrush="{DynamicResource DividerBrush}"
-                        BorderThickness="1"
-                        CornerRadius="6"
+                        Style="{StaticResource ModernCardStyle}"
                         Padding="16">
                     <StackPanel>
                         <TextBlock Text="What-If Simulation" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
-                        <TextBlock Text="Test Selling Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                        <TextBlock Text="Test Selling Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         <TextBox Text="{Binding WhatIfSellingPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                         <Button Command="{Binding RunWhatIfCommand}"
                                 Content="Run Simulation"
                                 Padding="12,6"
                                 Margin="0,12,0,0"
-                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                Foreground="White" />
+                                Style="{StaticResource PrimaryButtonStyle}" />
 
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                             <TextBlock Text="Gross Margin %: " FontWeight="SemiBold" />
@@ -160,3 +147,6 @@
                    Foreground="{DynamicResource MaterialDesignBodyLight}" />
     </Grid>
 </UserControl>
+
+
+

@@ -22,9 +22,7 @@
                 BorderThickness="0,0,0,2">
             <StackPanel>
                 <TextBlock Text="Promo &amp; Discount Manager"
-                           Foreground="White"
-                           FontSize="22"
-                           FontWeight="SemiBold" />
+                           Foreground="White"  Style="{StaticResource PageTitleStyle}" />
                 <TextBlock Text="Discount master, bundle pricing, and promo impact simulation"
                            Foreground="White"
                            Opacity="0.9"
@@ -42,53 +40,49 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="16"
                             Margin="0,0,12,0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <TextBlock Text="Discount Form" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
-                                <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Name" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding DiscountName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Type" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Type" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <ComboBox ItemsSource="{Binding DiscountTypes}"
                                           SelectedItem="{Binding DiscountType}"
                                           Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Value" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Value" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding DiscountValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Start Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Start Date" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <DatePicker SelectedDate="{Binding DiscountStartDate}" Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="End Date" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="End Date" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <DatePicker SelectedDate="{Binding DiscountEndDate}" Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Applicable For" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Applicable For" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <ComboBox ItemsSource="{Binding ApplicableForOptions}"
                                           SelectedItem="{Binding DiscountApplicableFor}"
                                           IsEditable="True"
                                           Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Minimum Quantity (Volume)" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Minimum Quantity (Volume)" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding DiscountMinimumQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                                 <CheckBox Content="Active" IsChecked="{Binding DiscountIsActive}" Margin="0,12,0,0" />
 
-                                <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                                <TextBlock Text="Notes" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding DiscountNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" AcceptsReturn="True" Height="80" />
 
                                 <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                                     <Button Command="{Binding SaveDiscountCommand}"
                                             Content="Save"
                                             Padding="12,6"
-                                            Background="{DynamicResource PrimaryHueMidBrush}"
-                                            Foreground="White"
+                                            Style="{StaticResource PrimaryButtonStyle}"
                                             Margin="0,0,8,0" />
                                     <Button Command="{Binding ClearDiscountFormCommand}"
                                             Content="Clear"
@@ -103,10 +97,7 @@
                     </Border>
 
                     <Border Grid.Column="1"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="12">
                         <DataGrid ItemsSource="{Binding Discounts}"
                                   SelectedItem="{Binding SelectedDiscount}"
@@ -143,41 +134,37 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="16"
                             Margin="0,0,12,0">
                         <StackPanel>
                             <TextBlock Text="Bundle Form" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
-                            <TextBlock Text="Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Name" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding BundleName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="SKU" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="SKU" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <ComboBox ItemsSource="{Binding Skus}"
                                       SelectedItem="{Binding SelectedBundleSku}"
                                       DisplayMemberPath="Name"
                                       Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="Quantity" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Quantity" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding BundleQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="Bundle Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Bundle Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding BundlePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
                             <CheckBox Content="Active" IsChecked="{Binding BundleIsActive}" Margin="0,12,0,0" />
 
-                            <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Notes" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding BundleNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" AcceptsReturn="True" Height="80" />
 
                             <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                                 <Button Command="{Binding SaveBundleCommand}"
                                         Content="Save"
                                         Padding="12,6"
-                                        Background="{DynamicResource PrimaryHueMidBrush}"
-                                        Foreground="White"
+                                        Style="{StaticResource PrimaryButtonStyle}"
                                         Margin="0,0,8,0" />
                                 <Button Command="{Binding ClearBundleFormCommand}"
                                         Content="Clear"
@@ -191,10 +178,7 @@
                     </Border>
 
                     <Border Grid.Column="1"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="12">
                         <DataGrid ItemsSource="{Binding Bundles}"
                                   SelectedItem="{Binding SelectedBundle}"
@@ -229,34 +213,31 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="16"
                             Margin="0,0,12,0">
                         <StackPanel>
                             <TextBlock Text="Simulation Inputs" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
 
-                            <TextBlock Text="SKU" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="SKU" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <ComboBox ItemsSource="{Binding Skus}"
                                       SelectedItem="{Binding SelectedPromoSku}"
                                       DisplayMemberPath="Name"
                                       Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="Quantity" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Quantity" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding PromoQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="Base Price" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Base Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding PromoBasePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="Discount" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Discount" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <ComboBox ItemsSource="{Binding Discounts}"
                                       SelectedItem="{Binding SelectedPromoDiscount}"
                                       DisplayMemberPath="Name"
                                       Background="{DynamicResource SurfaceBrush}" />
 
-                            <TextBlock Text="Bundle" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Bundle" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <ComboBox ItemsSource="{Binding Bundles}"
                                       SelectedItem="{Binding SelectedPromoBundle}"
                                       DisplayMemberPath="Name"
@@ -266,16 +247,12 @@
                                     Content="Run Simulation"
                                     Padding="12,6"
                                     Margin="0,16,0,0"
-                                    Background="{DynamicResource PrimaryHueMidBrush}"
-                                    Foreground="White" />
+                                    Style="{StaticResource PrimaryButtonStyle}" />
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Column="1"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="16">
                         <StackPanel>
                             <TextBlock Text="Discount Impact" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
@@ -333,3 +310,6 @@
         </StackPanel>
     </Grid>
 </UserControl>
+
+
+

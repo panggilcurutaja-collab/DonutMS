@@ -15,10 +15,7 @@
 
         <TextBlock Grid.Row="0"
                    Text="{Binding DialogTitle}"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource MaterialDesignBody}"
-                   Margin="0,0,0,16" />
+                   Margin="0,0,0,16"  Style="{StaticResource DialogTitleStyle}" />
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="0,0,0,12">
@@ -98,9 +95,7 @@
             <Button Command="{Binding SaveUnitCommand}"
                     Content="Save"
                     Padding="24,8"
-                    Background="{DynamicResource PrimaryHueMidBrush}"
-                    Foreground="White"
-                    BorderThickness="0"
+                    Style="{StaticResource PrimaryButtonStyle}"
                     Margin="0,0,8,0" />
             <Button Command="{Binding CancelDialogCommand}"
                     Content="Cancel"
@@ -111,3 +106,6 @@
         </StackPanel>
     </Grid>
 </UserControl>
+
+
+

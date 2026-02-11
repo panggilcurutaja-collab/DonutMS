@@ -12,18 +12,12 @@
     <Grid Background="{DynamicResource MaterialDesignPaper}">
         <child:ChildWindow IsOpen="{Binding IsJobSheetOpen}" OverlayBrush="#88000000">
             <child:ChildWindow.Content>
-                <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                <Border Style="{StaticResource ModernCardStyle}"
                         Padding="16"
-                        CornerRadius="6"
-                        BorderBrush="{DynamicResource DividerBrush}"
-                        BorderThickness="1"
                         Width="800"
                         MaxHeight="600">
                     <StackPanel>
-                        <TextBlock Text="{Binding JobSheetTitle}"
-                                   FontSize="18"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MaterialDesignBody}" />
+                        <TextBlock Text="{Binding JobSheetTitle}"  Style="{StaticResource DialogTitleStyle}" />
 
                         <TextBlock Text="{Binding SelectedBatch.RecipeName, StringFormat='Recipe: {0}'}"
                                    Margin="0,8,0,0"
@@ -80,10 +74,7 @@
 
             <TextBlock Grid.Row="0"
                        Text="Production Batch Dashboard"
-                       FontSize="24"
-                       FontWeight="SemiBold"
-                       Foreground="{DynamicResource MaterialDesignBody}"
-                       Margin="0,0,0,16" />
+                       Margin="0,0,0,16"  Style="{StaticResource PageTitleStyle}" />
 
             <Border Grid.Row="1"
                     Background="{DynamicResource MaterialDesignCardBackground}"
@@ -125,9 +116,7 @@
                         <Button Command="{Binding LoadBatchesCommand}"
                                 Content="Load"
                                 Padding="12,6"
-                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                Foreground="White"
-                                BorderThickness="0"
+                                Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="8,0,0,0" />
                         <Button Command="{Binding RefreshBatchesCommand}"
                                 Content="Refresh"
@@ -149,14 +138,11 @@
 
                 <!-- Left Panel: Create + Job List -->
                 <StackPanel Grid.Column="0">
-                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                    <Border Style="{StaticResource ModernCardStyle}"
                             Padding="16"
-                            CornerRadius="4"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
                             Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Create New Batch" FontSize="14" FontWeight="SemiBold" />
+                            <TextBlock Text="Create New Batch"  Style="{StaticResource SectionTitleStyle}" />
 
                             <Grid Margin="0,10,0,0">
                                 <Grid.ColumnDefinitions>
@@ -188,19 +174,15 @@
                                         Command="{Binding CreateBatchCommand}"
                                         Content="Create"
                                         Padding="12,6"
-                                        Background="{DynamicResource SuccessBrush}"
-                                        Foreground="White"
-                                        BorderThickness="0" />
+                                        Style="{StaticResource SuccessButtonStyle}" />
                             </Grid>
 
                             <TextBlock Text="{Binding SelectedRecipe.YieldPerBatch, StringFormat='Recipe Yield: {0:N2}'}"
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,8,0,0" />
+                                       Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                         </StackPanel>
                     </Border>
 
-                    <TextBlock Text="Job List" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <TextBlock Text="Job List" Margin="0,0,0,8"  Style="{StaticResource SectionTitleStyle}" />
                     <DataGrid ItemsSource="{Binding Batches}"
                               SelectedItem="{Binding SelectedBatch}"
                               AutoGenerateColumns="False"
@@ -233,9 +215,7 @@
                                                 Content="Details"
                                                 Padding="8,4"
                                                 FontSize="11"
-                                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                                Foreground="White"
-                                                BorderThickness="0" />
+                                                Style="{StaticResource PrimaryButtonStyle}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -246,56 +226,33 @@
                 <!-- Right Panel: Details, Execution, QC, Traceability -->
                 <ScrollViewer Grid.Column="1" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                        <Border Style="{StaticResource ModernCardStyle}"
                                 Padding="16"
-                                CornerRadius="4"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1"
                                 Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="{Binding SelectedBatch.BatchCode, FallbackValue='Select a batch'}"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MaterialDesignBody}" />
+                                <TextBlock Text="{Binding SelectedBatch.BatchCode, FallbackValue='Select a batch'}"  Style="{StaticResource SectionTitleStyle}" />
                                 <TextBlock Text="{Binding SelectedBatch.RecipeName, StringFormat='Recipe: {0}'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,4,0,0" />
+                                           Margin="0,4,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBlock Text="{Binding SelectedBatch.Status, StringFormat='Status: {0}'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0" />
+                                           Margin="0,2,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBlock Text="{Binding SelectedBatch.TargetYield, StringFormat='Target: {0:N2}'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0" />
+                                           Margin="0,2,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBlock Text="{Binding SelectedBatch.ActualYield, StringFormat='Actual: {0:N2}'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0" />
+                                           Margin="0,2,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBlock Text="{Binding SelectedBatch.WasteQuantity, StringFormat='Waste: {0:N2}'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0" />
+                                           Margin="0,2,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBlock Text="{Binding YieldVariance, StringFormat='Variance: {0:N2}'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0" />
+                                           Margin="0,2,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBlock Text="{Binding YieldVariancePercent, StringFormat='Variance %: {0:N1}%'}"
-                                           Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0" />
+                                           Margin="0,2,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                        <Border Style="{StaticResource ModernCardStyle}"
                                 Padding="16"
-                                CornerRadius="4"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1"
                                 Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="Actions" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="Actions"  Style="{StaticResource SectionTitleStyle}" />
 
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <Button Command="{Binding StartProductionCommand}"
@@ -308,21 +265,16 @@
                                     <Button Command="{Binding OpenJobSheetCommand}"
                                             Content="Generate Job Sheet"
                                             Padding="12,6"
-                                            Background="{DynamicResource PrimaryHueMidBrush}"
-                                            Foreground="White"
-                                            BorderThickness="0" />
+                                            Style="{StaticResource PrimaryButtonStyle}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                        <Border Style="{StaticResource ModernCardStyle}"
                                 Padding="16"
-                                CornerRadius="4"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1"
                                 Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="Material Requirements" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="Material Requirements"  Style="{StaticResource SectionTitleStyle}" />
                                 <DataGrid ItemsSource="{Binding SelectedBatch.Ingredients}"
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
@@ -351,14 +303,11 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                        <Border Style="{StaticResource ModernCardStyle}"
                                 Padding="16"
-                                CornerRadius="4"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1"
                                 Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="Batch Execution" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="Batch Execution"  Style="{StaticResource SectionTitleStyle}" />
 
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBox Text="{Binding ActualYield, UpdateSourceTrigger=PropertyChanged}"
@@ -382,9 +331,7 @@
                                     <Button Command="{Binding CompleteBatchCommand}"
                                             Content="Complete Batch"
                                             Padding="12,6"
-                                            Background="{DynamicResource SuccessBrush}"
-                                            Foreground="White"
-                                            BorderThickness="0" />
+                                            Style="{StaticResource SuccessButtonStyle}" />
                                 </StackPanel>
 
                                 <TextBox Text="{Binding ExecutionNotes, UpdateSourceTrigger=PropertyChanged}"
@@ -400,14 +347,11 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                        <Border Style="{StaticResource ModernCardStyle}"
                                 Padding="16"
-                                CornerRadius="4"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1"
                                 Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="Quality Control" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="Quality Control"  Style="{StaticResource SectionTitleStyle}" />
 
                                 <Grid Margin="0,8,0,0">
                                     <Grid.ColumnDefinitions>
@@ -486,9 +430,7 @@
                                         <Button Command="{Binding SubmitQualityControlCommand}"
                                                 Content="Submit QC"
                                                 Padding="12,6"
-                                                Background="{DynamicResource PrimaryHueMidBrush}"
-                                                Foreground="White"
-                                                BorderThickness="0"
+                                                Style="{StaticResource PrimaryButtonStyle}"
                                                 Margin="0,8,0,0" />
                                     </StackPanel>
                                 </Grid>
@@ -523,13 +465,10 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                                Padding="16"
-                                CornerRadius="4"
-                                BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="1">
+                        <Border Style="{StaticResource ModernCardStyle}"
+                                Padding="16">
                             <StackPanel>
-                                <TextBlock Text="Lot Traceability" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="Lot Traceability"  Style="{StaticResource SectionTitleStyle}" />
                                 <DataGrid ItemsSource="{Binding BatchTransactions}"
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
@@ -585,3 +524,6 @@
         </Grid>
     </Grid>
 </UserControl>
+
+
+

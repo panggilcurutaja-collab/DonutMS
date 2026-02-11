@@ -7,6 +7,10 @@ xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/DonutMS;component/Resources/Styles/AppTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
             <!-- Custom Converters -->
             <converters:BoolToWidthConverter x:Key="BoolToWidthConverter" />
             <converters:CurrencyConverter x:Key="CurrencyConverter" />
@@ -14,28 +18,6 @@ xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
             <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <converters:IconToGlyphConverter x:Key="IconToGlyphConverter" />
             <converters:IconToPackIconMaterialKindConverter x:Key="IconToPackIconMaterialKindConverter" />
-
-            <!-- Performance: enable virtualization globally for large lists/grids -->
-            <Style TargetType="{x:Type DataGrid}">
-                <Setter Property="EnableRowVirtualization" Value="True" />
-                <Setter Property="EnableColumnVirtualization" Value="True" />
-                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
-                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
-                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
-                <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True" />
-            </Style>
-
-            <Style TargetType="{x:Type ListView}">
-                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
-                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
-                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
-            </Style>
-
-            <Style TargetType="{x:Type ListBox}">
-                <Setter Property="VirtualizingStackPanel.IsVirtualizing" Value="True" />
-                <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling" />
-                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
-            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

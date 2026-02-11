@@ -27,9 +27,7 @@
 
                 <StackPanel>
                     <TextBlock Text="Security &amp; Audit"
-                               Foreground="White"
-                               FontSize="22"
-                               FontWeight="SemiBold" />
+                               Foreground="White"  Style="{StaticResource PageTitleStyle}" />
                     <TextBlock Text="Audit log, user management, dan backup database"
                                Foreground="White"
                                Opacity="0.9"
@@ -55,16 +53,13 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="12"
                             Margin="0,0,0,12">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="From" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" VerticalAlignment="Center" />
+                            <TextBlock Text="From" VerticalAlignment="Center"  Style="{StaticResource FieldLabelStyle}" />
                             <DatePicker SelectedDate="{Binding AuditFromDate}" Margin="6,0,12,0" />
-                            <TextBlock Text="To" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" VerticalAlignment="Center" />
+                            <TextBlock Text="To" VerticalAlignment="Center"  Style="{StaticResource FieldLabelStyle}" />
                             <DatePicker SelectedDate="{Binding AuditToDate}" Margin="6,0,12,0" />
 
                             <TextBox Text="{Binding AuditSearchText, UpdateSourceTrigger=PropertyChanged}"
@@ -77,8 +72,7 @@
                                     Content="Load"
                                     Padding="10,6"
                                     Margin="12,0,0,0"
-                                    Background="{DynamicResource PrimaryHueMidBrush}"
-                                    Foreground="White" />
+                                    Style="{StaticResource PrimaryButtonStyle}" />
                         </StackPanel>
                     </Border>
 
@@ -123,10 +117,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="12"
                             Margin="0,0,12,0">
                         <Grid>
@@ -139,8 +130,7 @@
                                 <Button Command="{Binding OpenAddUserCommand}"
                                         Content="Add User"
                                         Padding="10,6"
-                                        Background="{DynamicResource PrimaryHueMidBrush}"
-                                        Foreground="White" />
+                                        Style="{StaticResource PrimaryButtonStyle}" />
                                 <Button Command="{Binding OpenEditUserCommand}"
                                         CommandParameter="{Binding SelectedUser}"
                                         Content="Edit"
@@ -203,10 +193,7 @@
                     </Border>
 
                     <Border Grid.Column="1"
-                            Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            Style="{StaticResource ModernCardStyle}"
                             Padding="12"
                             Visibility="{Binding IsUserEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -216,22 +203,22 @@
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource MaterialDesignBody}" />
 
-                                <TextBlock Text="Username" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,10,0,0" />
+                                <TextBlock Text="Username" Margin="0,10,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding EditingUser.Username}"
                                          Padding="8,6"
                                          Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Full Name" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,8,0,0" />
+                                <TextBlock Text="Full Name" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding EditingUser.FullName}"
                                          Padding="8,6"
                                          Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Email" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,8,0,0" />
+                                <TextBlock Text="Email" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding EditingUser.Email}"
                                          Padding="8,6"
                                          Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Role" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,8,0,0" />
+                                <TextBlock Text="Role" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <ComboBox ItemsSource="{Binding AvailableRoles}"
                                           SelectedItem="{Binding EditingUser.Role}"
                                           Background="{DynamicResource SurfaceBrush}" />
@@ -240,18 +227,18 @@
                                           IsChecked="{Binding EditingUser.IsActive}"
                                           Margin="0,8,0,0" />
 
-                                <TextBlock Text="Notes" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,8,0,0" />
+                                <TextBlock Text="Notes" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding EditingUser.Notes}"
                                          Padding="8,6"
                                          Background="{DynamicResource SurfaceBrush}" />
 
-                                <TextBlock Text="Password" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,10,0,0" />
+                                <TextBlock Text="Password" Margin="0,10,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding PasswordInput}"
                                          Padding="8,6"
                                          Background="{DynamicResource SurfaceBrush}"
                                          mah:TextBoxHelper.Watermark="Leave blank to keep current" />
 
-                                <TextBlock Text="Confirm Password" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,8,0,0" />
+                                <TextBlock Text="Confirm Password" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
                                 <TextBox Text="{Binding ConfirmPasswordInput}"
                                          Padding="8,6"
                                          Background="{DynamicResource SurfaceBrush}" />
@@ -260,8 +247,7 @@
                                     <Button Command="{Binding SaveUserCommand}"
                                             Content="Save"
                                             Padding="10,6"
-                                            Background="{DynamicResource PrimaryHueMidBrush}"
-                                            Foreground="White" />
+                                            Style="{StaticResource PrimaryButtonStyle}" />
                                     <Button Command="{Binding CancelEditCommand}"
                                             Content="Cancel"
                                             Padding="10,6"
@@ -279,10 +265,7 @@
 
             <TabItem Header="Backup">
                 <Grid Margin="12">
-                    <Border Background="{DynamicResource MaterialDesignCardBackground}"
-                            BorderBrush="{DynamicResource DividerBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                    <Border Style="{StaticResource ModernCardStyle}"
                             Padding="16"
                             Width="460">
                         <StackPanel>
@@ -291,11 +274,9 @@
                                        Foreground="{DynamicResource MaterialDesignBody}"
                                        FontSize="16" />
                             <TextBlock Text="Create a snapshot of the SQLite database for recovery or migration."
-                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                       FontSize="11"
-                                       Margin="0,6,0,0" />
+                                       Margin="0,6,0,0"  Style="{StaticResource FieldLabelStyle}" />
 
-                            <TextBlock Text="Backup Folder" FontSize="11" Foreground="{DynamicResource MaterialDesignBodyLight}" Margin="0,12,0,0" />
+                            <TextBlock Text="Backup Folder" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                             <TextBox Text="{Binding BackupFolder}"
                                      Padding="8,6"
                                      Background="{DynamicResource SurfaceBrush}" />
@@ -304,8 +285,7 @@
                                     Content="Create Backup"
                                     Padding="12,6"
                                     Margin="0,12,0,0"
-                                    Background="{DynamicResource PrimaryHueMidBrush}"
-                                    Foreground="White" />
+                                    Style="{StaticResource PrimaryButtonStyle}" />
 
                             <TextBlock Text="{Binding LastBackupPath, StringFormat=Last backup: {0}}"
                                        Foreground="{DynamicResource MaterialDesignBodyLight}"
@@ -323,9 +303,10 @@
                 Padding="12,8"
                 BorderThickness="0,1,0,0"
                 BorderBrush="{DynamicResource DividerBrush}">
-            <TextBlock Text="{Binding StatusMessage}"
-                       Foreground="{DynamicResource MaterialDesignBodyLight}"
-                       FontSize="11" />
+            <TextBlock Text="{Binding StatusMessage}"  Style="{StaticResource FieldLabelStyle}" />
         </Border>
     </Grid>
 </UserControl>
+
+
+
