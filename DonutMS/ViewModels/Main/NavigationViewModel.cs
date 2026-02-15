@@ -21,8 +21,6 @@ public partial class NavigationViewModel : BaseViewModel
     [ObservableProperty]
     private bool isMenuOpen = true;
 
-    [ObservableProperty]
-    private bool isDarkTheme = false;
 
     public NavigationViewModel(
         INavigationService navigationService,
@@ -66,12 +64,6 @@ public partial class NavigationViewModel : BaseViewModel
     public void ToggleMenu()
     {
         IsMenuOpen = !IsMenuOpen;
-    }
-
-    [RelayCommand]
-    public void ToggleTheme()
-    {
-        IsDarkTheme = !IsDarkTheme;
     }
 
     [RelayCommand]

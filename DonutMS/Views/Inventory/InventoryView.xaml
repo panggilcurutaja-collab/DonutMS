@@ -1,0 +1,374 @@
+<UserControl x:Class="DonutMS.Views.Inventory.InventoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0"
+                   Text="Inventory Stock Control"
+                   Margin="0,0,0,16"  Style="{StaticResource PageTitleStyle}" />
+
+        <!-- Summary -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource MaterialDesignCardBackground}"
+                Padding="16"
+                CornerRadius="4"
+                Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Low Stock Items"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               FontSize="12" />
+                    <TextBlock Text="{Binding LowStockCount}"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource MaterialDesignBody}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Total Stock Value"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               FontSize="12" />
+                    <TextBlock Text="{Binding TotalInventoryValue, Converter={StaticResource CurrencyConverter}}"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource MaterialDesignBody}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Batches Near Expiry"
+                               Foreground="{DynamicResource MaterialDesignBodyLight}"
+                               FontSize="12" />
+                    <TextBlock Text="{Binding ExpiringBatchCount}"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource MaterialDesignBody}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBox Text="{Binding ExpiringWithinDays, UpdateSourceTrigger=PropertyChanged}"
+                             Width="60"
+                             Padding="8,6"
+                             Background="{DynamicResource SurfaceBrush}"
+                             Foreground="{DynamicResource MaterialDesignBody}"
+                             BorderThickness="1"
+                             BorderBrush="{DynamicResource DividerBrush}"
+                             Margin="0,0,8,0"
+                             mah:TextBoxHelper.Watermark="Days" />
+                    <Button Command="{Binding CheckExpiringStockCommand}"
+                            Content="Check"
+                            Padding="10,6"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Margin="0,0,8,0" />
+                    <Button Command="{Binding RefreshInventoryCommand}"
+                            Content="Refresh"
+                            Padding="10,6"
+                            Background="{DynamicResource MaterialDesignCardBackground}"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            BorderThickness="1" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Inventory List -->
+            <DataGrid Grid.Column="0"
+                      ItemsSource="{Binding InventoryStocks}"
+                      SelectedItem="{Binding SelectedStock}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Background="{DynamicResource SurfaceBrush}"
+                      Foreground="{DynamicResource MaterialDesignBody}"
+                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                      BorderThickness="1"
+                      BorderBrush="{DynamicResource DividerBrush}"
+                      RowBackground="{DynamicResource MaterialDesignPaper}"
+                      AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                <Setter Property="Background" Value="#FFFDECEA" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Ingredient" Binding="{Binding IngredientName}" Width="200" IsReadOnly="True" />
+                    <DataGridTextColumn Header="SKU" Binding="{Binding IngredientSKU}" Width="90" IsReadOnly="True" />
+                    <DataGridTextColumn Header="On Hand" Binding="{Binding Quantity, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Available" Binding="{Binding AvailableQuantity, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Unit" Binding="{Binding UnitCode}" Width="60" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Reorder Pt" Binding="{Binding ReorderPoint, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Min Stock" Binding="{Binding MinimumStockLevel, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Next Expiry" Binding="{Binding NextExpiryDate, StringFormat=dd MMM yyyy}" Width="110" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Days Left" Binding="{Binding NextExpiryDays}" Width="70" IsReadOnly="True" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Right Panel -->
+            <TabControl Grid.Column="1"
+                       Margin="16,0,0,0"
+                       Background="Transparent"
+                       BorderBrush="{DynamicResource DividerBrush}">
+
+                <TabItem Header="Actions" IsSelected="True">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="16">
+                            <Border Style="{StaticResource ModernCardStyle}"
+                                   Padding="12"
+                                   Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedStock.IngredientName, FallbackValue='Select an ingredient'}"  Style="{StaticResource SectionTitleStyle}" />
+                                    <TextBlock Text="{Binding SelectedStock.IngredientSKU, StringFormat='SKU: {0}'}"
+                                               Margin="0,4,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                    <TextBlock Text="{Binding SelectedStock.AvailableQuantity, StringFormat='Available: {0:N2}'}"
+                                               Margin="0,4,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource ModernCardStyle}"
+                                   Padding="12"
+                                   Margin="0,0,0,12">
+                                <StackPanel>
+                                    <TextBlock Text="Receive Stock"
+                                               Margin="0,0,0,8"  Style="{StaticResource SectionTitleStyle}" />
+
+                                    <TextBox Text="{Binding TransactionQuantity, UpdateSourceTrigger=PropertyChanged}"
+                                             Padding="10,6"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderThickness="1"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             mah:TextBoxHelper.Watermark="Qty" />
+
+                                    <TextBox Text="{Binding StockInBatchNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,8,0,0"
+                                             Padding="10,6"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderThickness="1"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             mah:TextBoxHelper.Watermark="Batch number (optional)" />
+
+                                    <TextBlock Text="Receipt Date"
+                                               Margin="0,8,0,4"  Style="{StaticResource FieldLabelStyle}" />
+                                    <DatePicker SelectedDate="{Binding StockInReceiptDate}"
+                                                Background="{DynamicResource SurfaceBrush}" />
+
+                                    <TextBlock Text="Expiry Date"
+                                               Margin="0,8,0,4"  Style="{StaticResource FieldLabelStyle}" />
+                                    <DatePicker SelectedDate="{Binding StockInExpiryDate}"
+                                                Background="{DynamicResource SurfaceBrush}" />
+
+                                    <TextBox Text="{Binding TransactionReference, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,8,0,0"
+                                             Padding="10,6"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderThickness="1"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             mah:TextBoxHelper.Watermark="Reference / PO (optional)" />
+
+                                    <Button Command="{Binding AddStockInCommand}"
+                                            Content="Record Stock In"
+                                            Padding="12,8"
+                                            Margin="0,10,0,0"
+                                            Style="{StaticResource SuccessButtonStyle}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource ModernCardStyle}"
+                                   Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="Issue Stock"
+                                               Margin="0,0,0,8"  Style="{StaticResource SectionTitleStyle}" />
+
+                                    <TextBox Text="{Binding TransactionQuantity, UpdateSourceTrigger=PropertyChanged}"
+                                             Padding="10,6"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderThickness="1"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             mah:TextBoxHelper.Watermark="Qty" />
+
+                                    <ComboBox ItemsSource="{Binding SelectedStockBatches}"
+                                             SelectedItem="{Binding SelectedBatch}"
+                                             DisplayMemberPath="SupplierBatchNumber"
+                                             Margin="0,8,0,0"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             mah:TextBoxHelper.Watermark="Batch (optional)" />
+
+                                    <ComboBox SelectedValuePath="Content"
+                                             SelectedValue="{Binding ConsumptionMethod}"
+                                             Margin="0,8,0,0"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}">
+                                        <ComboBoxItem Content="FEFO" />
+                                        <ComboBoxItem Content="FIFO" />
+                                    </ComboBox>
+
+                                    <TextBox Text="{Binding TransactionReference, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,8,0,0"
+                                             Padding="10,6"
+                                             Background="{DynamicResource SurfaceBrush}"
+                                             Foreground="{DynamicResource MaterialDesignBody}"
+                                             BorderThickness="1"
+                                             BorderBrush="{DynamicResource DividerBrush}"
+                                             mah:TextBoxHelper.Watermark="Reference / Job (optional)" />
+
+                                    <Button Command="{Binding RemoveStockOutCommand}"
+                                            Content="Record Stock Out"
+                                            Padding="12,8"
+                                            Margin="0,10,0,0"
+                                            Style="{StaticResource DangerButtonStyle}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="Batches">
+                    <DataGrid ItemsSource="{Binding SelectedStockBatches}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              Background="{DynamicResource SurfaceBrush}"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                              BorderThickness="1"
+                              BorderBrush="{DynamicResource DividerBrush}"
+                              RowBackground="{DynamicResource MaterialDesignPaper}"
+                              AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Batch" Binding="{Binding SupplierBatchNumber}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Receipt" Binding="{Binding ReceiptDate, StringFormat=dd MMM yyyy}" Width="110" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Expiry" Binding="{Binding ExpiryDate, StringFormat=dd MMM yyyy}" Width="110" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Available" Binding="{Binding AvailableQuantity, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="80" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Days" Binding="{Binding DaysToExpiry}" Width="60" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="Transactions">
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <DatePicker SelectedDate="{Binding TransactionFromDate}" />
+                            <DatePicker SelectedDate="{Binding TransactionToDate}" Margin="8,0,0,0" />
+                            <Button Command="{Binding LoadTransactionsCommand}"
+                                    Content="Load"
+                                    Padding="10,6"
+                                    Margin="8,0,0,0"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                        </StackPanel>
+
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding SelectedTransactions}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  Background="{DynamicResource SurfaceBrush}"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                  BorderThickness="1"
+                                  BorderBrush="{DynamicResource DividerBrush}"
+                                  RowBackground="{DynamicResource MaterialDesignPaper}"
+                                  AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                </Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Date" Binding="{Binding TransactionDate, StringFormat=dd MMM yyyy HH:mm}" Width="150" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Type" Binding="{Binding TransactionType}" Width="70" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity, StringFormat=N2}" Width="80" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Unit" Binding="{Binding UnitCode}" Width="60" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Batch" Binding="{Binding BatchId}" Width="70" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Ref" Binding="{Binding ReferenceNumber}" Width="120" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="3"
+                Background="{DynamicResource MaterialDesignDividerBackground}"
+                Padding="12,8"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource DividerBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                          Text="{Binding StatusMessage}"
+                          Foreground="{DynamicResource MaterialDesignBodyLight}"
+                          FontSize="12" />
+                <mah:ProgressRing Grid.Column="1"
+                                 IsActive="{Binding IsLoading}"
+                                 Foreground="{DynamicResource PrimaryHueMidBrush}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
+
+
+

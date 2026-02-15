@@ -1,0 +1,315 @@
+
+<UserControl x:Class="DonutMS.Views.Promotions.PromoManagerViewV2"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{DynamicResource PrimaryHueMidBrush}"
+                Padding="20,16"
+                BorderBrush="{DynamicResource PrimaryHueLightBrush}"
+                BorderThickness="0,0,0,2">
+            <StackPanel>
+                <TextBlock Text="Promo &amp; Discount Manager"
+                           Foreground="White"  Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Text="Discount master, bundle pricing, and promo impact simulation"
+                           Foreground="White"
+                           Opacity="0.9"
+                           FontSize="12"
+                           Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="16,16,16,8" Background="{DynamicResource MaterialDesignPaper}">
+            <TabItem Header="Discounts">
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="16"
+                            Margin="0,0,12,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Discount Form" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                                <TextBlock Text="Name" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding DiscountName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Type" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding DiscountTypes}"
+                                          SelectedItem="{Binding DiscountType}"
+                                          Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Value" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding DiscountValue, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Start Date" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <DatePicker SelectedDate="{Binding DiscountStartDate}" Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="End Date" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <DatePicker SelectedDate="{Binding DiscountEndDate}" Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Applicable For" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding ApplicableForOptions}"
+                                          SelectedItem="{Binding DiscountApplicableFor}"
+                                          IsEditable="True"
+                                          Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Minimum Quantity (Volume)" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding DiscountMinimumQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                                <CheckBox Content="Active" IsChecked="{Binding DiscountIsActive}" Margin="0,12,0,0" />
+
+                                <TextBlock Text="Notes" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding DiscountNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" AcceptsReturn="True" Height="80" />
+
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <Button Command="{Binding SaveDiscountCommand}"
+                                            Content="Save"
+                                            Padding="12,6"
+                                            Style="{StaticResource PrimaryButtonStyle}"
+                                            Margin="0,0,8,0" />
+                                    <Button Command="{Binding ClearDiscountFormCommand}"
+                                            Content="Clear"
+                                            Padding="12,6"
+                                            Background="{DynamicResource MaterialDesignCardBackground}"
+                                            Foreground="{DynamicResource MaterialDesignBody}"
+                                            BorderBrush="{DynamicResource DividerBrush}"
+                                            BorderThickness="1" />
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="12">
+                        <DataGrid ItemsSource="{Binding Discounts}"
+                                  SelectedItem="{Binding SelectedDiscount}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  Background="{DynamicResource SurfaceBrush}"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                  RowBackground="{DynamicResource MaterialDesignPaper}"
+                                  AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="180" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Type" Binding="{Binding DiscountType}" Width="110" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Value" Binding="{Binding DiscountValue, StringFormat=N2}" Width="90" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Start" Binding="{Binding StartDate, StringFormat=d}" Width="90" IsReadOnly="True" />
+                                <DataGridTextColumn Header="End" Binding="{Binding EndDate, StringFormat=d}" Width="90" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Min Qty" Binding="{Binding MinimumQuantity}" Width="70" IsReadOnly="True" />
+                                <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="60" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Bundles">
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="16"
+                            Margin="0,0,12,0">
+                        <StackPanel>
+                            <TextBlock Text="Bundle Form" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                            <TextBlock Text="Name" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding BundleName, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="SKU" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding Skus}"
+                                      SelectedItem="{Binding SelectedBundleSku}"
+                                      DisplayMemberPath="Name"
+                                      Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="Quantity" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding BundleQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="Bundle Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding BundlePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                            <CheckBox Content="Active" IsChecked="{Binding BundleIsActive}" Margin="0,12,0,0" />
+
+                            <TextBlock Text="Notes" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding BundleNotes, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" AcceptsReturn="True" Height="80" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <Button Command="{Binding SaveBundleCommand}"
+                                        Content="Save"
+                                        Padding="12,6"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Margin="0,0,8,0" />
+                                <Button Command="{Binding ClearBundleFormCommand}"
+                                        Content="Clear"
+                                        Padding="12,6"
+                                        Background="{DynamicResource MaterialDesignCardBackground}"
+                                        Foreground="{DynamicResource MaterialDesignBody}"
+                                        BorderBrush="{DynamicResource DividerBrush}"
+                                        BorderThickness="1" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="12">
+                        <DataGrid ItemsSource="{Binding Bundles}"
+                                  SelectedItem="{Binding SelectedBundle}"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  Background="{DynamicResource SurfaceBrush}"
+                                  Foreground="{DynamicResource MaterialDesignBody}"
+                                  TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                  RowBackground="{DynamicResource MaterialDesignPaper}"
+                                  AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                            <DataGrid.Resources>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                </Style>
+                            </DataGrid.Resources>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="180" IsReadOnly="True" />
+                                <DataGridTextColumn Header="SKU" Binding="{Binding SKUName}" Width="160" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Qty" Binding="{Binding Quantity}" Width="70" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Price" Binding="{Binding BundlePrice, StringFormat=N2}" Width="100" IsReadOnly="True" />
+                                <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="60" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Simulation">
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="16"
+                            Margin="0,0,12,0">
+                        <StackPanel>
+                            <TextBlock Text="Simulation Inputs" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                            <TextBlock Text="SKU" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding Skus}"
+                                      SelectedItem="{Binding SelectedPromoSku}"
+                                      DisplayMemberPath="Name"
+                                      Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="Quantity" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding PromoQuantity, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="Base Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding PromoBasePrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="Discount" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding Discounts}"
+                                      SelectedItem="{Binding SelectedPromoDiscount}"
+                                      DisplayMemberPath="Name"
+                                      Background="{DynamicResource SurfaceBrush}" />
+
+                            <TextBlock Text="Bundle" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <ComboBox ItemsSource="{Binding Bundles}"
+                                      SelectedItem="{Binding SelectedPromoBundle}"
+                                      DisplayMemberPath="Name"
+                                      Background="{DynamicResource SurfaceBrush}" />
+
+                            <Button Command="{Binding RunSimulationCommand}"
+                                    Content="Run Simulation"
+                                    Padding="12,6"
+                                    Margin="0,16,0,0"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="Discount Impact" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <TextBlock Text="Unit Price: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding DiscountedUnitPrice, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Total: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding DiscountedTotal, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Gross Margin %: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding DiscountGrossMargin, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Net Margin %: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding DiscountNetMargin, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Savings: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Savings, StringFormat=N2}" />
+                            </StackPanel>
+
+                            <TextBlock Text="Bundle Impact" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" Margin="0,16,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Total: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding BundleTotalPrice, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Effective Unit: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding BundleEffectiveUnitPrice, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Gross Margin %: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding BundleGrossMargin, StringFormat=N2}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <TextBlock Text="Net Margin %: " FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding BundleNetMargin, StringFormat=N2}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="2" Margin="16,0,16,12">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}" />
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="Tomato"
+                       Margin="0,4,0,0" />
+        </StackPanel>
+    </Grid>
+</UserControl>
+
+
+

@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using DonutMS.Data.Entities;
 using DonutMS.Data.Repositories;
 using DonutMS.Models.DTOs;
@@ -30,6 +31,7 @@ public interface IRecipeService
     
     Task<RecipeSubstitutionDto?> GetSubstitutionAsync(int originalIngredientId, int substituteIngredientId);
     Task<IEnumerable<RecipeSubstitutionDto>> GetSubstitutionsForIngredientAsync(int ingredientId);
+    Task<IEnumerable<RecipeSubstitutionDto>> GetAllSubstitutionsAsync();
     Task<RecipeSubstitutionDto> CreateSubstitutionAsync(CreateRecipeSubstitutionDto dto);
     Task<bool> ApproveSubstitutionAsync(int originalIngredientId, int substituteIngredientId);
 }
@@ -38,6 +40,8 @@ public class RecipeService : IRecipeService
 {
     private readonly IRecipeRepository _recipeRepository;
     private readonly IIngredientRepository _ingredientRepository;
+    private readonly IRepository<RecipeSubstitution> _substitutionRepository;
+    private readonly IAuditService _auditService;
     private readonly ILogger<RecipeService> _logger;
     private readonly IMapper _mapper;
     private readonly IValidator<Recipe> _recipeValidator;
@@ -45,12 +49,16 @@ public class RecipeService : IRecipeService
     public RecipeService(
         IRecipeRepository recipeRepository,
         IIngredientRepository ingredientRepository,
+        IRepository<RecipeSubstitution> substitutionRepository,
+        IAuditService auditService,
         ILogger<RecipeService> logger,
         IMapper mapper,
         IValidator<Recipe> recipeValidator)
     {
         _recipeRepository = recipeRepository;
         _ingredientRepository = ingredientRepository;
+        _substitutionRepository = substitutionRepository;
+        _auditService = auditService;
         _logger = logger;
         _mapper = mapper;
         _recipeValidator = recipeValidator;
@@ -64,7 +72,12 @@ public class RecipeService : IRecipeService
 
     public async Task<IEnumerable<RecipeDto>> GetAllRecipesAsync()
     {
-        var recipes = await _recipeRepository.GetAllAsync();
+        var recipes = await _recipeRepository
+            .AsQueryable()
+            .Include(r => r.YieldUnit)
+            .Where(r => !r.IsDeleted)
+            .OrderBy(r => r.Name)
+            .ToListAsync();
         return _mapper.Map<IEnumerable<RecipeDto>>(recipes);
     }
 
@@ -96,6 +109,13 @@ public class RecipeService : IRecipeService
             await _recipeRepository.AddAsync(recipe);
             await _recipeRepository.SaveChangesAsync();
 
+            await _auditService.LogAsync(
+                "Recipe",
+                recipe.Id,
+                "Create",
+                remarks: recipe.Name,
+                newValues: JsonConvert.SerializeObject(new { recipe.Name, recipe.Code, recipe.YieldPerBatch, recipe.YieldUnitId }));
+
             _logger.LogInformation($"Recipe '{recipe.Name}' (Code: {recipe.Code}) created successfully");
             return _mapper.Map<RecipeDto>(recipe);
         }
@@ -112,6 +132,16 @@ public class RecipeService : IRecipeService
         if (recipe == null)
             throw new KeyNotFoundException($"Recipe with ID {id} not found");
 
+        var oldSnapshot = JsonConvert.SerializeObject(new
+        {
+            recipe.Name,
+            recipe.Code,
+            recipe.Description,
+            recipe.YieldPerBatch,
+            recipe.YieldUnitId,
+            recipe.IsActive
+        });
+
         _mapper.Map(dto, recipe);
         
         var validationResult = await _recipeValidator.ValidateAsync(recipe);
@@ -123,6 +153,24 @@ public class RecipeService : IRecipeService
 
         await _recipeRepository.UpdateAsync(recipe);
         await _recipeRepository.SaveChangesAsync();
+
+        var newSnapshot = JsonConvert.SerializeObject(new
+        {
+            recipe.Name,
+            recipe.Code,
+            recipe.Description,
+            recipe.YieldPerBatch,
+            recipe.YieldUnitId,
+            recipe.IsActive
+        });
+
+        await _auditService.LogAsync(
+            "Recipe",
+            recipe.Id,
+            "Update",
+            oldValues: oldSnapshot,
+            newValues: newSnapshot,
+            remarks: recipe.Name);
 
         _logger.LogInformation($"Recipe '{recipe.Name}' updated successfully");
         return _mapper.Map<RecipeDto>(recipe);
@@ -137,6 +185,8 @@ public class RecipeService : IRecipeService
         recipe.IsDeleted = true;
         await _recipeRepository.UpdateAsync(recipe);
         await _recipeRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync("Recipe", recipe.Id, "Delete", remarks: recipe.Name);
 
         _logger.LogInformation($"Recipe '{recipe.Name}' deleted");
         return true;
@@ -168,12 +218,18 @@ public class RecipeService : IRecipeService
 
     public async Task<RecipeVersionDto> CreateRecipeVersionAsync(int recipeId, CreateRecipeVersionDto dto)
     {
-        var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+        var recipe = await _recipeRepository.GetRecipeWithIngredientsAsync(recipeId);
         if (recipe == null)
             throw new KeyNotFoundException($"Recipe with ID {recipeId} not found");
 
-        var latestVersion = recipe.Versions?.OrderByDescending(v => v.VersionNumber).FirstOrDefault();
-        var newVersionNumber = (latestVersion?.VersionNumber ?? 0) + 1;
+        var latestVersionNumber = await _recipeRepository
+            .AsQueryable()
+            .Where(r => r.Id == recipeId)
+            .SelectMany(r => r.Versions!)
+            .Where(v => !v.IsDeleted)
+            .Select(v => (int?)v.VersionNumber)
+            .MaxAsync() ?? 0;
+        var newVersionNumber = latestVersionNumber + 1;
 
         var version = new RecipeVersion
         {
@@ -185,6 +241,22 @@ public class RecipeService : IRecipeService
             YieldUnitId = dto.YieldUnitId
         };
 
+        if (recipe.RecipeIngredients != null && recipe.RecipeIngredients.Count > 0)
+        {
+            version.Ingredients = recipe.RecipeIngredients
+                .OrderBy(i => i.SortOrder)
+                .Select(i => new RecipeVersionIngredient
+                {
+                    IngredientId = i.IngredientId,
+                    QuantityPerBatch = i.QuantityPerBatch,
+                    UnitId = i.UnitId,
+                    SortOrder = i.SortOrder,
+                    IsOptional = i.IsOptional,
+                    WastePercentage = 0,
+                    Notes = i.Notes
+                }).ToList();
+        }
+
         if (recipe.Versions == null)
             recipe.Versions = new List<RecipeVersion>();
         recipe.Versions.Add(version);
@@ -192,23 +264,66 @@ public class RecipeService : IRecipeService
         await _recipeRepository.UpdateAsync(recipe);
         await _recipeRepository.SaveChangesAsync();
 
+        recipe.CurrentVersionId = version.Id;
+        await _recipeRepository.UpdateAsync(recipe);
+        await _recipeRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            "Recipe",
+            recipe.Id,
+            "CreateVersion",
+            remarks: $"Version {newVersionNumber}");
+
         _logger.LogInformation($"Recipe version {newVersionNumber} created for recipe ID {recipeId}");
         return _mapper.Map<RecipeVersionDto>(version);
     }
 
     public async Task<bool> RollbackToVersionAsync(int recipeId, int versionNumber)
     {
-        var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+        var recipe = await _recipeRepository
+            .AsQueryable()
+            .Include(r => r.RecipeIngredients)
+            .Include(r => r.Versions)
+            .ThenInclude(v => v.Ingredients)
+            .FirstOrDefaultAsync(r => r.Id == recipeId && !r.IsDeleted);
         if (recipe == null)
             return false;
 
-        var targetVersion = recipe.Versions?.FirstOrDefault(v => v.VersionNumber == versionNumber);
+        var targetVersion = recipe.Versions?.FirstOrDefault(v => v.VersionNumber == versionNumber && !v.IsDeleted);
         if (targetVersion == null)
             return false;
 
         recipe.CurrentVersionId = targetVersion.Id;
+        recipe.YieldPerBatch = targetVersion.YieldPerBatch;
+        recipe.YieldUnitId = targetVersion.YieldUnitId;
+
+        if (recipe.RecipeIngredients == null)
+            recipe.RecipeIngredients = new List<RecipeIngredient>();
+        else
+            recipe.RecipeIngredients.Clear();
+
+        foreach (var versionIngredient in targetVersion.Ingredients.OrderBy(i => i.SortOrder))
+        {
+            recipe.RecipeIngredients.Add(new RecipeIngredient
+            {
+                RecipeId = recipe.Id,
+                IngredientId = versionIngredient.IngredientId,
+                QuantityPerBatch = versionIngredient.QuantityPerBatch,
+                UnitId = versionIngredient.UnitId,
+                SortOrder = versionIngredient.SortOrder,
+                IsOptional = versionIngredient.IsOptional,
+                Notes = versionIngredient.Notes
+            });
+        }
+
         await _recipeRepository.UpdateAsync(recipe);
         await _recipeRepository.SaveChangesAsync();
+
+        await _auditService.LogAsync(
+            "Recipe",
+            recipe.Id,
+            "Rollback",
+            remarks: $"Version {versionNumber}");
 
         _logger.LogInformation($"Recipe '{recipe.Name}' rolled back to version {versionNumber}");
         return true;
@@ -227,13 +342,16 @@ public class RecipeService : IRecipeService
 
     public async Task<bool> AddIngredientToRecipeAsync(int recipeId, AddRecipeIngredientDto dto)
     {
-        var recipe = await _recipeRepository.GetByIdAsync(recipeId);
+        var recipe = await _recipeRepository.GetRecipeWithIngredientsAsync(recipeId);
         if (recipe == null)
             return false;
 
         var ingredient = await _ingredientRepository.GetByIdAsync(dto.IngredientId);
         if (ingredient == null)
             throw new KeyNotFoundException($"Ingredient with ID {dto.IngredientId} not found");
+
+        if (recipe.RecipeIngredients != null && recipe.RecipeIngredients.Any(ri => ri.IngredientId == dto.IngredientId))
+            throw new InvalidOperationException("Ingredient already exists in this recipe");
 
         var recipeIngredient = new RecipeIngredient
         {
@@ -295,29 +413,95 @@ public class RecipeService : IRecipeService
 
     public async Task<RecipeSubstitutionDto?> GetSubstitutionAsync(int originalIngredientId, int substituteIngredientId)
     {
-        var substitution = await _recipeRepository
+        var substitution = await _substitutionRepository
             .AsQueryable()
-            .OfType<RecipeSubstitution>()
-            .FirstOrDefaultAsync(s => s.OriginalIngredientId == originalIngredientId && s.SubstituteIngredientId == substituteIngredientId);
+            .Include(s => s.OriginalIngredient)
+            .Include(s => s.SubstituteIngredient)
+            .FirstOrDefaultAsync(s =>
+                !s.IsDeleted &&
+                s.OriginalIngredientId == originalIngredientId &&
+                s.SubstituteIngredientId == substituteIngredientId);
 
         return substitution != null ? _mapper.Map<RecipeSubstitutionDto>(substitution) : null;
     }
 
     public async Task<IEnumerable<RecipeSubstitutionDto>> GetSubstitutionsForIngredientAsync(int ingredientId)
     {
-        // Implementation would query RecipeSubstitution table
-        return Enumerable.Empty<RecipeSubstitutionDto>();
+        var substitutions = await _substitutionRepository
+            .AsQueryable()
+            .Include(s => s.OriginalIngredient)
+            .Include(s => s.SubstituteIngredient)
+            .Where(s => !s.IsDeleted && s.OriginalIngredientId == ingredientId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<RecipeSubstitutionDto>>(substitutions);
+    }
+
+    public async Task<IEnumerable<RecipeSubstitutionDto>> GetAllSubstitutionsAsync()
+    {
+        var substitutions = await _substitutionRepository
+            .AsQueryable()
+            .Include(s => s.OriginalIngredient)
+            .Include(s => s.SubstituteIngredient)
+            .Where(s => !s.IsDeleted)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        return _mapper.Map<IEnumerable<RecipeSubstitutionDto>>(substitutions);
     }
 
     public async Task<RecipeSubstitutionDto> CreateSubstitutionAsync(CreateRecipeSubstitutionDto dto)
     {
-        // Implementation for creating substitution
-        throw new NotImplementedException();
+        if (dto.OriginalIngredientId == dto.SubstituteIngredientId)
+            throw new InvalidOperationException("Original and substitute ingredients must be different");
+
+        if (dto.SubstitutionRatio <= 0)
+            throw new InvalidOperationException("Substitution ratio must be greater than zero");
+
+        var original = await _ingredientRepository.GetByIdAsync(dto.OriginalIngredientId);
+        var substitute = await _ingredientRepository.GetByIdAsync(dto.SubstituteIngredientId);
+
+        if (original == null || substitute == null)
+            throw new KeyNotFoundException("One or both ingredients not found");
+
+        var existing = await _substitutionRepository
+            .AsQueryable()
+            .FirstOrDefaultAsync(s =>
+                !s.IsDeleted &&
+                s.OriginalIngredientId == dto.OriginalIngredientId &&
+                s.SubstituteIngredientId == dto.SubstituteIngredientId);
+
+        if (existing != null)
+            throw new InvalidOperationException("Substitution rule already exists");
+
+        var substitution = _mapper.Map<RecipeSubstitution>(dto);
+        substitution.IsApproved = false;
+
+        await _substitutionRepository.AddAsync(substitution);
+        await _substitutionRepository.SaveChangesAsync();
+
+        _logger.LogInformation($"Substitution created: {original.Name} -> {substitute.Name}");
+        return _mapper.Map<RecipeSubstitutionDto>(substitution);
     }
 
     public async Task<bool> ApproveSubstitutionAsync(int originalIngredientId, int substituteIngredientId)
     {
-        // Implementation for approving substitution
+        var substitution = await _substitutionRepository
+            .AsQueryable()
+            .FirstOrDefaultAsync(s =>
+                !s.IsDeleted &&
+                s.OriginalIngredientId == originalIngredientId &&
+                s.SubstituteIngredientId == substituteIngredientId);
+
+        if (substitution == null)
+            return false;
+
+        substitution.IsApproved = true;
+        await _substitutionRepository.UpdateAsync(substitution);
+        await _substitutionRepository.SaveChangesAsync();
+
+        _logger.LogInformation($"Substitution approved: {originalIngredientId} -> {substituteIngredientId}");
         return true;
     }
 }

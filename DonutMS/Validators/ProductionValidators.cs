@@ -1,4 +1,5 @@
 using FluentValidation;
+using DonutMS.Core.Domain;
 using DonutMS.Data.Entities;
 
 namespace DonutMS.Validators;
@@ -31,8 +32,8 @@ public class BatchValidator : AbstractValidator<Batch>
 
         RuleFor(x => x.Status)
             .NotEmpty().WithMessage("Status is required")
-            .Must(x => x == "Planned" || x == "In Progress" || x == "Completed" || x == "Cancelled")
-            .WithMessage("Status must be 'Planned', 'In Progress', 'Completed', or 'Cancelled'");
+            .Must(x => DomainConstants.BatchStatus.All.Contains(x))
+            .WithMessage($"Status must be '{DomainConstants.BatchStatus.Planned}', '{DomainConstants.BatchStatus.InProgress}', '{DomainConstants.BatchStatus.Completed}', or '{DomainConstants.BatchStatus.Cancelled}'");
     }
 }
 
@@ -59,8 +60,8 @@ public class BatchIngredientValidator : AbstractValidator<BatchIngredient>
 
         RuleFor(x => x.Status)
             .NotEmpty().WithMessage("Status is required")
-            .Must(x => x == "Planned" || x == "Allocated" || x == "Used" || x == "Wasted")
-            .WithMessage("Status must be 'Planned', 'Allocated', 'Used', or 'Wasted'");
+            .Must(x => DomainConstants.BatchIngredientStatus.All.Contains(x))
+            .WithMessage($"Status must be '{DomainConstants.BatchIngredientStatus.Planned}', '{DomainConstants.BatchIngredientStatus.Allocated}', '{DomainConstants.BatchIngredientStatus.Consumed}'/'{DomainConstants.BatchIngredientStatus.Used}', or '{DomainConstants.BatchIngredientStatus.Wasted}'");
     }
 }
 

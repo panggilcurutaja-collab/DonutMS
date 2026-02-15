@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using DonutMS.Core.MVVM;
 using DonutMS.Data.Entities;
 
 namespace DonutMS.Data.DbContext;
@@ -59,6 +61,7 @@ public class DonutMSDbContext : Microsoft.EntityFrameworkCore.DbContext
         ApplyEntityConfigurations(modelBuilder);
         ApplyRelationshipConfigurations(modelBuilder);
         ApplyIndexes(modelBuilder);
+        ApplySoftDeleteQueryFilter(modelBuilder);
     }
 
     private void ApplyEntityConfigurations(ModelBuilder modelBuilder)
@@ -446,6 +449,10 @@ public class DonutMSDbContext : Microsoft.EntityFrameworkCore.DbContext
 
     private void ApplyIndexes(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<InventoryStock>()
+            .HasIndex(x => x.IngredientId)
+            .IsUnique();
+
         modelBuilder.Entity<IngredientPrice>()
             .HasIndex(x => new { x.IngredientId, x.SupplierId, x.EffectiveDate });
 
@@ -458,11 +465,37 @@ public class DonutMSDbContext : Microsoft.EntityFrameworkCore.DbContext
         modelBuilder.Entity<RecipeVersion>()
             .HasIndex(x => new { x.RecipeId, x.VersionNumber });
 
+        modelBuilder.Entity<RecipeIngredient>()
+            .HasIndex(x => new { x.RecipeId, x.IngredientId })
+            .IsUnique();
+
+        modelBuilder.Entity<RecipeVersionIngredient>()
+            .HasIndex(x => new { x.RecipeVersionId, x.IngredientId })
+            .IsUnique();
+
+        modelBuilder.Entity<BatchIngredient>()
+            .HasIndex(x => new { x.BatchId, x.IngredientId })
+            .IsUnique();
+
         modelBuilder.Entity<SKUCost>()
             .HasIndex(x => new { x.SKUId, x.EffectiveDate });
 
         modelBuilder.Entity<PurchaseOrder>()
             .HasIndex(x => new { x.SupplierId, x.OrderDate });
+    }
+
+    private static void ApplySoftDeleteQueryFilter(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(BaseModel).IsAssignableFrom(entityType.ClrType))
+                continue;
+
+            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var isDeletedProperty = Expression.Property(parameter, nameof(BaseModel.IsDeleted));
+            var filter = Expression.Lambda(Expression.Equal(isDeletedProperty, Expression.Constant(false)), parameter);
+            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+        }
     }
 
     public override int SaveChanges()
@@ -491,13 +524,4 @@ public class DonutMSDbContext : Microsoft.EntityFrameworkCore.DbContext
                 ((BaseModel)entry.Entity).UpdatedAt = DateTime.UtcNow;
         }
     }
-}
-
-public class BaseModel
-{
-    public int Id { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
-    public bool IsDeleted { get; set; }
 }

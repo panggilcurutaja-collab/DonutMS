@@ -1,0 +1,152 @@
+
+<UserControl x:Class="DonutMS.Views.Pricing.PricingCalculatorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{DynamicResource PrimaryHueMidBrush}"
+                Padding="20,16"
+                BorderBrush="{DynamicResource PrimaryHueLightBrush}"
+                BorderThickness="0,0,0,2">
+            <StackPanel>
+                <TextBlock Text="HPP &amp; Margin Calculator"
+                           Foreground="White"  Style="{StaticResource PageTitleStyle}" />
+                <TextBlock Text="Target margin, markup, break-even, and what-if pricing"
+                           Foreground="White"
+                           Opacity="0.9"
+                           FontSize="12"
+                           Margin="0,6,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="380" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Style="{StaticResource ModernCardStyle}"
+                    Padding="16"
+                    Margin="0,0,12,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Inputs" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                        <TextBlock Text="SKU" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <ComboBox ItemsSource="{Binding Skus}"
+                                  SelectedItem="{Binding SelectedSKU}"
+                                  DisplayMemberPath="Name"
+                                  Background="{DynamicResource SurfaceBrush}" />
+
+                        <TextBlock Text="HPP" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBlock Text="{Binding Hpp, StringFormat=N2}" FontSize="16" FontWeight="SemiBold" />
+
+                        <TextBlock Text="Break-even Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBlock Text="{Binding BreakEvenPrice, StringFormat=N2}" FontSize="14" />
+
+                        <TextBlock Text="Current Retail Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBlock Text="{Binding CurrentRetailPrice, StringFormat=N2}" FontSize="14" />
+
+                        <TextBlock Text="Pricing Mode" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <ComboBox ItemsSource="{Binding PricingModes}"
+                                  SelectedItem="{Binding SelectedPricingMode}"
+                                  Background="{DynamicResource SurfaceBrush}" />
+
+                        <TextBlock Text="Target Margin %" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBox Text="{Binding DesiredMarginPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                        <TextBlock Text="Markup %" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBox Text="{Binding MarkupPercent, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                        <TextBlock Text="Markup Amount" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBox Text="{Binding MarkupAmount, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                        <Button Command="{Binding CalculatePriceCommand}"
+                                Content="Calculate Price"
+                                Padding="12,6"
+                                Margin="0,16,0,0"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0"
+                        Style="{StaticResource ModernCardStyle}"
+                        Padding="16"
+                        Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="Result" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <TextBlock Text="Suggested Price: " FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding CalculatedSellingPrice, StringFormat=N2}" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Gross Margin %: " FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding GrossMargin, StringFormat=N2}" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Net Margin %: " FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding NetMargin, StringFormat=N2}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Style="{StaticResource ModernCardStyle}"
+                        Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="What-If Simulation" FontWeight="SemiBold" Foreground="{DynamicResource MaterialDesignBody}" />
+
+                        <TextBlock Text="Test Selling Price" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                        <TextBox Text="{Binding WhatIfSellingPrice, UpdateSourceTrigger=PropertyChanged}" Padding="8,6" Background="{DynamicResource SurfaceBrush}" />
+
+                        <Button Command="{Binding RunWhatIfCommand}"
+                                Content="Run Simulation"
+                                Padding="12,6"
+                                Margin="0,12,0,0"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <TextBlock Text="Gross Margin %: " FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding WhatIfGrossMargin, StringFormat=N2}" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Net Margin %: " FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding WhatIfNetMargin, StringFormat=N2}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <TextBlock Grid.Row="2"
+                   Margin="16,0,16,12"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}" />
+    </Grid>
+</UserControl>
+
+
+

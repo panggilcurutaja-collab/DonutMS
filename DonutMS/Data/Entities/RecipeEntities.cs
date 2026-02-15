@@ -35,12 +35,12 @@ public class Recipe : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Unit? YieldUnit { get; set; }
+    public Unit YieldUnit { get; set; } = null!;
     public RecipeVersion? CurrentVersion { get; set; }
-    public ICollection<RecipeVersion>? Versions { get; set; }
-    public ICollection<RecipeIngredient>? RecipeIngredients { get; set; }
-    public ICollection<SKU>? SKUs { get; set; }
-    public ICollection<Batch>? Batches { get; set; }
+    public ICollection<RecipeVersion> Versions { get; set; } = new List<RecipeVersion>();
+    public ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
+    public ICollection<SKU> SKUs { get; set; } = new List<SKU>();
+    public ICollection<Batch> Batches { get; set; } = new List<Batch>();
 }
 
 [Table("RecipeVersions")]
@@ -65,9 +65,9 @@ public class RecipeVersion : BaseModel
     [ForeignKey("YieldUnit")]
     public int YieldUnitId { get; set; }
 
-    public Recipe? Recipe { get; set; }
-    public Unit? YieldUnit { get; set; }
-    public ICollection<RecipeVersionIngredient>? Ingredients { get; set; }
+    public Recipe Recipe { get; set; } = null!;
+    public Unit YieldUnit { get; set; } = null!;
+    public ICollection<RecipeVersionIngredient> Ingredients { get; set; } = new List<RecipeVersionIngredient>();
 }
 
 [Table("RecipeIngredients")]
@@ -91,9 +91,9 @@ public class RecipeIngredient : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Recipe? Recipe { get; set; }
-    public Ingredient? Ingredient { get; set; }
-    public Unit? Unit { get; set; }
+    public Recipe Recipe { get; set; } = null!;
+    public Ingredient Ingredient { get; set; } = null!;
+    public Unit Unit { get; set; } = null!;
 }
 
 [Table("RecipeVersionIngredients")]
@@ -119,9 +119,9 @@ public class RecipeVersionIngredient : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public RecipeVersion? RecipeVersion { get; set; }
-    public Ingredient? Ingredient { get; set; }
-    public Unit? Unit { get; set; }
+    public RecipeVersion RecipeVersion { get; set; } = null!;
+    public Ingredient Ingredient { get; set; } = null!;
+    public Unit Unit { get; set; } = null!;
 }
 
 [Table("RecipeSubstitutions")]
@@ -142,6 +142,6 @@ public class RecipeSubstitution : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Ingredient? OriginalIngredient { get; set; }
-    public Ingredient? SubstituteIngredient { get; set; }
+    public Ingredient OriginalIngredient { get; set; } = null!;
+    public Ingredient SubstituteIngredient { get; set; } = null!;
 }

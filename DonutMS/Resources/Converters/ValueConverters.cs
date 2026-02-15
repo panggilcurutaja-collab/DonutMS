@@ -57,7 +57,7 @@ public class BoolToWidthConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -106,7 +106,7 @@ public class StatusColorConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -129,11 +129,23 @@ public class InverseBooleanConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        return value is bool b ? !b : true;
+        var result = value is bool b ? !b : true;
+
+        if (parameter is string param && param.Equals("Visibility", StringComparison.OrdinalIgnoreCase))
+        {
+            return result ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        return result;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
+        if (value is System.Windows.Visibility vis)
+        {
+            return vis != System.Windows.Visibility.Visible;
+        }
+
         return value is bool b ? !b : true;
     }
 }
@@ -147,7 +159,7 @@ public class NullToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -161,7 +173,7 @@ public class StringEmptyToVisibilityConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
     }
 }
 
@@ -177,6 +189,67 @@ public class QuantityHighlightConverter : IValueConverter
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
     {
-        throw new NotImplementedException();
+        return Binding.DoNothing;
+    }
+}
+
+public class IconToGlyphConverter : IValueConverter
+{
+    private static readonly Dictionary<string, string> Map = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Home", "\uE80F" },
+        { "Palette", "\uE790" },
+        { "SwapHorizontal", "\uE8AB" },
+        { "Calculator", "\uE8EF" },
+        { "Tag", "\uE8EC" },
+        { "Package", "\uE7B8" },
+        { "Truck", "\uE804" },
+        { "Wrench", "\uE7AD" },
+        { "CurrencyUsd", "\uEAFD" },
+        { "AccountGroup", "\uE716" },
+        { "Percent", "\uE94C" },
+        { "ChartBar", "\uE9D2" },
+        { "ShieldAccount", "\uE7EE" }
+    };
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        var key = value?.ToString() ?? string.Empty;
+        return Map.TryGetValue(key, out var glyph) ? glyph : "\uE10C";
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+public class IconToPackIconMaterialKindConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        var key = value?.ToString() ?? string.Empty;
+        return key switch
+        {
+            "Home" => "Home",
+            "Palette" => "Palette",
+            "SwapHorizontal" => "SwapHorizontal",
+            "Calculator" => "Calculator",
+            "Tag" => "Tag",
+            "Package" => "PackageVariant",
+            "Truck" => "Truck",
+            "Wrench" => "Wrench",
+            "CurrencyUsd" => "CurrencyUsd",
+            "AccountGroup" => "AccountGroup",
+            "Percent" => "Percent",
+            "ChartBar" => "ChartBar",
+            "ShieldAccount" => "ShieldAccount",
+            _ => "ViewDashboard"
+        };
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo cultureInfo)
+    {
+        return Binding.DoNothing;
     }
 }

@@ -32,9 +32,9 @@ public class SKU : BaseModel
     public string? Notes { get; set; }
 
     public Recipe? Recipe { get; set; }
-    public ICollection<SKUCost>? Costs { get; set; }
-    public ICollection<PriceHistory>? PriceHistory { get; set; }
-    public ICollection<SKUAllergen>? Allergens { get; set; }
+    public ICollection<SKUCost> Costs { get; set; } = new List<SKUCost>();
+    public ICollection<PriceHistory> PriceHistory { get; set; } = new List<PriceHistory>();
+    public ICollection<SKUAllergen> Allergens { get; set; } = new List<SKUAllergen>();
 }
 
 [Table("SKUCosts")]
@@ -64,7 +64,7 @@ public class SKUCost : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public SKU? SKU { get; set; }
+    public SKU SKU { get; set; } = null!;
 }
 
 [Table("PriceHistories")]
@@ -85,7 +85,7 @@ public class PriceHistory : BaseModel
     [StringLength(100)]
     public string? ChangedBy { get; set; }
 
-    public SKU? SKU { get; set; }
+    public SKU SKU { get; set; } = null!;
 }
 
 [Table("OperatingCosts")]

@@ -1,4 +1,5 @@
 using FluentValidation;
+using DonutMS.Core.Domain;
 using DonutMS.Data.Entities;
 
 namespace DonutMS.Validators;
@@ -32,8 +33,8 @@ public class PurchaseOrderValidator : AbstractValidator<PurchaseOrder>
 
         RuleFor(x => x.Status)
             .NotEmpty().WithMessage("Status is required")
-            .Must(x => x == "Draft" || x == "Confirmed" || x == "Sent" || x == "Received" || x == "Cancelled")
-            .WithMessage("Status must be 'Draft', 'Confirmed', 'Sent', 'Received', or 'Cancelled'");
+            .Must(x => DomainConstants.PurchaseOrderStatus.All.Contains(x))
+            .WithMessage($"Status must be '{DomainConstants.PurchaseOrderStatus.Draft}', '{DomainConstants.PurchaseOrderStatus.Confirmed}', '{DomainConstants.PurchaseOrderStatus.Sent}', '{DomainConstants.PurchaseOrderStatus.Received}', or '{DomainConstants.PurchaseOrderStatus.Cancelled}'");
     }
 }
 
@@ -72,8 +73,8 @@ public class PurchaseOrderItemValidator : AbstractValidator<PurchaseOrderItem>
 
         RuleFor(x => x.Status)
             .NotEmpty().WithMessage("Status is required")
-            .Must(x => x == "Pending" || x == "Partial" || x == "Received" || x == "Cancelled")
-            .WithMessage("Status must be 'Pending', 'Partial', 'Received', or 'Cancelled'");
+            .Must(x => DomainConstants.PurchaseOrderItemStatus.All.Contains(x))
+            .WithMessage($"Status must be '{DomainConstants.PurchaseOrderItemStatus.Pending}', '{DomainConstants.PurchaseOrderItemStatus.Partial}', '{DomainConstants.PurchaseOrderItemStatus.Received}', or '{DomainConstants.PurchaseOrderItemStatus.Cancelled}'");
     }
 }
 

@@ -1,28 +1,23 @@
-﻿<Application x:Class="DonutMS.App"
+<Application x:Class="DonutMS.App"
 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:local="clr-namespace:DonutMS"
 xmlns:converters="clr-namespace:DonutMS.Resources.Converters"
 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/materialdesign">
+xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- Material Design Theme (base) -->
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/Materialdesign3.Defaults.xaml" />
-                
-                <!-- MahApps Metro (core controls) -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/DonutMS;component/Resources/Styles/AppTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Custom Converters -->
             <converters:BoolToWidthConverter x:Key="BoolToWidthConverter" />
             <converters:CurrencyConverter x:Key="CurrencyConverter" />
-
-            <!-- Custom theme colors -->
-            <Color x:Key="PrimaryColor">#FF2196F3</Color>
-            <Color x:Key="AccentColor">#FFFFC107</Color>
-            <Color x:Key="BackgroundColor">#FFFAFAFA</Color>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+            <converters:IconToGlyphConverter x:Key="IconToGlyphConverter" />
+            <converters:IconToPackIconMaterialKindConverter x:Key="IconToPackIconMaterialKindConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

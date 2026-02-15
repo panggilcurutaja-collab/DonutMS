@@ -18,10 +18,7 @@
         <!-- Dialog Title -->
         <TextBlock Grid.Row="0"
                    Text="{Binding DialogTitle}"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="{DynamicResource MaterialDesignBody}"
-                   Margin="0,0,0,20" />
+                   Margin="0,0,0,20"  Style="{StaticResource DialogTitleStyle}" />
 
         <!-- Form Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -34,7 +31,7 @@
                               Margin="0,0,0,4" />
                     <TextBox Text="{Binding EditingIngredient.Name, UpdateSourceTrigger=PropertyChanged}"
                             Padding="12,8"
-                            Background="White"
+                            Background="{DynamicResource SurfaceBrush}"
                             Foreground="{DynamicResource MaterialDesignBody}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource DividerBrush}" />
@@ -48,7 +45,7 @@
                               Margin="0,0,0,4" />
                     <TextBox Text="{Binding EditingIngredient.SKU, UpdateSourceTrigger=PropertyChanged}"
                             Padding="12,8"
-                            Background="White"
+                            Background="{DynamicResource SurfaceBrush}"
                             Foreground="{DynamicResource MaterialDesignBody}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource DividerBrush}" />
@@ -62,7 +59,7 @@
                               Margin="0,0,0,4" />
                     <TextBox Text="{Binding EditingIngredient.Description, UpdateSourceTrigger=PropertyChanged}"
                             Padding="12,8"
-                            Background="White"
+                            Background="{DynamicResource SurfaceBrush}"
                             Foreground="{DynamicResource MaterialDesignBody}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource DividerBrush}"
@@ -96,7 +93,7 @@
                                  SelectedValuePath="Id"
                                  SelectedValue="{Binding EditingIngredient.ConsumptionUnitId}"
                                  DisplayMemberPath="Code"
-                                 Background="White"
+                                 Background="{DynamicResource SurfaceBrush}"
                                  Foreground="{DynamicResource MaterialDesignBody}"
                                  Margin="0,0,8,0" />
 
@@ -111,7 +108,7 @@
                                  SelectedValuePath="Id"
                                  SelectedValue="{Binding EditingIngredient.PurchaseUnitId}"
                                  DisplayMemberPath="Code"
-                                 Background="White"
+                                 Background="{DynamicResource SurfaceBrush}"
                                  Foreground="{DynamicResource MaterialDesignBody}"
                                  Margin="8,0,0,0" />
                     </Grid>
@@ -141,7 +138,7 @@
                         <TextBox Grid.Row="1" Grid.Column="0"
                                 Text="{Binding EditingIngredient.MinimumStockLevel, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="8,6"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -156,7 +153,7 @@
                         <TextBox Grid.Row="1" Grid.Column="1"
                                 Text="{Binding EditingIngredient.ReorderPoint, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="8,6"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -171,7 +168,7 @@
                         <TextBox Grid.Row="1" Grid.Column="2"
                                 Text="{Binding EditingIngredient.ReorderQuantity, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="8,6"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -187,7 +184,7 @@
                               Margin="0,0,0,4" />
                     <TextBox Text="{Binding EditingIngredient.ShelfLifeDays, UpdateSourceTrigger=PropertyChanged}"
                             Padding="12,8"
-                            Background="White"
+                            Background="{DynamicResource SurfaceBrush}"
                             Foreground="{DynamicResource MaterialDesignBody}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource DividerBrush}" />
@@ -201,7 +198,7 @@
                               Margin="0,0,0,4" />
                     <TextBox Text="{Binding EditingIngredient.Notes, UpdateSourceTrigger=PropertyChanged}"
                             Padding="12,8"
-                            Background="White"
+                            Background="{DynamicResource SurfaceBrush}"
                             Foreground="{DynamicResource MaterialDesignBody}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource DividerBrush}"
@@ -226,11 +223,8 @@
             <Button Command="{Binding SaveIngredientCommand}"
                    Content="Save"
                    Padding="24,8"
-                   Background="{DynamicResource PrimaryHueMidBrush}"
-                   Foreground="White"
-                   BorderThickness="0"
-                   Margin="0,0,8,0"
-                   Cursor="Hand" />
+                   Style="{StaticResource PrimaryButtonStyle}"
+                   Margin="0,0,8,0" />
             <Button Command="{Binding CancelDialogCommand}"
                    Content="Cancel"
                    Padding="24,8"
@@ -241,3 +235,6 @@
         </StackPanel>
     </Grid>
 </UserControl>
+
+
+

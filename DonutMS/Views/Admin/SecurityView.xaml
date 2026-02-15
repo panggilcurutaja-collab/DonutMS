@@ -1,0 +1,312 @@
+<UserControl x:Class="DonutMS.Views.Admin.SecurityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Background="{DynamicResource MaterialDesignPaper}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{DynamicResource PrimaryHueMidBrush}"
+                Padding="20,16"
+                BorderBrush="{DynamicResource PrimaryHueLightBrush}"
+                BorderThickness="0,0,0,2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="Security &amp; Audit"
+                               Foreground="White"  Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Text="Audit log, user management, dan backup database"
+                               Foreground="White"
+                               Opacity="0.9"
+                               FontSize="12"
+                               Margin="0,6,0,0" />
+                </StackPanel>
+
+                <mah:ProgressRing Grid.Column="1"
+                                  Width="20"
+                                  Height="20"
+                                  IsActive="{Binding IsLoading}"
+                                  Foreground="White"
+                                  VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="16">
+            <TabItem Header="Audit Logs" IsSelected="True">
+                <Grid Margin="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="12"
+                            Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="From" VerticalAlignment="Center"  Style="{StaticResource FieldLabelStyle}" />
+                            <DatePicker SelectedDate="{Binding AuditFromDate}" Margin="6,0,12,0" />
+                            <TextBlock Text="To" VerticalAlignment="Center"  Style="{StaticResource FieldLabelStyle}" />
+                            <DatePicker SelectedDate="{Binding AuditToDate}" Margin="6,0,12,0" />
+
+                            <TextBox Text="{Binding AuditSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="220"
+                                     Padding="8,6"
+                                     Background="{DynamicResource SurfaceBrush}"
+                                     mah:TextBoxHelper.Watermark="Search entity, action, user" />
+
+                            <Button Command="{Binding LoadAuditLogsCommand}"
+                                    Content="Load"
+                                    Padding="10,6"
+                                    Margin="12,0,0,0"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding AuditLogs}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              Background="{DynamicResource SurfaceBrush}"
+                              Foreground="{DynamicResource MaterialDesignBody}"
+                              TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                              BorderThickness="1"
+                              BorderBrush="{DynamicResource DividerBrush}"
+                              RowBackground="{DynamicResource MaterialDesignPaper}"
+                              AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Date" Binding="{Binding AuditDate, StringFormat=dd MMM yyyy HH:mm}" Width="150" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Entity" Binding="{Binding EntityName}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="120" IsReadOnly="True" />
+                            <DataGridTextColumn Header="User" Binding="{Binding UserName}" Width="140" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Remarks" Binding="{Binding Remarks}" Width="200" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Old" Binding="{Binding OldValues}" Width="250" IsReadOnly="True" />
+                            <DataGridTextColumn Header="New" Binding="{Binding NewValues}" Width="250" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Users">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="360" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="12"
+                            Margin="0,0,12,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Button Command="{Binding OpenAddUserCommand}"
+                                        Content="Add User"
+                                        Padding="10,6"
+                                        Style="{StaticResource PrimaryButtonStyle}" />
+                                <Button Command="{Binding OpenEditUserCommand}"
+                                        CommandParameter="{Binding SelectedUser}"
+                                        Content="Edit"
+                                        Padding="10,6"
+                                        Margin="8,0,0,0"
+                                        Background="{DynamicResource MaterialDesignCardBackground}"
+                                        Foreground="{DynamicResource MaterialDesignBody}"
+                                        BorderBrush="{DynamicResource DividerBrush}"
+                                        BorderThickness="1" />
+                                <Button Command="{Binding ToggleUserActiveCommand}"
+                                        CommandParameter="{Binding SelectedUser}"
+                                        Content="Toggle Active"
+                                        Padding="10,6"
+                                        Margin="8,0,0,0"
+                                        Background="{DynamicResource MaterialDesignCardBackground}"
+                                        Foreground="{DynamicResource MaterialDesignBody}"
+                                        BorderBrush="{DynamicResource DividerBrush}"
+                                        BorderThickness="1" />
+
+                                <CheckBox Content="Show Inactive"
+                                          IsChecked="{Binding IncludeInactiveUsers}"
+                                          Margin="16,0,0,0"
+                                          VerticalAlignment="Center" />
+                                <Button Command="{Binding LoadUsersCommand}"
+                                        Content="Refresh"
+                                        Padding="8,4"
+                                        Margin="6,0,0,0" />
+                            </StackPanel>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Users}"
+                                      SelectedItem="{Binding SelectedUser}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      Background="{DynamicResource SurfaceBrush}"
+                                      Foreground="{DynamicResource MaterialDesignBody}"
+                                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                                      BorderThickness="1"
+                                      BorderBrush="{DynamicResource DividerBrush}"
+                                      RowBackground="{DynamicResource MaterialDesignPaper}"
+                                      AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}">
+                                <DataGrid.Resources>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                    </Style>
+                                </DataGrid.Resources>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="140" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="180" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Role" Binding="{Binding Role}" Width="120" IsReadOnly="True" />
+                                    <DataGridCheckBoxColumn Header="Active" Binding="{Binding IsActive}" Width="70" IsReadOnly="True" />
+                                    <DataGridTextColumn Header="Last Login" Binding="{Binding LastLogin, StringFormat=dd MMM yyyy}" Width="120" IsReadOnly="True" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource ModernCardStyle}"
+                            Padding="12"
+                            Visibility="{Binding IsUserEditorOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="{Binding UserDialogTitle}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MaterialDesignBody}" />
+
+                                <TextBlock Text="Username" Margin="0,10,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding EditingUser.Username}"
+                                         Padding="8,6"
+                                         Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Full Name" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding EditingUser.FullName}"
+                                         Padding="8,6"
+                                         Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Email" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding EditingUser.Email}"
+                                         Padding="8,6"
+                                         Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Role" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding AvailableRoles}"
+                                          SelectedItem="{Binding EditingUser.Role}"
+                                          Background="{DynamicResource SurfaceBrush}" />
+
+                                <CheckBox Content="Active"
+                                          IsChecked="{Binding EditingUser.IsActive}"
+                                          Margin="0,8,0,0" />
+
+                                <TextBlock Text="Notes" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding EditingUser.Notes}"
+                                         Padding="8,6"
+                                         Background="{DynamicResource SurfaceBrush}" />
+
+                                <TextBlock Text="Password" Margin="0,10,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding PasswordInput}"
+                                         Padding="8,6"
+                                         Background="{DynamicResource SurfaceBrush}"
+                                         mah:TextBoxHelper.Watermark="Leave blank to keep current" />
+
+                                <TextBlock Text="Confirm Password" Margin="0,8,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding ConfirmPasswordInput}"
+                                         Padding="8,6"
+                                         Background="{DynamicResource SurfaceBrush}" />
+
+                                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                    <Button Command="{Binding SaveUserCommand}"
+                                            Content="Save"
+                                            Padding="10,6"
+                                            Style="{StaticResource PrimaryButtonStyle}" />
+                                    <Button Command="{Binding CancelEditCommand}"
+                                            Content="Cancel"
+                                            Padding="10,6"
+                                            Margin="8,0,0,0"
+                                            Background="{DynamicResource MaterialDesignCardBackground}"
+                                            Foreground="{DynamicResource MaterialDesignBody}"
+                                            BorderBrush="{DynamicResource DividerBrush}"
+                                            BorderThickness="1" />
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Backup">
+                <Grid Margin="12">
+                    <Border Style="{StaticResource ModernCardStyle}"
+                            Padding="16"
+                            Width="460">
+                        <StackPanel>
+                            <TextBlock Text="Database Backup"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MaterialDesignBody}"
+                                       FontSize="16" />
+                            <TextBlock Text="Create a snapshot of the SQLite database for recovery or migration."
+                                       Margin="0,6,0,0"  Style="{StaticResource FieldLabelStyle}" />
+
+                            <TextBlock Text="Backup Folder" Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                            <TextBox Text="{Binding BackupFolder}"
+                                     Padding="8,6"
+                                     Background="{DynamicResource SurfaceBrush}" />
+
+                            <Button Command="{Binding CreateBackupCommand}"
+                                    Content="Create Backup"
+                                    Padding="12,6"
+                                    Margin="0,12,0,0"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+
+                            <TextBlock Text="{Binding LastBackupPath, StringFormat=Last backup: {0}}"
+                                       Foreground="{DynamicResource MaterialDesignBodyLight}"
+                                       FontSize="10"
+                                       Margin="0,12,0,0"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="2"
+                Background="{DynamicResource MaterialDesignDividerBackground}"
+                Padding="12,8"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource DividerBrush}">
+            <TextBlock Text="{Binding StatusMessage}"  Style="{StaticResource FieldLabelStyle}" />
+        </Border>
+    </Grid>
+</UserControl>
+
+
+

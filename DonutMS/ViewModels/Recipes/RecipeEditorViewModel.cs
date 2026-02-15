@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FluentValidation;
@@ -14,10 +15,14 @@ public partial class RecipeEditorViewModel : BaseViewModel
 {
     private readonly IRecipeService _recipeService;
     private readonly IIngredientService _ingredientService;
+    private readonly IUnitConversionService _unitService;
     private readonly IValidator<Recipe> _recipeValidator;
 
     [ObservableProperty]
     private RecipeDto? currentRecipe;
+
+    [ObservableProperty]
+    private RecipeDto? selectedRecipe;
 
     [ObservableProperty]
     private ObservableCollection<RecipeIngredientDto> ingredients = new();
@@ -29,6 +34,9 @@ public partial class RecipeEditorViewModel : BaseViewModel
     private ObservableCollection<IngredientDto> availableIngredients = new();
 
     [ObservableProperty]
+    private ObservableCollection<UnitDto> availableUnits = new();
+
+    [ObservableProperty]
     private ObservableCollection<RecipeVersionDto> recipeVersions = new();
 
     [ObservableProperty]
@@ -38,7 +46,19 @@ public partial class RecipeEditorViewModel : BaseViewModel
     private string recipeCode = string.Empty;
 
     [ObservableProperty]
+    private string description = string.Empty;
+
+    [ObservableProperty]
     private decimal yieldPerBatch;
+
+    [ObservableProperty]
+    private int selectedYieldUnitId;
+
+    [ObservableProperty]
+    private decimal estimatedProductionTime;
+
+    [ObservableProperty]
+    private bool isActive = true;
 
     [ObservableProperty]
     private IngredientDto? selectedIngredient;
@@ -58,14 +78,22 @@ public partial class RecipeEditorViewModel : BaseViewModel
     [ObservableProperty]
     private string statusMessage = string.Empty;
 
+    [ObservableProperty]
+    private bool isEditorOpen;
+
+    [ObservableProperty]
+    private string versionNotes = string.Empty;
+
     public RecipeEditorViewModel(
         IRecipeService recipeService,
         IIngredientService ingredientService,
+        IUnitConversionService unitService,
         IValidator<Recipe> recipeValidator,
         ILogger<RecipeEditorViewModel> logger) : base(logger)
     {
         _recipeService = recipeService;
         _ingredientService = ingredientService;
+        _unitService = unitService;
         _recipeValidator = recipeValidator;
     }
 
@@ -77,10 +105,19 @@ public partial class RecipeEditorViewModel : BaseViewModel
             IsLoading = true;
             ClearError();
 
-            var recipes = await _recipeService.GetActiveRecipesAsync();
-            Recipes = new ObservableCollection<RecipeDto>(recipes);
-            await LoadAvailableIngredientsAsync();
+            var recipes = await _recipeService.GetAllRecipesAsync();
+            var filtered = recipes
+                .Where(r => ShowInactiveOnly ? !r.IsActive : r.IsActive)
+                .Where(r => string.IsNullOrWhiteSpace(SearchText) ||
+                    r.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                    r.Code.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
+            Recipes = new ObservableCollection<RecipeDto>(filtered);
+            await LoadAvailableIngredientsAsync();
+            await LoadAvailableUnitsAsync();
+
+            StatusMessage = $"Loaded {Recipes.Count} recipe(s)";
             LogInfo("Recipes loaded successfully");
         }
         catch (Exception ex)
@@ -94,7 +131,20 @@ public partial class RecipeEditorViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task CreateRecipeAsync()
+    public void OpenCreateRecipe()
+    {
+        ClearError();
+        SelectedRecipe = null;
+        CurrentRecipe = null;
+        Ingredients.Clear();
+        RecipeVersions.Clear();
+        ResetRecipeFields();
+        IsEditorOpen = true;
+        StatusMessage = "Creating new recipe";
+    }
+
+    [RelayCommand]
+    public async Task SaveRecipeAsync()
     {
         try
         {
@@ -104,30 +154,62 @@ public partial class RecipeEditorViewModel : BaseViewModel
                 return;
             }
 
+            if (YieldPerBatch <= 0)
+            {
+                SetError("Yield per batch must be greater than zero");
+                return;
+            }
+
+            if (SelectedYieldUnitId <= 0)
+            {
+                SetError("Please select a yield unit");
+                return;
+            }
+
             IsLoading = true;
             ClearError();
 
-            var dto = new CreateRecipeDto
+            if (CurrentRecipe == null || CurrentRecipe.Id == 0)
             {
-                Name = RecipeName,
-                Code = RecipeCode,
-                YieldPerBatch = YieldPerBatch,
-                YieldUnitId = 1 // Default to pcs
-            };
+                var createDto = new CreateRecipeDto
+                {
+                    Name = RecipeName,
+                    Code = RecipeCode,
+                    Description = Description,
+                    YieldPerBatch = YieldPerBatch,
+                    YieldUnitId = SelectedYieldUnitId,
+                    EstimatedProductionTime = EstimatedProductionTime
+                };
 
-            CurrentRecipe = await _recipeService.CreateRecipeAsync(dto);
-            Ingredients.Clear();
+                CurrentRecipe = await _recipeService.CreateRecipeAsync(createDto);
+                Ingredients.Clear();
+                RecipeVersions.Clear();
+                StatusMessage = $"Recipe '{CurrentRecipe.Name}' created";
+                LogInfo($"Recipe '{CurrentRecipe.Name}' created successfully");
+            }
+            else
+            {
+                var updateDto = new UpdateRecipeDto
+                {
+                    Name = RecipeName,
+                    Code = RecipeCode,
+                    Description = Description,
+                    YieldPerBatch = YieldPerBatch,
+                    YieldUnitId = SelectedYieldUnitId,
+                    EstimatedProductionTime = EstimatedProductionTime,
+                    IsActive = IsActive
+                };
 
-            RecipeName = string.Empty;
-            RecipeCode = string.Empty;
-            YieldPerBatch = 0;
+                CurrentRecipe = await _recipeService.UpdateRecipeAsync(CurrentRecipe.Id, updateDto);
+                StatusMessage = $"Recipe '{CurrentRecipe.Name}' updated";
+                LogInfo($"Recipe '{CurrentRecipe.Name}' updated successfully");
+            }
 
             await LoadRecipesAsync();
-            LogInfo($"Recipe '{CurrentRecipe?.Name}' created successfully");
         }
         catch (Exception ex)
         {
-            SetError($"Error creating recipe: {ex.Message}");
+            SetError($"Error saving recipe: {ex.Message}");
         }
         finally
         {
@@ -150,6 +232,8 @@ public partial class RecipeEditorViewModel : BaseViewModel
                 await LoadRecipeVersionsAsync(recipe.Id);
                 LogInfo($"Recipe '{recipe.Name}' selected");
             }
+
+            IsEditorOpen = true;
         }
         catch (Exception ex)
         {
@@ -172,6 +256,24 @@ public partial class RecipeEditorViewModel : BaseViewModel
                 return;
             }
 
+            if (SelectedIngredientQty <= 0)
+            {
+                SetError("Quantity must be greater than zero");
+                return;
+            }
+
+            if (SelectedIngredientUnitId <= 0)
+            {
+                SetError("Please select a unit");
+                return;
+            }
+
+            if (!await IsUnitCompatibleAsync(SelectedIngredient.ConsumptionUnitId, SelectedIngredientUnitId))
+            {
+                SetError("Selected unit is not compatible with ingredient unit category");
+                return;
+            }
+
             IsLoading = true;
             ClearError();
 
@@ -190,10 +292,12 @@ public partial class RecipeEditorViewModel : BaseViewModel
                 Ingredients = new ObservableCollection<RecipeIngredientDto>(CurrentRecipe.Ingredients);
             }
 
+            var addedIngredientName = SelectedIngredient.Name;
             SelectedIngredient = null;
             SelectedIngredientQty = 0;
 
-            LogInfo($"Ingredient '{SelectedIngredient?.Name}' added to recipe");
+            StatusMessage = $"Ingredient '{addedIngredientName}' added";
+            LogInfo($"Ingredient '{addedIngredientName}' added to recipe");
         }
         catch (Exception ex)
         {
@@ -235,10 +339,76 @@ public partial class RecipeEditorViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task CreateVersionAsync()
+    public async Task UpdateIngredientAsync(RecipeIngredientDto ingredient)
     {
         try
         {
+            if (CurrentRecipe == null)
+            {
+                SetError("Select a recipe before updating ingredients");
+                return;
+            }
+
+            if (ingredient == null)
+                return;
+
+            if (ingredient.QuantityPerBatch <= 0)
+            {
+                SetError("Quantity must be greater than zero");
+                return;
+            }
+
+            if (ingredient.UnitId <= 0)
+            {
+                SetError("Please select a unit");
+                return;
+            }
+
+            var ingredientMeta = AvailableIngredients.FirstOrDefault(i => i.Id == ingredient.IngredientId);
+            if (ingredientMeta != null && !await IsUnitCompatibleAsync(ingredientMeta.ConsumptionUnitId, ingredient.UnitId))
+            {
+                SetError("Selected unit is not compatible with ingredient unit category");
+                return;
+            }
+
+            IsLoading = true;
+            ClearError();
+
+            var dto = new UpdateRecipeIngredientDto
+            {
+                QuantityPerBatch = ingredient.QuantityPerBatch,
+                UnitId = ingredient.UnitId
+            };
+
+            await _recipeService.UpdateRecipeIngredientAsync(CurrentRecipe.Id, ingredient.IngredientId, dto);
+            CurrentRecipe = await _recipeService.GetRecipeByIdAsync(CurrentRecipe.Id);
+            if (CurrentRecipe != null)
+            {
+                Ingredients = new ObservableCollection<RecipeIngredientDto>(CurrentRecipe.Ingredients);
+            }
+
+            StatusMessage = "Ingredient updated";
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error updating ingredient: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task CreateVersionAsync(RecipeDto? recipe)
+    {
+        try
+        {
+            if (recipe != null && (CurrentRecipe == null || recipe.Id != CurrentRecipe.Id))
+            {
+                await SelectRecipeAsync(recipe);
+            }
+
             if (CurrentRecipe == null)
                 return;
 
@@ -247,15 +417,17 @@ public partial class RecipeEditorViewModel : BaseViewModel
 
             var dto = new CreateRecipeVersionDto
             {
-                ChangeNotes = "Version created",
+                ChangeNotes = string.IsNullOrWhiteSpace(VersionNotes) ? "Version created" : VersionNotes,
                 EffectiveDate = DateTime.UtcNow,
-                YieldPerBatch = CurrentRecipe.YieldPerBatch,
-                YieldUnitId = CurrentRecipe.YieldUnitId
+                YieldPerBatch = YieldPerBatch,
+                YieldUnitId = SelectedYieldUnitId > 0 ? SelectedYieldUnitId : CurrentRecipe.YieldUnitId
             };
 
             var newVersion = await _recipeService.CreateRecipeVersionAsync(CurrentRecipe.Id, dto);
             await LoadRecipeVersionsAsync(CurrentRecipe.Id);
+            VersionNotes = string.Empty;
 
+            StatusMessage = $"Recipe version {newVersion.VersionNumber} created";
             LogInfo("Recipe version created successfully");
         }
         catch (Exception ex)
@@ -289,11 +461,52 @@ public partial class RecipeEditorViewModel : BaseViewModel
             Ingredients.Clear();
             RecipeVersions.Clear();
 
+            StatusMessage = $"Recipe '{recipe.Name}' deleted";
             LogInfo($"Recipe '{recipe.Name}' deleted successfully");
         }
         catch (Exception ex)
         {
             SetError($"Error deleting recipe: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    public void CloseEditor()
+    {
+        IsEditorOpen = false;
+        ClearError();
+    }
+
+    [RelayCommand]
+    public async Task RollbackToVersionAsync(RecipeVersionDto version)
+    {
+        try
+        {
+            if (CurrentRecipe == null)
+            {
+                SetError("Select a recipe before rollback");
+                return;
+            }
+
+            IsLoading = true;
+            ClearError();
+
+            await _recipeService.RollbackToVersionAsync(CurrentRecipe.Id, version.VersionNumber);
+            await LoadRecipeVersionsAsync(CurrentRecipe.Id);
+            CurrentRecipe = await _recipeService.GetRecipeByIdAsync(CurrentRecipe.Id);
+            if (CurrentRecipe != null)
+            {
+                Ingredients = new ObservableCollection<RecipeIngredientDto>(CurrentRecipe.Ingredients);
+            }
+            StatusMessage = $"Rolled back to version {version.VersionNumber}";
+        }
+        catch (Exception ex)
+        {
+            SetError($"Error rolling back version: {ex.Message}");
         }
         finally
         {
@@ -307,9 +520,73 @@ public partial class RecipeEditorViewModel : BaseViewModel
         AvailableIngredients = new ObservableCollection<IngredientDto>(ingredients);
     }
 
+    private async Task LoadAvailableUnitsAsync()
+    {
+        var units = await _unitService.GetAllUnitsAsync();
+        AvailableUnits = new ObservableCollection<UnitDto>(units);
+        EnsureDefaultYieldUnit();
+    }
+
     private async Task LoadRecipeVersionsAsync(int recipeId)
     {
         var versions = await _recipeService.GetRecipeVersionHistoryAsync(recipeId);
         RecipeVersions = new ObservableCollection<RecipeVersionDto>(versions);
+    }
+
+    private void ResetRecipeFields()
+    {
+        RecipeName = string.Empty;
+        RecipeCode = string.Empty;
+        Description = string.Empty;
+        YieldPerBatch = 0;
+        EstimatedProductionTime = 0;
+        IsActive = true;
+        VersionNotes = string.Empty;
+        EnsureDefaultYieldUnit();
+    }
+
+    private void EnsureDefaultYieldUnit()
+    {
+        if (SelectedYieldUnitId > 0 || AvailableUnits.Count == 0)
+            return;
+
+        var defaultUnit = AvailableUnits.FirstOrDefault(u => u.Code.Equals("pcs", StringComparison.OrdinalIgnoreCase));
+        SelectedYieldUnitId = defaultUnit?.Id ?? AvailableUnits.First().Id;
+    }
+
+    partial void OnSelectedIngredientChanged(IngredientDto? value)
+    {
+        if (value != null && value.ConsumptionUnitId > 0)
+        {
+            SelectedIngredientUnitId = value.ConsumptionUnitId;
+        }
+    }
+
+    partial void OnCurrentRecipeChanged(RecipeDto? value)
+    {
+        if (value == null)
+        {
+            ResetRecipeFields();
+            return;
+        }
+
+        RecipeName = value.Name;
+        RecipeCode = value.Code;
+        Description = value.Description ?? string.Empty;
+        YieldPerBatch = value.YieldPerBatch;
+        SelectedYieldUnitId = value.YieldUnitId;
+        EstimatedProductionTime = value.EstimatedProductionTime;
+        IsActive = value.IsActive;
+    }
+
+    private async Task<bool> IsUnitCompatibleAsync(int baseUnitId, int selectedUnitId)
+    {
+        if (baseUnitId <= 0 || selectedUnitId <= 0)
+            return true;
+
+        if (baseUnitId == selectedUnitId)
+            return true;
+
+        return await _unitService.AreUnitsCompatibleAsync(baseUnitId, selectedUnitId);
     }
 }

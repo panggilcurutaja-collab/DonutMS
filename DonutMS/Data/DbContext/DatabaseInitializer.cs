@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using DonutMS.Core.Utils;
 using DonutMS.Data.Entities;
+using DonutMS.Services;
 
 namespace DonutMS.Data.DbContext;
 
@@ -8,10 +10,15 @@ public class DatabaseInitializer
 {
     private readonly DonutMSDbContext _context;
     private readonly ILogger<DatabaseInitializer> _logger;
+    private readonly IEncryptionService _encryptionService;
 
-    public DatabaseInitializer(DonutMSDbContext context, ILogger<DatabaseInitializer> logger)
+    public DatabaseInitializer(
+        DonutMSDbContext context,
+        IEncryptionService encryptionService,
+        ILogger<DatabaseInitializer> logger)
     {
         _context = context;
+        _encryptionService = encryptionService;
         _logger = logger;
     }
 
@@ -23,35 +30,9 @@ public class DatabaseInitializer
 
             await _context.Database.MigrateAsync();
 
-            if (!await _context.Units.AnyAsync())
-            {
-                await SeedUnitsAsync();
-            }
+            // Seed data disabled by request
 
-            if (!await _context.Allergens.AnyAsync())
-            {
-                await SeedAllergensAsync();
-            }
-
-            if (!await _context.Suppliers.AnyAsync())
-            {
-                await SeedSuppliersAsync();
-            }
-
-            if (!await _context.Ingredients.AnyAsync())
-            {
-                await SeedIngredientsAsync();
-            }
-
-            if (!await _context.Operators.AnyAsync())
-            {
-                await SeedOperatorsAsync();
-            }
-
-            if (!await _context.Users.AnyAsync())
-            {
-                await SeedUsersAsync();
-            }
+            // await NormalizeUserDataAsync(); // seed disabled
 
             _logger.LogInformation("Database initialized successfully");
         }
@@ -276,44 +257,127 @@ public class DatabaseInitializer
 
     private async Task SeedUsersAsync()
     {
+        var seedPassword = Environment.GetEnvironmentVariable("DONUTMS_SEED_PASSWORD");
+        byte[]? seedHash = null;
+        byte[]? seedSalt = null;
+
+        if (!string.IsNullOrWhiteSpace(seedPassword))
+        {
+            (seedHash, seedSalt) = PasswordHasher.CreateHash(seedPassword);
+        }
+        else
+        {
+            _logger.LogWarning("DONUTMS_SEED_PASSWORD not set. Seeded users will have no password until updated.");
+        }
+
         var users = new List<User>
         {
             new()
             {
                 Username = "admin",
                 FullName = "Administrator",
-                Email = "admin@donutms.local",
+                Email = _encryptionService.Protect("admin@donutms.local"),
                 Role = "Admin",
-                IsActive = true
+                IsActive = true,
+                PasswordHash = seedHash,
+                PasswordSalt = seedSalt
             },
             new()
             {
                 Username = "manager",
                 FullName = "Production Manager",
-                Email = "manager@donutms.local",
-                Role = "ProductionManager",
-                IsActive = true
+                Email = _encryptionService.Protect("manager@donutms.local"),
+                Role = "ProduksionManager",
+                IsActive = true,
+                PasswordHash = seedHash,
+                PasswordSalt = seedSalt
             },
             new()
             {
                 Username = "operator",
                 FullName = "Operator User",
-                Email = "operator@donutms.local",
+                Email = _encryptionService.Protect("operator@donutms.local"),
                 Role = "Operator",
-                IsActive = true
+                IsActive = true,
+                PasswordHash = seedHash,
+                PasswordSalt = seedSalt
             },
             new()
             {
                 Username = "cashier",
                 FullName = "Cashier User",
-                Email = "cashier@donutms.local",
-                Role = "Cashier",
-                IsActive = true
+                Email = _encryptionService.Protect("cashier@donutms.local"),
+                Role = "Kasir",
+                IsActive = true,
+                PasswordHash = seedHash,
+                PasswordSalt = seedSalt
             }
         };
 
         _context.Users.AddRange(users);
         await _context.SaveChangesAsync();
         _logger.LogInformation("Seeded {Count} users", users.Count);
+    }
+
+    private async Task NormalizeUserDataAsync()
+    {
+        var users = await _context.Users.ToListAsync();
+        if (users.Count == 0)
+            return;
+
+        var seedPassword = Environment.GetEnvironmentVariable("DONUTMS_SEED_PASSWORD");
+        var hasSeedPassword = !string.IsNullOrWhiteSpace(seedPassword);
+
+        var updatedAny = false;
+        foreach (var user in users)
+        {
+            var updated = false;
+
+            if (string.Equals(user.Role, "ProductionManager", StringComparison.OrdinalIgnoreCase))
+            {
+                user.Role = "ProduksionManager";
+                updated = true;
+            }
+
+            if (string.Equals(user.Role, "Cashier", StringComparison.OrdinalIgnoreCase))
+            {
+                user.Role = "Kasir";
+                updated = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Email) &&
+                !user.Email.StartsWith("enc:", StringComparison.OrdinalIgnoreCase))
+            {
+                user.Email = _encryptionService.Protect(user.Email);
+                updated = true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Notes) &&
+                !user.Notes.StartsWith("enc:", StringComparison.OrdinalIgnoreCase))
+            {
+                user.Notes = _encryptionService.Protect(user.Notes);
+                updated = true;
+            }
+
+            if (hasSeedPassword && (user.PasswordHash == null || user.PasswordSalt == null))
+            {
+                var (hash, salt) = PasswordHasher.CreateHash(seedPassword!);
+                user.PasswordHash = hash;
+                user.PasswordSalt = salt;
+                updated = true;
+            }
+
+            if (updated)
+            {
+                _context.Users.Update(user);
+                updatedAny = true;
+            }
+        }
+
+        if (updatedAny)
+        {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Normalized user roles/encryption/passwords");
+        }
     }
 }

@@ -23,10 +23,7 @@
                 BorderBrush="{DynamicResource DividerBrush}"
                 BorderThickness="0,0,0,1">
             <StackPanel>
-                <TextBlock Text="{Binding CurrentRecipe, StringFormat='Edit Recipe: {0.Name}', FallbackValue='Create New Recipe'}"
-                          FontSize="18"
-                          FontWeight="SemiBold"
-                          Foreground="{DynamicResource MaterialDesignBody}" />
+                <TextBlock Text="{Binding CurrentRecipe, StringFormat='Edit Recipe: {0.Name}', FallbackValue='Create New Recipe'}"  Style="{StaticResource DialogTitleStyle}" />
             </StackPanel>
         </Border>
 
@@ -65,7 +62,7 @@
                         <TextBox Grid.Row="0" Grid.Column="1"
                                 Text="{Binding RecipeCode, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="12,8"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -82,7 +79,7 @@
                         <TextBox Grid.Row="1" Grid.Column="1"
                                 Text="{Binding RecipeName, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="12,8"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -97,8 +94,9 @@
                                   VerticalAlignment="Top"
                                   Margin="0,0,12,12" />
                         <TextBox Grid.Row="2" Grid.Column="1"
+                                Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="12,8"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -121,15 +119,17 @@
                             <TextBox Width="120"
                                     Text="{Binding YieldPerBatch, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
                                     Padding="12,8"
-                                    Background="White"
+                                    Background="{DynamicResource SurfaceBrush}"
                                     Foreground="{DynamicResource MaterialDesignBody}"
                                     BorderThickness="1"
                                     BorderBrush="{DynamicResource DividerBrush}"
                                     Margin="0,0,12,0" />
                             <ComboBox Width="100"
+                                     ItemsSource="{Binding AvailableUnits}"
+                                     SelectedValue="{Binding SelectedYieldUnitId}"
                                      SelectedValuePath="Id"
                                      DisplayMemberPath="Code"
-                                     Background="White"
+                                     Background="{DynamicResource SurfaceBrush}"
                                      Foreground="{DynamicResource MaterialDesignBody}"
                                      Padding="12,8"
                                      Margin="0,0,0,0" />
@@ -145,7 +145,7 @@
                         <TextBox Grid.Row="4" Grid.Column="1"
                                 Text="{Binding EstimatedProductionTime, UpdateSourceTrigger=PropertyChanged}"
                                 Padding="12,8"
-                                Background="White"
+                                Background="{DynamicResource SurfaceBrush}"
                                 Foreground="{DynamicResource MaterialDesignBody}"
                                 BorderThickness="1"
                                 BorderBrush="{DynamicResource DividerBrush}"
@@ -162,6 +162,7 @@
                                   Margin="0,0,12,0" />
                         <CheckBox Grid.Row="5" Grid.Column="1"
                                  Content="Active"
+                                 IsChecked="{Binding IsActive}"
                                  Foreground="{DynamicResource MaterialDesignBody}"
                                  Margin="0,0,0,0" />
                     </Grid>
@@ -180,15 +181,13 @@
 
                     <!-- Add Ingredient Section -->
                     <Border Grid.Row="0"
-                           Background="{DynamicResource MaterialDesignCardBackground}"
+                           Style="{StaticResource ModernCardStyle}"
                            Padding="12"
-                           CornerRadius="4"
-                           Margin="0,0,0,12"
-                           BorderBrush="{DynamicResource DividerBrush}"
-                           BorderThickness="1">
+                           Margin="0,0,0,12">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -199,7 +198,7 @@
                                      SelectedItem="{Binding SelectedIngredient}"
                                      DisplayMemberPath="Name"
                                      SelectedValuePath="Id"
-                                     Background="White"
+                                     Background="{DynamicResource SurfaceBrush}"
                                      Foreground="{DynamicResource MaterialDesignBody}"
                                      Padding="12,8"
                                      Margin="0,0,12,0" />
@@ -208,71 +207,115 @@
                                     Text="{Binding SelectedIngredientQty, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}"
                                     Width="100"
                                     Padding="12,8"
-                                    Background="White"
+                                    Background="{DynamicResource SurfaceBrush}"
                                     Foreground="{DynamicResource MaterialDesignBody}"
                                     BorderThickness="1"
                                     BorderBrush="{DynamicResource DividerBrush}"
                                     Margin="0,0,12,0"
                                     mah:TextBoxHelper.Watermark="Qty" />
 
-                            <Button Grid.Column="2"
+                            <ComboBox Grid.Column="2"
+                                     ItemsSource="{Binding AvailableUnits}"
+                                     SelectedValue="{Binding SelectedIngredientUnitId}"
+                                     SelectedValuePath="Id"
+                                     DisplayMemberPath="Code"
+                                     Width="90"
+                                     Background="{DynamicResource SurfaceBrush}"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     Padding="12,8"
+                                     Margin="0,0,12,0" />
+
+                            <Button Grid.Column="3"
                                    Command="{Binding AddIngredientToRecipeCommand}"
                                    Content="Add"
                                    Padding="16,8"
-                                   Background="Green"
-                                   Foreground="White"
-                                   BorderThickness="0"
+                                   Style="{StaticResource SuccessButtonStyle}"
                                    Margin="0,0,8,0" />
 
-                            <TextBlock Grid.Column="3"
+                            <TextBlock Grid.Column="4"
                                       Text="(Recipe must exist first)"
-                                      Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                      FontSize="11"
-                                      VerticalAlignment="Center" />
+                                      VerticalAlignment="Center"  Style="{StaticResource FieldLabelStyle}" />
                         </Grid>
                     </Border>
 
                     <!-- Ingredients List -->
                     <TextBlock Grid.Row="1"
                               Text="Recipe Ingredients"
-                              FontSize="14"
-                              FontWeight="SemiBold"
-                              Foreground="{DynamicResource MaterialDesignBody}"
-                              Margin="0,0,0,8" />
+                              Margin="0,0,0,8"  Style="{StaticResource SectionTitleStyle}" />
 
                     <DataGrid Grid.Row="2"
                              ItemsSource="{Binding Ingredients}"
                              AutoGenerateColumns="False"
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"
-                             Background="White"
+                             ColumnHeaderStyle="{DynamicResource RecipeGridHeaderStyle}"
+                             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                             Foreground="{DynamicResource MaterialDesignBody}"
+                             AlternatingRowBackground="{DynamicResource MaterialDesignCardBackground}"
+                             Background="{DynamicResource SurfaceBrush}"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource DividerBrush}"
+                             CellStyle="{DynamicResource RecipeGridCellStyle}"
                              RowBackground="{DynamicResource MaterialDesignPaper}">
+                        <DataGrid.Resources>
+                            <Style x:Key="RecipeGridHeaderStyle" TargetType="DataGridColumnHeader">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                            </Style>
+                            <Style x:Key="RecipeGridTextStyle" TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style x:Key="RecipeGridCellStyle" TargetType="DataGridCell">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}" />
+                            </Style>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.Resources>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                            </Style>
+                        </DataGrid.RowStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Ingredient"
                                                Binding="{Binding IngredientName}"
                                                Width="*"
+                                               ElementStyle="{StaticResource RecipeGridTextStyle}"
                                                IsReadOnly="True" />
                             <DataGridTextColumn Header="Qty"
-                                               Binding="{Binding QuantityPerBatch, StringFormat=N2}"
-                                               Width="80"
-                                               IsReadOnly="True" />
-                            <DataGridTextColumn Header="Unit"
-                                               Binding="{Binding UnitCode}"
-                                               Width="70"
-                                               IsReadOnly="True" />
-                            <DataGridTemplateColumn Header="Action" Width="100">
+                                               Binding="{Binding QuantityPerBatch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                               Width="90"
+                                               ElementStyle="{StaticResource RecipeGridTextStyle}" />
+                            <DataGridComboBoxColumn Header="Unit"
+                                                   SelectedValueBinding="{Binding UnitId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                   SelectedValuePath="Id"
+                                                   DisplayMemberPath="Code"
+                                                   ItemsSource="{Binding DataContext.AvailableUnits, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   Width="90" />
+                            <DataGridTemplateColumn Header="Action" Width="150">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Command="{Binding DataContext.RemoveIngredientCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                               CommandParameter="{Binding .}"
-                                               Content="Remove"
-                                               Padding="8,4"
-                                               FontSize="11"
-                                               Background="Red"
-                                               Foreground="White"
-                                               BorderThickness="0" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Command="{Binding DataContext.UpdateIngredientCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding .}"
+                                                   Content="Update"
+                                                   Padding="8,4"
+                                                   FontSize="11"
+                                                   Style="{StaticResource PrimaryButtonStyle}"
+                                                   Margin="0,0,6,0" />
+                                            <Button Command="{Binding DataContext.RemoveIngredientCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding .}"
+                                                   Content="Remove"
+                                                   Padding="8,4"
+                                                   FontSize="11"
+                                                   Style="{StaticResource DangerButtonStyle}" />
+                                        </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -281,9 +324,7 @@
 
                     <TextBlock Grid.Row="3"
                               Text="{Binding StatusMessage}"
-                              Foreground="{DynamicResource MaterialDesignBodyLight}"
-                              FontSize="11"
-                              Margin="0,12,0,0" />
+                              Margin="0,12,0,0"  Style="{StaticResource FieldLabelStyle}" />
                 </Grid>
             </TabItem>
 
@@ -292,48 +333,66 @@
                 <Grid Margin="16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0"
+                    <TextBox Grid.Row="0"
+                            Text="{Binding VersionNotes, UpdateSourceTrigger=PropertyChanged}"
+                            Height="60"
+                            TextWrapping="Wrap"
+                            AcceptsReturn="True"
+                            Background="{DynamicResource SurfaceBrush}"
+                            Foreground="{DynamicResource MaterialDesignBody}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource DividerBrush}"
+                            Padding="12,8"
+                            Margin="0,0,0,12"
+                            mah:TextBoxHelper.Watermark="Change notes (optional)..." />
+
+                    <Button Grid.Row="1"
                            Command="{Binding CreateVersionCommand}"
                            Content="Create New Version"
                            Padding="16,8"
-                           Background="{DynamicResource PrimaryHueMidBrush}"
-                           Foreground="White"
-                           BorderThickness="0"
+                           Style="{StaticResource PrimaryButtonStyle}"
                            Margin="0,0,0,12"
                            Width="160"
                            HorizontalAlignment="Left" />
 
-                    <ListBox Grid.Row="1"
+                    <ListBox Grid.Row="2"
                             ItemsSource="{Binding RecipeVersions}"
-                            Background="White"
+                            Background="{DynamicResource SurfaceBrush}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource DividerBrush}"
                             Padding="12">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="{DynamicResource MaterialDesignCardBackground}"
+                                <Border Style="{StaticResource ModernCardStyle}"
                                        Padding="12"
-                                       Margin="0,0,0,8"
-                                       CornerRadius="4"
-                                       BorderBrush="{DynamicResource DividerBrush}"
-                                       BorderThickness="1">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding VersionNumber, StringFormat='Version {0}'}"
-                                                  FontWeight="SemiBold"
-                                                  Foreground="{DynamicResource MaterialDesignBody}" />
-                                        <TextBlock Text="{Binding EffectiveDate, StringFormat='Effective: {0:g}'}"
-                                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                                  FontSize="11"
-                                                  Margin="0,4,0,0" />
-                                        <TextBlock Text="{Binding ChangeNotes, FallbackValue='(no notes)'}"
-                                                  Foreground="{DynamicResource MaterialDesignBodyLight}"
-                                                  FontSize="11"
-                                                  Margin="0,4,0,0"
-                                                  TextWrapping="Wrap" />
-                                    </StackPanel>
+                                       Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding VersionNumber, StringFormat='Version {0}'}"
+                                                      FontWeight="SemiBold"
+                                                      Foreground="{DynamicResource MaterialDesignBody}" />
+                                            <TextBlock Text="{Binding EffectiveDate, StringFormat='Effective: {0:g}'}"
+                                                      Margin="0,4,0,0"  Style="{StaticResource FieldLabelStyle}" />
+                                            <TextBlock Text="{Binding ChangeNotes, FallbackValue='(no notes)'}"
+                                                      Margin="0,4,0,0"
+                                                      TextWrapping="Wrap"  Style="{StaticResource FieldLabelStyle}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                               Command="{Binding DataContext.RollbackToVersionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                               CommandParameter="{Binding .}"
+                                               Content="Rollback"
+                                               Padding="12,6"
+                                               Style="{StaticResource DangerButtonStyle}"
+                                               Margin="12,0,0,0" />
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -372,19 +431,21 @@
                BorderBrush="{DynamicResource DividerBrush}"
                BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Command="{Binding CreateRecipeCommand}"
+                <Button Command="{Binding SaveRecipeCommand}"
                        Content="Save Recipe"
                        Padding="20,8"
-                       Background="Green"
-                       Foreground="White"
-                       BorderThickness="0"
+                       Style="{StaticResource SuccessButtonStyle}"
                        Margin="0,0,8,0" />
-                <Button Content="Close"
+                <Button Command="{Binding CloseEditorCommand}"
+                       Content="Close"
                        Padding="20,8"
-                       Background="Gray"
+                       Background="{DynamicResource SurfaceAltBrush}"
                        Foreground="White"
                        BorderThickness="0" />
             </StackPanel>
         </Border>
     </Grid>
 </UserControl>
+
+
+

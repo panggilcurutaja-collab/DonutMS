@@ -17,7 +17,7 @@ public class SKUValidator : AbstractValidator<SKU>
             .Matches(@"^[A-Z0-9\-]+$").WithMessage("SKU code must contain only uppercase letters, numbers, and hyphens");
 
         RuleFor(x => x.RetailPrice)
-            .GreaterThan(0).WithMessage("Retail price must be greater than 0");
+            .GreaterThanOrEqualTo(0).WithMessage("Retail price cannot be negative");
     }
 }
 

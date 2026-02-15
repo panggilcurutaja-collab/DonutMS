@@ -41,8 +41,8 @@ public class Operator : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public ICollection<LaborRate>? LaborRates { get; set; }
-    public ICollection<BatchLabor>? BatchLaborRecords { get; set; }
+    public ICollection<LaborRate> LaborRates { get; set; } = new List<LaborRate>();
+    public ICollection<BatchLabor> BatchLaborRecords { get; set; } = new List<BatchLabor>();
 }
 
 [Table("LaborRates")]
@@ -67,7 +67,7 @@ public class LaborRate : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public Operator? Operator { get; set; }
+    public Operator Operator { get; set; } = null!;
 }
 
 [Table("EquipmentDepreciation")]

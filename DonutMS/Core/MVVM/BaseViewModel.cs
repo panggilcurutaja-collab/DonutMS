@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DonutMS.Core.MVVM;
 
@@ -9,9 +10,9 @@ public abstract class BaseViewModel : ObservableObject
     private bool _isLoading;
     private string? _errorMessage;
 
-    protected BaseViewModel(ILogger logger)
+    protected BaseViewModel(ILogger? logger)
     {
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null in BaseViewModel constructor");
+        Logger = logger ?? NullLogger.Instance;
     }
 
     public bool IsLoading

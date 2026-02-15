@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DonutMS.Core.Domain;
 using DonutMS.Core.MVVM;
 
 namespace DonutMS.Data.Entities;
@@ -23,7 +24,7 @@ public class PurchaseOrder : BaseModel
     public decimal TotalAmount { get; set; }
 
     [StringLength(50)]
-    public string Status { get; set; } = "Draft";
+    public string Status { get; set; } = DomainConstants.PurchaseOrderStatus.Draft;
 
     [StringLength(50)]
     public string? PaymentStatus { get; set; } = "Unpaid";
@@ -37,9 +38,9 @@ public class PurchaseOrder : BaseModel
     [StringLength(100)]
     public string? CreatedBy { get; set; }
 
-    public Supplier? Supplier { get; set; }
-    public ICollection<PurchaseOrderItem>? Items { get; set; }
-    public ICollection<PurchaseOrderReceiving>? Receivings { get; set; }
+    public Supplier Supplier { get; set; } = null!;
+    public ICollection<PurchaseOrderItem> Items { get; set; } = new List<PurchaseOrderItem>();
+    public ICollection<PurchaseOrderReceiving> Receivings { get; set; } = new List<PurchaseOrderReceiving>();
 }
 
 [Table("PurchaseOrderItems")]
@@ -65,14 +66,14 @@ public class PurchaseOrderItem : BaseModel
     public decimal? ReceivedQuantity { get; set; }
 
     [StringLength(50)]
-    public string Status { get; set; } = "Pending";
+    public string Status { get; set; } = DomainConstants.PurchaseOrderItemStatus.Pending;
 
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public PurchaseOrder? PurchaseOrder { get; set; }
-    public Ingredient? Ingredient { get; set; }
-    public Unit? Unit { get; set; }
+    public PurchaseOrder PurchaseOrder { get; set; } = null!;
+    public Ingredient Ingredient { get; set; } = null!;
+    public Unit Unit { get; set; } = null!;
 }
 
 [Table("PurchaseOrderReceivings")]
@@ -91,8 +92,8 @@ public class PurchaseOrderReceiving : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public PurchaseOrder? PurchaseOrder { get; set; }
-    public ICollection<PurchaseOrderReceivingDetail>? Details { get; set; }
+    public PurchaseOrder PurchaseOrder { get; set; } = null!;
+    public ICollection<PurchaseOrderReceivingDetail> Details { get; set; } = new List<PurchaseOrderReceivingDetail>();
 }
 
 [Table("PurchaseOrderReceivingDetails")]
@@ -114,6 +115,6 @@ public class PurchaseOrderReceivingDetail : BaseModel
     [StringLength(500)]
     public string? Notes { get; set; }
 
-    public PurchaseOrderReceiving? Receiving { get; set; }
-    public PurchaseOrderItem? PurchaseOrderItem { get; set; }
+    public PurchaseOrderReceiving Receiving { get; set; } = null!;
+    public PurchaseOrderItem PurchaseOrderItem { get; set; } = null!;
 }
